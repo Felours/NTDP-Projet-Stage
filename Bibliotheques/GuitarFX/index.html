@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html ng-app="guitarfx" ng-csp class="no-js"> 
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>GuitarFx</title>
+        <meta name="description" content="Online GuitarFX">
+        <meta name="viewport" content="width=device-width">
+        <link href="img/guitarfx-icon.png" type="image/x-icon" rel="icon" />
+        <link href="img/guitarfx-icon.png" type="image/x-icon" rel="shortcut icon" />
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="/css/main.css" />
+        <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css" />
+        <link rel="stylesheet" type="text/css" href="/css/guitarfx.css" />
+</head>
+<body>
+<div class="wrapper" id="PresetCtrl" ng-controller="PresetCtrl">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbarinner">
+        <div class="container">
+          <img class="brand" src="img/logo-guitarfx.png">
+          <div class="nav-collapse collapse">
+            <div class="navbar-text pull-left" id="settings-nav">
+              <div class="dropdown">
+              <a class="menubtn dropdown-toggle" data-toggle="dropdown" href="#">Menu</a>
+                    <ul class="dropdown-menu">
+                      <li><a ng-click="newPreset()">New...</a></li>
+                      <li><a ng-click="savePreset(false)">Save</a></li>
+                      <li><a ng-click="savePreset(true)">Save As</a></li>
+                      <li class="divider"></li>
+                      <li><a data-toggle="modal" data-target="#prefsModal">Preferences</a></li>
+                      <li><a data-toggle="modal" data-target="#IRsModal">Cabs Manager</a></li>
+                      <li><a data-toggle="modal" data-target="#MidiDialog">Midi Settings</a></li>
+                      <li class="divider"></li>
+                      <li><a ng-click="resetPrefs();">Reset Preferences</a></li>
+                      <li ng-show="debug"><a ng-click="clearAllFiles();">Clear All Files</a></li>
+                      <li><a href="https://docs.google.com/document/d/18_uyuW4zJrti7-ljJlHPABkOJZBwR41Rz3qkpG93z1k/edit?usp=sharing" target="_blank">Help</a></li>
+                      <li class="divider"></li>
+                      <li><a ng-click="displayInfos('about')">About</a></li>
+                    </ul>
+              </div>
+              </div>
+              <div ng-show="loading" class="navbar-text pull-left" id="loading">
+                  <div class="loading">
+                      <div class="spinner">
+                          <div class="mask">
+                              <div class="maskedCircle"></div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div ng-show="modified" class="navbar-text pull-left" id="modified" ng-cloak></div>
+              <div ng-show="mainerror" class="main-infos" ng-bind-html-unsafe="mainerror"></div>
+              <ul class="controlls nav pull-right">
+                  <li class="mainControll" id="gateControll">
+                    <input id="mainGate" ng-bind="settings.mainGate.val" mainpot>
+                    <span>Gate</span>
+                  </li>                
+                  <li class="mainControll">
+                    <input id="mainInput" ng-bind="settings.mainInput.val" mainpot>
+                    <span>In</span>
+                    <div class="mainLevel">
+                      <canvas id="inMeter" class="meter" width="10" height="42"></canvas>
+                    </div>
+                  </li>
+                  <li class="mainControll">
+                    <input id="mainOutput" ng-bind="settings.mainOutput.val" mainpot>
+                    <span>Out</span>
+                    <div class="mainLevel">
+                      <canvas id="outMeter" class="meter" width="10" height="42"></canvas>
+                    </div>
+                  </li>                  
+                  <li><a ng-show="debug" id="bypass-toggle" title="Bypass Toggle">Bypass Toggle</a></li>
+              </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+</div>
+
+<div class="container main">
+  <div class="row">
+    <div class="span2 leftmenu" ng-cloak>
+      <div class="sidebar-nav">
+         <a data-toggle="modal" data-target="#PresetsDialog" class="edit" title="Manage presets and sets"><i class="icon-mini-menu"></i></a>
+         <h3 class="nav-header">Presets</h3>
+        <div class="select-set">
+          <select ng-model="activeSet" ng-options="c.name for c in allSets" ng-change="loadCurrentSet()"></select>
+        </div>
+        <ul class="nav nav-list" >
+            <li ng-repeat="preset in activeList | filter:query  ">
+                <span>
+                    <small>{{presetNumber($index)}}</small>
+                    <span ng-id="{{preset.id}}" ng-class="{selected: $parent.preset.id == preset.id}" ng-click="changePreset(preset.id);" class="name"> {{preset.name}}</span>
+                </span>
+            </li>
+        </ul> 
+        
+        <div class="modal hide" id="PresetsDialog">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h3>Sets Manager</h3>
+                </div>
+                
+               
+                <div class="modal-body first">
+                  <div class="setlist">
+                    <h4>Sets</h4>
+                    <button class="btn" ng-click="addSet()" title="Add new set">New</button>
+                    <ul id="allsetlist">
+                      <!--li><span class="item"><span class="name" ng-click="viewSet('all')">Default</span></span></li-->
+                      <li ng-repeat="set in sets">
+                        <span class="item" ng-mouseover="icoStyle={opacity:1}" ng-mouseleave="icoStyle={opacity:0}">
+                          
+                            <ng-switch on="set.edit" class="presetname">
+                              <span ng-switch-default class="name" ng-id="{{set.id}}" ng-class="{selected: $parent.setId == set.id}" ng-click="viewSet(set.id)" ng-bind="set.name"></span>
+                              <div ng-switch-when="true">
+                                <input ng-model="set.name" setedit ng-stopsetedit="disableSetEdit(set.id)" autofocus/>
+                              </div>
+                            </ng-switch>
+
+                            <span class="delete" style="opacity:0;" ng-style="icoStyle" ng-click="delSet(set.id)"><i class="icon-remove"></i></span>
+                            <span class="edit" style="opacity:0;" ng-style="icoStyle" ng-click="enableSetEdit(set.id)"><i class="icon-edit"></i></span>
+                        </span>
+
+                      </li>
+                    </ul>
+                   </div>
+                </div>
+
+                <div class="modal-sub-header"></div>
+                <div class="modal-body second">
+
+                  <div class="presetlist">
+                    <h4>All presets</h4>
+                    <ul id="allplist" class="connected">
+                      <li ng-repeat="p in ObjToArray(presets)" data-id="{{p.id}}" class="fromall">
+                        <span class="item" ng-mouseover="icoStyle={opacity:1}" ng-mouseleave="icoStyle={opacity:0}">
+                          
+
+                            <ng-switch on="p.edit" class="presetname">
+                              <span ng-switch-default class="name" ng-id="{{p.id}}" ng-class="" ng-click="changeDvPresetValues(p.id)" ng-bind="p.name"></span>
+                              <div ng-switch-when="true">
+                                <input ng-model="p.name" pedit ng-stopedit="disablePEdit(p.id)" autofocus/>
+                              </div>
+                            </ng-switch>
+
+                            <span class="delete" style="opacity:0;" ng-style="icoStyle" ng-click="delPreset(p.id)"><i class="icon-remove"></i></span>
+                            <span class="edit" style="opacity:0;" ng-style="icoStyle" ng-click="enablePEdit(p.id)"><i class="icon-edit"></i></span>
+
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="plist">
+                    <h4>Presets of {{sets[setId].name}}<span ng-hide="setId">...</span></h4>
+                    <ul id="plist" class="connected" ng-show="setId">
+                      <li ng-repeat="sv in setview" data-id="{{sv.id}}">
+                        <span class="item" ng-mouseover="icoStyle={opacity:1}" ng-mouseleave="icoStyle={opacity:0}">
+                          <span class="name" ng-bind="sv.name"></span>
+                        <span class="delete" style="opacity:0;" ng-style="icoStyle" ng-click="delInSetView($index)"><i class="icon-remove"></i></span>
+                        </span>
+                      </li>
+                    </ul>
+                    <span ng-hide="setId" style="color:#888;"> Select a set to drop presets</span>
+                  </div>                   
+
+                </div>
+              
+              <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+              </div>                
+        </div>
+        
+        <div id="controls" class="hide">
+            <!--p><button ng-click="newPreset()" class="btn" >New Preset</button></p>
+            <p><button ng-click="savePreset(false)" class="btn" ng-class="modifiedClass">Save</button>&nbsp;<button ng-click="savePreset(true)" class="btn" ng-class="modifiedClass">Save As</button></p-->
+            
+            <p><button ng-click="listIRs()" class="btn" >List IRs</button></p>
+            <p><button ng-click="saveAudio()" class="btn" >Save Audio</button></p>
+            <p id="network-state"></p>
+            <!--p><a href="#" id="liveinput">Live input</a></p-->
+            <!--p><a href="#" id="playnote">Play Note</a> <a href="#" id="stopnote">Stop Note</a></p-->
+            <!--p><a href="#" id="saveas">Export</a></p-->
+            <p id="output"></p>
+        </div>
+
+        <div id="thePlayer" class="player">
+                <h4>Player</h4>
+                <div class="buttons-row">
+                  <div class="btn-group">
+                    <button class="btn" id="plRecord" ng-click="toggleRecording();">
+                      <img ng-show="recording" src="img/tab_recording.png">
+                      <img ng-hide="recording" src="img/tab_recording_off.png">
+                    </button>
+                    <button class="btn" ng-click="togglePlaying();">
+                      <img ng-hide="playing" src="img/tab_playing.png">
+                      <img ng-show="playing" src="img/tab_stoping.png">
+                    </button>
+                  </div>
+                  <div class="btn-group">
+                    <a class="btn" data-toggle="modal" data-target="#PlayerModal"><img src="img/tab_open.png"></a>
+                  </div>
+                  <div class="btn-group">
+                    <button class="btn" ng-show="plStorable" ng-click="savePlFile();">Save</button>
+                  </div>
+                </div>
+                <div id="plDisplay">
+                  <div id="plFileName"><p>{{plFileName}}</p></div>
+                  <div id="plTime" class="box">
+                    <span class="title">Time:</span>
+                    <span id="timing">0:00</span>
+                  </div>
+                  <div id="plTotal" class="box">
+                    <span class="title">Total:</span>
+                    <span id="total">0:00</span>
+                  </div>
+                  <canvas id="playerMeter" class="meter" width="10" height="46"></canvas>              
+                  <div id="bar"></div>
+                </div>
+                <div class="browser-old hide">
+                  <h6>Import soundfile</h6>
+                  <div id="list"></div>
+                  <div class="playable hide">
+                      <button class="btn" id="play" ng-click="play()">Play</button>
+                      <button class="btn" id="stop" ng-click="stop()">Stop</button>
+                  </div>
+              </div>
+              </div>
+
+        <button id="debug-context" ng-click="showPro()" class="hide buyButton">Buy Full Version</button>
+        <button id="debug-input" class="hide" ng-click="stopTune()">Stop tune</button>
+
+        <div id="tuner" >
+              <h4 ng-click="toggleTuner()">Tuner</h4>
+              <div ng-show="settings.tuner.enable" class="view">
+                <div class="note">-</div>
+                <div class="cent"><div id="cursor"></div></div>
+              </div>
+              <div ng-show="never" class="btn-group">
+                <button class="btn" ng-click="toggleTunerMute();">Mute</button>
+                <button class="btn" ng-click="toggleTunerActive();">Tuner On</button>
+              </div>
+              <div ng-show="settings.tuner.enable" class="switcher">
+                    <h6>Mute</h6>
+                    <input ng-click="toggleTunerMute()" class="input-switch" id="muteId" type="checkbox" ng-checked="settings.tuner.mute"/>
+                    <label class="input-small" for="muteId" data-off="Off">On</label>
+              </div> 
+              <canvas ng-show="debug" id="tunercanvas" width="1" height="1" style="background:white;">Tuner</canvas>
+        </div>
+        
+      </div><!--/.well -->
+
+
+    <div class="hide help lefthelp span2">
+        <span class="caret"></span>
+        <h5>Infos</h5>
+        <div class="content">
+          <p id="uiMessage"></p>
+          <p id="uiMessage2"></p>
+        </div>
+    </div>
+
+    </div><!--/span-->
+
+
+<div class="span10">
+
+  <div id="grid" ng-cloak>
+            
+            <div class="btn-group">
+              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">Add <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li ng-repeat="item in defaults.devices"><a tabindex="-1" ng-click="addDevice(item)">{{item}}</a></li>
+              </ul>
+            </div>
+
+            <ng-switch on="edit" class="presetname" title="Edit Preset Name">
+            <div ng-switch-when="true">
+                <input ng-model="preset.name" ng-Stopedit="disableEdit()" autofocus/>
+            </div>    
+            <div ng-switch-default ng-click="enableEdit()">{{preset.name}}</div>
+            </ng-switch>
+            <!-- ng-id="fx{device.id}" -->
+
+            
+                    <div draggable ng-id="{block.id}" data-id="{{block.id}}" ng-class="{bypassed:block.switchers.bypass.val,selected:block.id == $parent.device.id}" class="device {{block.class}}" ng-repeat="block in preset.devices" ng-click="editDevice(block.id);">
+
+                    <header>{{block.name}}</header>
+                    <div class="ui"></div>
+            </div>
+
+            <div id="bggrid" ng-click="unselectDevices()"></div>
+            <div class="error" ng-show="error404" ng-cloak>
+                <h1>Preset not found</h1>    
+            </div>
+  </div>
+
+  <div id="edit" ng-class="device.class" ng-cloak>
+        <header>
+                  <p class="title {{device.class}}" ng-class="{bypassed: device.switchers.bypass.val == true}" ng-show="device.id">{{device.name}}</p>
+
+                  <ul class="tabs" ng-init="tabview=0">
+                      <li ng:class="{true:'activetab', false:''}[$index==tabview]" ng-click="$parent.tabview=$index" ng-repeat="tab in device.tabs">{{tab}}</li>
+                  </ul>
+                  <div class="pr" ng-class="{Input:'hidden', Output:'hidden', '':'hidden'}[device.name]"><span id="fxpresets" ng-click="affdvpresets()" ng-show="device.id"><i class="icon-edit"></i> Presets</span></div>
+                  <div class="delete" ng-click="deleteDevice(device.id)" ng-show="device.deletable" title="Delete device"><i class="icon-remove"></i></div>
+
+        </header>
+            
+        <div class="modal hide {{device.class}}" id="DvPresetDialog" >
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h3>{{device.name}} Presets</h3>
+                </div>
+                <div>
+                <div class="modal-top">
+                  <h5>Save current settings</h5>
+                  <input ng-model="dvpresetname" name="" />
+                  <button ng-click="saveDvPreset(dvpresetname)" class="btn" ng-class="modifiedClass">Save</button>
+                </div>
+                <div class="modal-sub-header">
+                  <h5>Presets :</h5>
+                </div>
+                <div class="modal-body">
+                  
+                  <div class="presetlist">
+                    <ul>
+                      <li ng-repeat="dvp in filterByDevice(dvpresets, device.name)">
+                        <span class="item" ng-mouseover="icoStyle={opacity:1}" ng-mouseleave="icoStyle={opacity:0}">
+                          
+
+                            <ng-switch on="dvp.edit" class="presetname">
+                              <span ng-switch-default class="name" ng-id="{{dvp.id}}" ng-class="" ng-click="changeDvPresetValues(dvp.id)">{{dvp.presetname}}</span>
+                              <div ng-switch-when="true">
+                                <input ng-model="dvp.presetname" dvpedit ng-stopedit="disableDvpEdit(dvp.id)" autofocus/>
+                              </div>
+                            </ng-switch>
+
+                            <span class="delete" style="opacity:0;" ng-style="icoStyle" ng-click="delDvPreset(dvp.id)"><i class="icon-remove"></i></span>
+                            <span class="edit" style="opacity:0;" ng-style="icoStyle" ng-click="enableDvpEdit(dvp.id)"><i class="icon-edit"></i></span>
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div><!-- END Userinfos -->
+              <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+              </div>                
+              </div><!-- End Modal -->
+
+        <div class="ui">
+                <div class="pot" ng-class="pot.id" ng-repeat="pot in filterByTab(device.pots, tabview)">
+                    <h6>{{pot.name}}</h6>
+                    <input ng-bing="pot.val" pot>
+                    <div class="midi-ico" ng-show="pot.midi"><i class="icon-screenshot" ng-click="affMidi(pot, $parent.device, 'pots')" data-toggle="modal" data-target="#MidiDialog" title="Midi Learn"></i></div>
+                </div>
+
+                <div class="switcher" ng-class="switcher.id" ng-repeat="switcher in filterByTab(device.switchers, tabview)" switcher>
+                    <h6>{{switcher.name}}</h6>
+                    <input class="input-switch" id="{{switcher.id}}" type="checkbox" ng-checked="switcher.val"/>
+                    <label class="input-small" for="{{switcher.id}}" data-off="Off">On</label>
+                    <div class="midi-ico" ng-show="switcher.midi"><i class="icon-screenshot" ng-click="affMidi(switcher, $parent.device, 'switchers')" data-toggle="modal" data-target="#MidiDialog" title="Midi Learn"></i></div>
+                </div>  
+
+                <div class="select" ng-class="select.id" ng-repeat="select in filterByTab(device.selects, tabview)" select>
+                  <h6>{{select.name}}</h6>
+                  <select>
+                    <option ng-repeat="option in ObjToArray(select.options)" id="{{option.id}}" ng-selected="option.id==select.selected">{{isCustomCab(option, $index)}}{{option.name}}</option>
+                  </select>
+                </div>
+              <canvas ng-show="(device.name == 'Overdrive' || device.name == 'Amp' || device.name == 'Pitch') && debug" width="220" height="100" id="visual"></canvas>
+              <div class="lview">
+                <div ng-show="device.input.length" class="in">
+                  <h6>In</h6>
+                  <canvas width="10" height="100" id="inputDevice" class="level"></canvas>
+                </div>
+                <div ng-show="device.output.length" class="out">
+                  <h6>Out</h6>
+                  <canvas  width="10" height="100" id="outputDevice" class="level"></canvas>
+                </div>
+              </div>
+              <div ng-show="(device.name == 'Cabinet')" class="cabs-link">
+                <a data-toggle="modal" data-target="#IRsModal">Cabs Manager</a>
+              </div>
+
+        </div>
+                
+</div>
+              <!-- MIDI Modal -->
+               <div class="modal hide" id="MidiDialog" >
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h3>Midi</h3>
+                </div>
+                <div class="modal-message" ng-hide="midi">
+                  <p>MIDI not available<br></p>
+                </div>
+                <div ng-show="midi">
+                <div class="modal-top" ng-model="midilearn">
+                  
+                  <button ng-init="midilearn.button='Learn'" ng-class="{disabled:midilearn.state == true}" ng-click="toggleMidiLearn()" class="btn" >{{midilearn.button}}</button>
+                  <div class="learned" ng-show="midilearn.midi">
+                    <p>{{midilearn.midi}}</p> <input ng-model="midilearn.name" name="" disabled/>
+                    <select ng-model="midilearn.scope" ng-init="{true:list=['global'],false:list=['global','preset']}[$parent.preset.id > 0]" ng-options="n for n in list"></select> 
+                    <button ng-click="saveMidiCtrl()" class="btn">Save</button>
+                  </div>
+                </div>
+                <div class="modal-sub-header"><h4>Controllers</h4></div>
+                <div class="modal-body" ng-show="preset.id">
+                  <h4>Controllers for {{preset.name}} :</h4>
+                  
+                  <div class="midilist" ng-repeat="(key,controller) in preset.miditable">
+                    <div class="ckey">{{key}}</div>
+                    <ul>
+                      <li ng-repeat="item in controller">
+                        <span class="item" ng-mouseover="icoStyle={opacity:1}" ng-mouseleave="icoStyle={opacity:0}">
+                            <ng-switch on="dvp.edit" class="presetname">
+                              <span ng-switch-default class="name" ng-id="{{dvp.id}}" ng-class="" ng-click="changeMidiCtrlname(id)">{{item.name}} </span>
+                              <div ng-switch-when="true">
+                                <input ng-model="item.name" midiCtrledit ng-stopedit="disablemidiCtrledit(id)" autofocus/>
+                              </div>
+                            </ng-switch>
+
+                            <span class="delete" style="opacity:0;" ng-style="icoStyle" ng-click="delMidiCtrl(key, $index)"><i class="icon-remove"></i></span>
+                            <!--span class="edit" style="opacity:0;" ng-style="icoStyle" ng-click="enableDvpEdit(dvp.slug)"><i class="icon-edit"></i></span-->
+                        </span>
+                        <span>
+                          <!--select ng-model="item.scope" ng-change="changeMidiScope(item.scope,$parent.$index)" ng-options="n for n in ['global','preset']"></select-->
+                          </span>
+                      </li>
+                    </ul>
+                  </div>
+                  <h4>Global Controllers :</h4>
+                  
+                  <div class="midilist" ng-repeat="(key,controller) in miditable">
+                    <div class="ckey">{{key}}</div>
+                    <ul>
+                      <li ng-repeat="item in controller">
+                        <span class="item" ng-mouseover="icoStyle={opacity:1}" ng-mouseleave="icoStyle={opacity:0}">
+                            <ng-switch on="dvp.edit" class="presetname">
+                              <span ng-switch-default class="name" ng-id="{{dvp.id}}" ng-class="" ng-click="changeMidiCtrlname(id)">{{item.name}} </span>
+                              <div ng-switch-when="true">
+                                <input ng-model="item.name" midiCtrledit ng-stopedit="disablemidiCtrledit(id)" autofocus/>
+                              </div>
+                            </ng-switch>
+
+                            <span class="delete" style="opacity:0;" ng-style="icoStyle" ng-click="delMidiCtrl(key, item, $index)"><i class="icon-remove"></i></span>
+                            <!--span class="edit" style="opacity:0;" ng-style="icoStyle" ng-click="enableDvpEdit(dvp.slug)"><i class="icon-edit"></i></span-->
+                        </span>
+                        <span>
+                          <!--select ng-model="item.scope" ng-change="changeMidiScope(item.scope,$parent.$index)" ng-options="n for n in ['global','preset']"></select-->
+                          </span>
+                      </li>
+                    </ul>
+                  </div>
+
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+              </div>                
+              </div><!-- End Modal -->
+
+<script type="text/ng-template" id="Gain.html"></script>  
+        
+    </div><!--/span-->
+     
+</div><!--/span-->
+    
+</div><!--/row-->
+    <div class="push"></div>
+
+
+<div id="IRsModal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="IRsModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="IRsModalLabel">Cabinets Manager</h3>
+  </div>
+  <div class="modal-sub-header">
+    <h5>List of custom Cabinets</h5>
+  </div>
+  <div class="modal-body limited">
+    <ul id="allclist">
+            <li ng-repeat="cab in ObjToArray(cabslist)" id="{{cab.id}}">
+                <span ng-mouseover="delStyle={opacity:1}" ng-mouseleave="delStyle={opacity:0}">
+                    <small class="cabnb">{{cabNumber($index)}}</small>
+                    <span class="name"> {{cab.name}}</span>
+                    <span title="Delete this cab" class="delete" style="opacity:0;" ng-style="delStyle" ng-click="delCab(cab.id)"><i class="icon-remove"></i></span>
+                </span>
+            </li>
+    </ul>
+  </div>
+  <div class="modal-body up">
+    <h4>Upload</h4>
+    <div class="info" ng-bind="updloadInfo"></div>
+    <button class="btn choosefiles" id="chooseIRs" type="button">Choose a file (.wav)</button>
+    <input type="file" id="inputIRs" class="inputfiles"/>
+    <div id="dropIRs" class="dropzone" droppable>or drop it here</div>
+  </div>  
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+  </div>
+</div>
+
+<div id="PlayerModal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="PlayerModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="IRsModalLabel">Player Soundfiles Manager</h3>
+  </div>
+  <div class="modal-sub-header">
+    <h5>Player Soundfiles</h5>
+  </div>  
+  <div class="modal-body limited">
+    <ul id="allplayerlist">
+            <li ng-repeat="file in pllist" id="{{file.id}}">
+                <span ng-mouseover="delStyle={opacity:1}" ng-mouseleave="delStyle={opacity:0}">
+                    <span class="name" ng-click="plLoadFile(file.id)">{{file.name}}</span>
+                    <span class="delete" style="opacity:0;" ng-style="delStyle" ng-click="delPlFile(file.id)"><i class="icon-remove"></i></span>
+                </span>
+            </li>
+    </ul>
+  </div>
+
+  <div class="modal-body up">
+    <h4>Upload/Import Audio Files</h4>
+      <div class="info" ng-bind="updloadInfo"></div>
+      <button class="btn choosefiles" id="choose" type="button">Choose a file (.wav/.mp3)</button>
+      <input type="file" id="files" class="inputfiles"/>
+      <div id="dropzone" class="dropzone" droppable>or drop it here</div>
+  </div>  
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+  </div>
+</div>
+
+
+<div id="prefsModal" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="prefsModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="infosModalLabel">Preferences</h3>
+  </div>
+  <div class="modal-body">
+    <p>Installation directory : {{settings.installDir}} &nbsp;<button ng-click="changeDir()">Choose directory</button></p>
+
+  </div>  
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+  </div>
+</div>
+
+</div><!-- .wrapper -->
+
+
+<div id="modalPlumb" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Delete this connection?</h3>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    <button id="valid" class="btn btn-primary">Yes</button>
+  </div>
+</div>
+
+<div id="infosModal" class="modal hide " tabindex="-1" role="dialog" aria-labelledby="infosModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="infosModalLabel">Infos</h3>
+  </div>
+  <div class="modal-body">
+    <p>One fine body…</p>
+  </div>  
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Ok</button>
+  </div>
+</div>
+
+<script type="text/javascript" src="/js/vendor/google-analytics-bundle.js"></script>
+<script type="text/javascript" src="/js/vendor/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="/js/vendor/angular-1.0.7.min.js"></script>
+<script type="text/javascript" src="/js/vendor/jquery-ui-1.9.1.custom.min.js"></script>
+<script type="text/javascript" src="/js/vendor/jquery.jsPlumb-1.4.1-all-min.js"></script>
+<script type="text/javascript" src="/js/vendor/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/vendor/buy.js"></script>
+<script type="text/javascript" src="/js/vendor/dsp.js"></script>
+<script type="text/javascript" src="/js/app.min.js"></script>
+
+
+
+</body>
+</html>
