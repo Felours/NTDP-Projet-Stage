@@ -38,13 +38,32 @@ select#presetChoix {
 
 /* Affichage d'un preset */
 .divPreset {
-	top: 50px;
-	left: 50px;
 	position: absolute;
 	border:1px solid #000000;
-	background-color: red;
 	width: 50px;
 	height: 100px;
+}
+
+.divPresetNormal {
+	top: 50px;
+	left: 50px;
+	background-color: blue;
+}
+
+/* Affichage d'un preset debut */
+.divPresetDeb {
+	top: 40%;
+	left: 10%;
+	right: auto;
+	background-color: green;
+}
+
+/* Affichage d'un preset fin */
+.divPresetFin {
+	top: 40%;
+	left: auto;
+	right: 10%;
+	background-color: red;
 }
 
 /* Affichage des presets en total */

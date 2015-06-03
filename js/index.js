@@ -270,6 +270,7 @@ function Dimension(largeur, hauteur){
 var gPresets = []; // Liste des presets existants
 var gPresetCourant; // Graphique preset courant
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
+var nomPDeb = "Debut", nomPFin = "Fin"; // Le nom des presets speciaux
 
 /* Definition des elements jsPlumb */
 /* =============================== */
@@ -306,22 +307,51 @@ var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
 //
 function ajouterPreset(type){
 
-
-	// Indiquer l'ajout du preset
-	console.log("Ajout du preset " + type);
-
 	// Creer le preset
 	var preset = new Preset(type);
 
 	// Creer une div d'affichage
-	var divPreset = $("<div></div>").attr('class','divPreset');
+	var divPreset = $("<div></div>").attr('class','divPreset').addClass('divPresetNormal');
+
+	// Ajouter le CSS selon le type
+	switch(type){
+
+		// --- S'il s'agit d'un preset de debut
+		case nomPDeb : 
+			divPreset.addClass('divPresetDeb');
+			break;
+
+		// --- S'il s'agit d'un preset de fin
+		case nomPFin : 
+			divPreset.addClass('divPresetFin');
+			break;
+
+	}
 
 	// Ajouter la div dans l'affichage
 	divPreset.appendTo(conteneurPresets);
 
-	// Creer le graphique du preset
-	var gPreset = new GPreset(divPreset, preset);
+	// Creer le graphique du preset selon le type
+	var gPreset;
 
+	switch(type){
+
+		// --- S'il s'agit d'un preset de debut
+		case nomPDeb : 
+			gPreset = new GPresetDebut(divPreset, preset);
+			break;
+
+		// --- S'il s'agit d'un preset de fin
+		case nomPFin : 
+			gPreset = new GPresetFin(divPreset, preset);
+			break;
+
+		// --- S'il s'agit d'un preset quelconque
+		default :
+			gPreset = new GPreset(divPreset, preset);
+
+	}
+	
 	// --- jsPlumb ---
 	// ---------------
 	
@@ -344,13 +374,16 @@ function ajouterPreset(type){
 	gPresets.push(gPreset);
 
 	// Renseigner le preset courant
-	gPresetCourant = gPreset;
+	if(type != nomPDeb || type != nomPFin)
+		gPresetCourant = gPreset;
+
+	// Indiquer l'ajout du preset
+	console.log("Preset " + type + " ajoute");
 
 	// Sauvegarder l'etat des presets
 	savePresets();
 
 }
-
 
 // --- Fonction ajouterEndPoints
 // --- Description : Ajouter au GBasePreset (ou fille) un end point jsPlumb
@@ -397,11 +430,35 @@ function ajouterEndPoints(GBPreset){
 
 }
 
+// --- Fonction initialiserVuePresets
+// --- Description : Initialiser la vue des presets 
+//
+function initialiserVuePresets(){
+
+	// Creer un preset de debut
+	// 
+	ajouterPreset(nomPDeb);
+
+	// Creer un preset de fin
+	// 
+	ajouterPreset(nomPFin);
+
+}
+
 /* Evenements globaux */
 /* ------------------ */
 
-// --- jsPlumb ---
-// ---------------
+// --- Initialisation de la page --- //
+// --------------------------------- //
+$(document).ready(function(){
+   
+	// Initialiser les presets de base
+	initialiserVuePresets();
+
+});
+
+// --- jsPlumb --- //
+// --------------- //
 jsPlumb.ready(function() {
 	//console.log("Il marche");
 	//jsPlumb.setContainer($("#affichagePresents"));
