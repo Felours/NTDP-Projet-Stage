@@ -311,7 +311,7 @@ function ajouterPreset(type){
 	var preset = new Preset(type);
 
 	// Creer une div d'affichage
-	var divPreset = $("<div></div>").attr('class','divPreset').addClass('divPresetNormal');
+	var divPreset = $("<div></div>").attr('class','divPreset');
 
 	// Ajouter le CSS selon le type
 	switch(type){
@@ -326,6 +326,10 @@ function ajouterPreset(type){
 			divPreset.addClass('divPresetFin');
 			break;
 
+		// --- S'il s'agit d'un preset normal
+		default :
+			divPreset.addClass('divPresetNormal');
+
 	}
 
 	// Ajouter la div dans l'affichage
@@ -336,19 +340,21 @@ function ajouterPreset(type){
 
 	switch(type){
 
+		//divPreset.get()[0] == l'element div du DOM
+
 		// --- S'il s'agit d'un preset de debut
 		case nomPDeb : 
-			gPreset = new GPresetDebut(divPreset, preset);
+			gPreset = new GPresetDebut(divPreset.get()[0], preset);
 			break;
 
 		// --- S'il s'agit d'un preset de fin
 		case nomPFin : 
-			gPreset = new GPresetFin(divPreset, preset);
+			gPreset = new GPresetFin(divPreset.get()[0], preset);
 			break;
 
 		// --- S'il s'agit d'un preset quelconque
 		default :
-			gPreset = new GPreset(divPreset, preset);
+			gPreset = new GPreset(divPreset.get()[0], preset);
 
 	}
 	
@@ -382,6 +388,30 @@ function ajouterPreset(type){
 
 	// Sauvegarder l'etat des presets
 	savePresets();
+
+}
+
+// --- Fonction getGPresetFromDiv
+// --- Description : Recuperer le GPreset correspondant au div donne en parametre
+//
+function getGPresetFromDiv(div){
+
+	// Scanner les GPresets existants
+	
+	var GP, GPdiv;
+	for(var i=0; i<gPresets.length; i++){
+		
+		// Recuperer le GPreset
+		GP = gPresets[i];
+
+		// Recuperer la div du GPreset
+		GPdiv = GP.getDiv();
+
+		// Verifier si la div correspond
+		if(GPdiv === div){
+			return GP;
+		}
+	}
 
 }
 
@@ -457,13 +487,39 @@ $(document).ready(function(){
 
 });
 
-// --- jsPlumb --- //
-// --------------- //
+// === Evenements jsPlumb === //
+// ========================== //
 jsPlumb.ready(function() {
 	//console.log("Il marche");
 	//jsPlumb.setContainer($("#affichagePresents"));
 	//jsPlumb.setContainer(document.getElementById("affichagePresents"));
 });
+
+// Evenement creation de connexion
+// 
+jsPlumb.bind("connection", function (connInfo, originalEvent) {
+    // console.log(getGPresetFromDiv(connInfo.source).getPreset().getType());
+    //console.log(getGPresetFromDiv(connInfo.source).getdiv().id);
+    // console.log(getGPresetFromDiv(connInfo.source).getDiv().id);
+    //console.log(connInfo.source);
+    //console.log(gPresets[2].getDiv());
+    
+    // Recuperer le GPreset source
+    var GPS = getGPresetFromDiv(connInfo.source);
+
+    // Recuperer le GPreset target
+    var GPT = getGPresetFromDiv(connInfo.target);
+
+    // Ajouter le lien (de class) du target dans le source
+    GPS.ajouterSuccesseur(GPT);
+
+    // Ajouter le lien (de class) du source dans le target
+    GPT.ajouterPredecesseur(GPS);
+
+});
+
+// === /Fin Evenements jsPlumb === //
+// =============================== //
 
 // --- Gestion evenement click sur preset de la liste
 //
