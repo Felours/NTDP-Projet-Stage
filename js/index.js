@@ -93,6 +93,9 @@ function GBasePreset(div, preset) {
 			   preset - instance de la classe Preset descrivant le preset */
 function GPreset(div, preset) {
 
+	// Heritage
+	GBasePreset.call(this, div, preset);
+
 	// --- Attributs
 	// 
 	var m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
@@ -114,6 +117,7 @@ function GPreset(div, preset) {
 	};
 
 }
+GPreset.prototype = new GBasePreset();
 GPreset.prototype.ajouterPredecesseur = ajouterPredecesseur;
 GPreset.prototype.ajouterSuccesseur = ajouterSuccesseur;
 GPreset.prototype.retirerPredecesseur = retirerPredecesseur;
@@ -127,7 +131,7 @@ GPreset.prototype.retirerSuccesseur = retirerSuccesseur;
 function GPresetDebut(div, preset) {
 
 	// Heritage
-	GPreset.call(this, div, preset);
+	GBasePreset.call(this, div, preset);
 
 	// --- Attributs
 	// 
@@ -143,7 +147,7 @@ function GPresetDebut(div, preset) {
 	};
 
 }
-GPresetDebut.prototype = new GPreset();
+GPresetDebut.prototype = new GBasePreset();
 GPresetDebut.prototype.ajouterSuccesseur = ajouterSuccesseur;
 GPresetDebut.prototype.retirerSuccesseur = retirerSuccesseur;
 
@@ -154,7 +158,7 @@ GPresetDebut.prototype.retirerSuccesseur = retirerSuccesseur;
 function GPresetFin(div, preset) {
 
 	// Heritage
-	GPreset.call(this, div, preset);
+	GBasePreset.call(this, div, preset);
 
 	// --- Attributs
 	// 
@@ -170,7 +174,7 @@ function GPresetFin(div, preset) {
 	};
 
 }
-GPresetFin.prototype = new GPreset();
+GPresetFin.prototype = new GBasePreset();
 GPresetFin.prototype.ajouterPredecesseur = ajouterPredecesseur;
 GPresetFin.prototype.retirerPredecesseur = retirerPredecesseur;
 
@@ -262,9 +266,40 @@ function Dimension(largeur, hauteur){
 }
 
 /* Variables globales */
+/* ================== */
 var gPresets = []; // Liste des presets existants
 var gPresetCourant; // Graphique preset courant
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
+
+/* Definition des elements jsPlumb */
+/* =============================== */
+
+	/* Anchors */
+	/* ======= */
+	var anchorSortie = [ "Right", { shape:"Square", anchorCount:150 }];
+	var anchorEntree = [ "Left", { shape:"Square", anchorCount:150 }];
+
+	/* Endpoint */
+	/* ======== */
+	var endpointEntree = {
+	    endpoint:"Dot",
+	    maxConnections : -1,
+	    isSource:false,
+	    isTarget:true,
+	    anchor : anchorEntree
+	};
+
+	var endpointSortie = {
+	    endpoint:"Dot",
+	    maxConnections : -1,
+	    isSource:true,
+	    isTarget:false,
+	    anchor : anchorSortie
+	};
+
+/* /Fin definition des elements jsPlumb */
+/* ==================================== */
+
 
 // --- Fonction ajouterPreset
 // --- Description : Ajouter un preset a la liste des presets existants
@@ -284,6 +319,9 @@ function ajouterPreset(type){
 	// Ajouter la div dans l'affichage
 	divPreset.appendTo(conteneurPresets);
 
+	// Creer le graphique du preset
+	var gPreset = new GPreset(divPreset, preset);
+
 	// --- jsPlumb ---
 	// ---------------
 	
@@ -293,13 +331,14 @@ function ajouterPreset(type){
 		jsPlumb.draggable($(".divPreset"), {
 		  containment:conteneurPresets
 		});
+
+		// Ajouter les endpoints
+		ajouterEndPoints(gPreset);
+
 	});
 
 	// --- /jsPlumb ---
 	// ----------------
-
-	// Creer le graphique du preset
-	var gPreset = new GPreset(divPreset, preset);
 
 	// Ajouter le preset a la liste
 	gPresets.push(gPreset);
@@ -309,6 +348,52 @@ function ajouterPreset(type){
 
 	// Sauvegarder l'etat des presets
 	savePresets();
+
+}
+
+
+// --- Fonction ajouterEndPoints
+// --- Description : Ajouter au GBasePreset (ou fille) un end point jsPlumb
+//
+function ajouterEndPoints(GBPreset){
+
+	// Verifier quel type de GBasePreset il s'agit
+	// -------------------------------------------
+
+	// Verifier s'il s'agit d'un GBasePreset
+	if(GBPreset instanceof GBasePreset){
+
+		// Recuperer la div graphique
+		var divPreset = GBPreset.getDiv();
+
+		// Cas d'un GBPreset de debut
+		if(GBPreset instanceof GPresetDebut){
+
+			// Ajouter un endpoint de sortie
+			jsPlumb.addEndpoint(divPreset, endpointSortie);
+
+		}
+
+		// Cas d'un GBPreset de fin	
+		if(GBPreset instanceof GPresetFin){
+
+			// Ajouter un endpoint d'entree
+			jsPlumb.addEndpoint(divPreset, endpointEntree);
+			
+		}
+
+		// Cas d'un GBPreset normal
+		if(GBPreset instanceof GPreset){
+			
+			// Ajouter un endpoint de sortie
+			jsPlumb.addEndpoint(divPreset, endpointSortie);
+
+			// Ajouter un endpoint d'entree
+			jsPlumb.addEndpoint(divPreset, endpointEntree);
+
+		}
+
+	}
 
 }
 
