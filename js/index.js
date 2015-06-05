@@ -184,19 +184,19 @@ GPresetFin.prototype.retirerPredecesseur = retirerPredecesseur;
 
 // --- Methode ajouterPredecesseur
 // 
-var ajouterPredecesseur = function(predecesseur){
+function ajouterPredecesseur(predecesseur) {
 	this.getPredecesseurs().push(predecesseur);
-};
+}
 
 // --- Methode ajouterSuccesseur
 // 
-var ajouterSuccesseur = function(successeur){
+function ajouterSuccesseur(successeur) {
 	this.getSuccesseurs().push(successeur);
-};
+}
 
 // --- Methode retirerPredecesseur
 // 
-var retirerPredecesseur = function(predecesseur){
+function retirerPredecesseur(predecesseur) {
 
 	// Trouver l'indice du predecesseur
 	var index = this.getPredecesseurs().indexOf(predecesseur);
@@ -206,11 +206,11 @@ var retirerPredecesseur = function(predecesseur){
 		this.getPredecesseurs().splice(index, 1);
 	}
 
-};
+}
 
 // --- Methode retirerSuccesseur
 // 
-var retirerSuccesseur = function(successeur){
+function retirerSuccesseur(successeur) {
 
 	// Trouver l'indice du predecesseur
 	var index = this.getSuccesseurs().indexOf(successeur);
@@ -219,7 +219,7 @@ var retirerSuccesseur = function(successeur){
 		this.getSuccesseurs().splice(index, 1);
 	}
 
-};
+}
 
 
 /* Class Dimension */
@@ -270,7 +270,10 @@ function Dimension(largeur, hauteur){
 var gPresets = []; // Liste des presets existants
 var gPresetCourant; // Graphique preset courant
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
+var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
 var nomPDeb = "Debut", nomPFin = "Fin"; // Le nom des presets speciaux
+var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
+
 
 /* Definition des elements jsPlumb */
 /* =============================== */
@@ -283,19 +286,19 @@ var nomPDeb = "Debut", nomPFin = "Fin"; // Le nom des presets speciaux
 	/* Endpoint */
 	/* ======== */
 	var endpointEntree = {
-	    endpoint:"Dot",
-	    maxConnections : -1,
-	    isSource:false,
-	    isTarget:true,
-	    anchor : anchorEntree
+		endpoint:"Dot",
+		maxConnections : -1,
+		isSource:false,
+		isTarget:true,
+		anchor : anchorEntree
 	};
 
 	var endpointSortie = {
-	    endpoint:"Dot",
-	    maxConnections : -1,
-	    isSource:true,
-	    isTarget:false,
-	    anchor : anchorSortie
+		endpoint:"Dot",
+		maxConnections : -1,
+		isSource:true,
+		isTarget:false,
+		anchor : anchorSortie
 	};
 
 /* /Fin definition des elements jsPlumb */
@@ -313,6 +316,10 @@ function ajouterPreset(type){
 	// Creer une div d'affichage
 	var divPreset = $("<div></div>").attr('class','divPreset');
 
+	// Recuperer l'image du preset
+	var img = creerImgPreset(type);
+
+	
 	// Ajouter le CSS selon le type
 	switch(type){
 
@@ -329,6 +336,9 @@ function ajouterPreset(type){
 		// --- S'il s'agit d'un preset normal
 		default :
 			divPreset.addClass('divPresetNormal');
+			//divPreset.css('background-image', 'url('+ img.src +')');
+			//divPreset.css("width", img.width);
+			//divPreset.css("height", img.height);
 
 	}
 
@@ -343,12 +353,12 @@ function ajouterPreset(type){
 		//divPreset.get()[0] == l'element div du DOM
 
 		// --- S'il s'agit d'un preset de debut
-		case nomPDeb : 
+		case nomPDeb :
 			gPreset = new GPresetDebut(divPreset.get()[0], preset);
 			break;
 
 		// --- S'il s'agit d'un preset de fin
-		case nomPFin : 
+		case nomPFin :
 			gPreset = new GPresetFin(divPreset.get()[0], preset);
 			break;
 
@@ -361,10 +371,10 @@ function ajouterPreset(type){
 	// --- jsPlumb ---
 	// ---------------
 	
-	jsPlumb.ready(function() {
+	jspInstance.ready(function() {
 
 		// Rendre le graphique draggable uniquement dans le conteneur
-		jsPlumb.draggable($(".divPreset"), {
+		jspInstance.draggable($(".divPreset"), {
 		  containment:conteneurPresets
 		});
 
@@ -386,8 +396,8 @@ function ajouterPreset(type){
 	// Indiquer l'ajout du preset
 	console.log("Preset " + type + " ajoute");
 
-	// Sauvegarder l'etat des presets
-	savePresets();
+	// Sauvegarder l'etat des variables a sauvegarder
+	//savePresets();
 
 }
 
@@ -433,7 +443,7 @@ function ajouterEndPoints(GBPreset){
 		if(GBPreset instanceof GPresetDebut){
 
 			// Ajouter un endpoint de sortie
-			jsPlumb.addEndpoint(divPreset, endpointSortie);
+			jspInstance.addEndpoint(divPreset, endpointSortie);
 
 		}
 
@@ -441,7 +451,7 @@ function ajouterEndPoints(GBPreset){
 		if(GBPreset instanceof GPresetFin){
 
 			// Ajouter un endpoint d'entree
-			jsPlumb.addEndpoint(divPreset, endpointEntree);
+			jspInstance.addEndpoint(divPreset, endpointEntree);
 			
 		}
 
@@ -449,10 +459,10 @@ function ajouterEndPoints(GBPreset){
 		if(GBPreset instanceof GPreset){
 			
 			// Ajouter un endpoint de sortie
-			jsPlumb.addEndpoint(divPreset, endpointSortie);
+			jspInstance.addEndpoint(divPreset, endpointSortie);
 
 			// Ajouter un endpoint d'entree
-			jsPlumb.addEndpoint(divPreset, endpointEntree);
+			jspInstance.addEndpoint(divPreset, endpointEntree);
 
 		}
 
@@ -465,6 +475,10 @@ function ajouterEndPoints(GBPreset){
 //
 function initialiserVuePresets(){
 
+	// Restaurer l'etat des variables stockees
+	// 
+	//loadPresets();
+
 	// Creer un preset de debut
 	// 
 	ajouterPreset(nomPDeb);
@@ -473,6 +487,77 @@ function initialiserVuePresets(){
 	// 
 	ajouterPreset(nomPFin);
 
+}
+
+// -- Fonction creerImgPreset
+// Description : Creer et renvoyer un tableau contenant l'image et les dimensions d'une image
+// 
+function creerImgPreset(nomPreset){
+
+	// Creer tableau de retour
+	var ret = [];
+	var h, w;
+
+	// Creer une instance image
+	var img = new Image();
+
+	// Indiquer le lien dynamique
+	img.src = srcImgs + nomPreset + ".png";
+
+	// Creer fonction d'ajout des parametres d'une image
+	function ajouterParametresImage(h, w){
+		// Renseigner la hauteur
+		//ret['height'] 
+		h = img.height;
+
+		// Renseigner la largeur
+		w = img.width;
+
+		console.log(h);
+
+	}
+
+	// Attendre que l'image soit prete
+	img.onload = function(){
+		ajouterParametresImage(h, w);
+	};
+
+	// Renseigner l'image
+	ret['img'] = img;
+
+	console.log("VOICI : " + h);
+	//console.log("SRC : " + this.t);
+	//.replace("file:///", "")
+
+
+	// Renvoyer l'instance de l'image
+	return ret;
+
+		// img.onload = function() {
+		//   alert(this.width + 'x' + this.height);
+		// }
+
+}
+
+// --- Fonction savePresets
+// Description : Sauvegarder l'etat de stockage des presets (version buggee)
+//
+function savePresets() {
+   localStorage.gPresets = JSON.stringify(gPresets);
+   //localStorage.jspInstance = JSON.stringify(jspInstance);
+}
+
+// --- Fonction loadPresets
+// Description : Restaurer l'etat de stockage des presets (version buggee)
+//
+function loadPresets() {
+  if(localStorage.gPresets) {
+    gPresets = JSON.parse(localStorage.gPresets);
+  }
+
+  // if(localStorage.jspInstance) {
+  //   jspInstance = JSON.parse(localStorage.jspInstance);
+  // }
 }
 
 /* Evenements globaux */
@@ -489,7 +574,7 @@ $(document).ready(function(){
 
 // === Evenements jsPlumb === //
 // ========================== //
-jsPlumb.ready(function() {
+jspInstance.ready(function() {
 	//console.log("Il marche");
 	//jsPlumb.setContainer($("#affichagePresents"));
 	//jsPlumb.setContainer(document.getElementById("affichagePresents"));
@@ -497,7 +582,7 @@ jsPlumb.ready(function() {
 
 // Evenement creation de connexion
 // 
-jsPlumb.bind("connection", function (connInfo, originalEvent) {
+jspInstance.bind("connection", function (connInfo, originalEvent) {
     // console.log(getGPresetFromDiv(connInfo.source).getPreset().getType());
     //console.log(getGPresetFromDiv(connInfo.source).getdiv().id);
     // console.log(getGPresetFromDiv(connInfo.source).getDiv().id);
@@ -516,6 +601,9 @@ jsPlumb.bind("connection", function (connInfo, originalEvent) {
     // Ajouter le lien (de class) du source dans le target
     GPT.ajouterPredecesseur(GPS);
 
+    // Sauvegarder l'etat des variables a sauvegarder
+	//savePresets();
+
 });
 
 // === /Fin Evenements jsPlumb === //
@@ -532,18 +620,6 @@ $('#presetChoix').on('change', function() {
 	ajouterPreset(type);
 
 });
-
-
-function loadPresets() {
-  if(localStorage.gPresets) {
-    presets = JSON.parse(localStorage.gPresets);
-    //displayPresets();
-  }
-}
-
-function savePresets() {
-   localStorage.gPresets = JSON.stringify(gPresets);
-}
 
 /*
 function displayPresets() {
