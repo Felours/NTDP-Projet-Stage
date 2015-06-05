@@ -271,7 +271,7 @@ var gPresets = []; // Liste des presets existants
 var gPresetCourant; // Graphique preset courant
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
 var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
-var nomPDeb = "Debut", nomPFin = "Fin"; // Le nom des presets speciaux
+var nomPDeb = "debut", nomPFin = "fin"; // Le nom des presets speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 
 
@@ -316,35 +316,6 @@ function ajouterPreset(type){
 	// Creer une div d'affichage
 	var divPreset = $("<div></div>").attr('class','divPreset');
 
-	// Recuperer l'image du preset
-	var img = creerImgPreset(type);
-
-	
-	// Ajouter le CSS selon le type
-	switch(type){
-
-		// --- S'il s'agit d'un preset de debut
-		case nomPDeb : 
-			divPreset.addClass('divPresetDeb');
-			break;
-
-		// --- S'il s'agit d'un preset de fin
-		case nomPFin : 
-			divPreset.addClass('divPresetFin');
-			break;
-
-		// --- S'il s'agit d'un preset normal
-		default :
-			divPreset.addClass('divPresetNormal');
-			//divPreset.css('background-image', 'url('+ img.src +')');
-			//divPreset.css("width", img.width);
-			//divPreset.css("height", img.height);
-
-	}
-
-	// Ajouter la div dans l'affichage
-	divPreset.appendTo(conteneurPresets);
-
 	// Creer le graphique du preset selon le type
 	var gPreset;
 
@@ -367,6 +338,38 @@ function ajouterPreset(type){
 			gPreset = new GPreset(divPreset.get()[0], preset);
 
 	}
+
+
+	// Ajouter le CSS selon le type
+	switch(type){
+
+		// --- S'il s'agit d'un preset de debut
+		case nomPDeb : 
+			divPreset.addClass('divPresetDeb');
+			break;
+
+		// --- S'il s'agit d'un preset de fin
+		case nomPFin : 
+			divPreset.addClass('divPresetFin');
+			break;
+
+		// --- S'il s'agit d'un preset normal
+		default :
+
+			// Ajouter le css normal
+			divPreset.addClass('divPresetNormal');
+
+	}
+
+	// Construire l'image de la div
+	var infoImg = constructImgPreset(type, divPreset, 
+		function() {
+			ajouterEndPoints(gPreset);
+		}
+	);
+
+	// Ajouter la div dans l'affichage
+	divPreset.appendTo(conteneurPresets);
 	
 	// --- jsPlumb ---
 	// ---------------
@@ -379,7 +382,7 @@ function ajouterPreset(type){
 		});
 
 		// Ajouter les endpoints
-		ajouterEndPoints(gPreset);
+		//ajouterEndPoints(gPreset);
 
 	});
 
@@ -489,14 +492,10 @@ function initialiserVuePresets(){
 
 }
 
-// -- Fonction creerImgPreset
-// Description : Creer et renvoyer un tableau contenant l'image et les dimensions d'une image
+// --- function constructImgPreset
+// Description : Fonction permettant de construire l'image d'une div
 // 
-function creerImgPreset(nomPreset){
-
-	// Creer tableau de retour
-	var ret = [];
-	var h, w;
+function constructImgPreset(nomPreset, div, CB){
 
 	// Creer une instance image
 	var img = new Image();
@@ -504,38 +503,20 @@ function creerImgPreset(nomPreset){
 	// Indiquer le lien dynamique
 	img.src = srcImgs + nomPreset + ".png";
 
-	// Creer fonction d'ajout des parametres d'une image
-	function ajouterParametresImage(h, w){
-		// Renseigner la hauteur
-		//ret['height'] 
-		h = img.height;
-
-		// Renseigner la largeur
-		w = img.width;
-
-		console.log(h);
-
-	}
-
-	// Attendre que l'image soit prete
+	// Construire quand l'image s'est chargee
 	img.onload = function(){
-		ajouterParametresImage(h, w);
+
+		// Renseigner l'image
+		div.css('background-image', 'url('+ this.src +')');
+
+		// Renseigner les dimensions
+		div.css("width", this.width);
+		div.css("height", this.height);
+
+		// Appeler la fonction callback (construire les endpoints)
+		CB();
+
 	};
-
-	// Renseigner l'image
-	ret['img'] = img;
-
-	console.log("VOICI : " + h);
-	//console.log("SRC : " + this.t);
-	//.replace("file:///", "")
-
-
-	// Renvoyer l'instance de l'image
-	return ret;
-
-		// img.onload = function() {
-		//   alert(this.width + 'x' + this.height);
-		// }
 
 }
 
