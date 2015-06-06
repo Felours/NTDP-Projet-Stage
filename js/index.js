@@ -364,6 +364,24 @@ function ajouterPreset(type){
 	// Construire l'image de la div
 	var infoImg = constructImgPreset(type, divPreset, 
 		function() {
+
+			// --- jsPlumb ---
+			// ---------------
+			jspInstance.ready(function() {
+
+				// Rendre le graphique draggable uniquement dans le conteneur
+				jspInstance.draggable($(".divPreset"), {
+				  containment:conteneurPresets
+				});
+
+				// Ajouter les endpoints
+				//ajouterEndPoints(gPreset);
+
+			});
+			// --- /jsPlumb ---
+			// ----------------
+
+			// Ajouter les endpoints au gPreset
 			ajouterEndPoints(gPreset);
 		}
 	);
@@ -374,17 +392,17 @@ function ajouterPreset(type){
 	// --- jsPlumb ---
 	// ---------------
 	
-	jspInstance.ready(function() {
+	// jspInstance.ready(function() {
 
-		// Rendre le graphique draggable uniquement dans le conteneur
-		jspInstance.draggable($(".divPreset"), {
-		  containment:conteneurPresets
-		});
+	// 	// Rendre le graphique draggable uniquement dans le conteneur
+	// 	jspInstance.draggable($(".divPreset"), {
+	// 	  containment:conteneurPresets
+	// 	});
 
-		// Ajouter les endpoints
-		//ajouterEndPoints(gPreset);
+	// 	// Ajouter les endpoints
+	// 	//ajouterEndPoints(gPreset);
 
-	});
+	// });
 
 	// --- /jsPlumb ---
 	// ----------------
@@ -435,6 +453,9 @@ function ajouterEndPoints(GBPreset){
 
 	// Verifier quel type de GBasePreset il s'agit
 	// -------------------------------------------
+
+	// console.log(GBPreset.getDiv());
+	// console.log($(GBPreset.getDiv()).width());
 
 	// Verifier s'il s'agit d'un GBasePreset
 	if(GBPreset instanceof GBasePreset){
