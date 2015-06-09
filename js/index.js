@@ -541,6 +541,25 @@ function constructImgPreset(nomPreset, div, CB){
 
 }
 
+// --- Fonction retirerLienGBP
+// Description : Retire le lien GBasePreset (par les tableaux successeur et predeccesseur)
+//
+function retirerLienGBP(src, trg){
+
+	// Recuperer GBP de la div src
+	var GBPsrc = getGPresetFromDiv(src);
+
+	// Recuperer GBP de la div trg
+	var GBPtrg = getGPresetFromDiv(trg);
+
+	// Retirer la source du target
+	GBPtrg.retirerPredecesseur(GBPsrc);
+
+	// Retirer le target de la source
+	GBPsrc.retirerSuccesseur(GBPtrg);
+
+}
+
 // --- Fonction savePresets
 // Description : Sauvegarder l'etat de stockage des presets (version buggee)
 //
@@ -620,6 +639,39 @@ $('#presetChoix').on('change', function() {
 
 	// Ajouter le preset
 	ajouterPreset(type);
+
+});
+
+// --- Gestion evenement click sur connexion (suppression effective)
+// 
+jspInstance.bind("click", function (conn) {
+
+	//conn.setParameter("data-toggle", "confirmation");
+	//$("._jsPlumb_connector").attr("data-toggle", "confirmation");
+	//console.log($("._jsPlumb_connector"));
+
+	console.log();
+
+	// Demander confirmation de suppression de la connexion
+	bootbox.confirm("Êtes vous sûr de vouloir\n supprimer la connexion?", function(result) {
+		
+		// Detacher si la demande est confirmee
+		if(result){
+
+			// Recuperer la source
+			var src = conn.source;
+
+			// Recuperer la destination
+			var trg = conn.target;
+
+			// Retirer le lien respectif
+			retirerLienGBP(src, trg);
+
+			// Supprimer la connexion
+			jspInstance.detach(conn);
+		}
+
+	}); 
 
 });
 
