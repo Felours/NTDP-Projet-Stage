@@ -444,6 +444,9 @@ function getGPresetFromDiv(div){
 		}
 	}
 
+	// Renvoyer une erreur
+	return -1;
+
 }
 
 // --- Fonction ajouterEndPoints
@@ -541,6 +544,51 @@ function constructImgPreset(nomPreset, div, CB){
 
 }
 
+// --- Fonction retirerGBP
+// Description : Retire le GBasePreset
+//
+function retirerGBP(div){
+
+	// Recuperer le GBasePreset
+	var gbp = getGPresetFromDiv(div);
+
+	// Retirer les predecesseurs (mutuellement)
+	var predecs = gbp.getPredecesseurs();
+	for(var i=0; i<predecs.length; i++){
+
+		// Retirer le gPreset du predecesseur
+		predecs[i].retirerSuccesseur(gbp);
+
+		// Retirer le predecesseur du gPreset (optionnel, permet de laisser propre)
+		gbp.retirerPredecesseur(predecs[i]);
+
+	}
+
+	// Retirer les successeurs (mutuellement)
+	var success = gbp.getSuccesseurs();
+	for(i=0; i<success.length; i++){
+
+		// Retirer le gPreset du successeur
+		success[i].retirerPredecesseur(gbp);
+
+		// Retirer le successeur du gPreset (optionnel, permet de laisser propre)
+		gbp.retirerSuccesseur(success[i]);
+
+	}
+
+	// Retirer le gPreset de la liste des gPresets globale
+	retirerGPreset(gbp);
+
+	// Retirer les connexions visuelles
+	jspInstance.detachAllConnections($(div));
+	jspInstance.removeAllEndpoints($(div));
+	jspInstance.detach($(div));
+	$(div).remove();
+
+	console.log(gPresets.length);
+
+}
+
 // --- Fonction retirerLienGBP
 // Description : Retire le lien GBasePreset (par les tableaux successeur et predeccesseur)
 //
@@ -558,6 +606,44 @@ function retirerLienGBP(src, trg){
 	// Retirer le target de la source
 	GBPsrc.retirerSuccesseur(GBPtrg);
 
+}
+
+// --- Fonction retirerGPreset
+// Description : Retirer le gPreset de la liste des gPresets globale
+//
+function retirerGPreset(gPreset){
+
+	// Trouver l'indice du gPreset dans le tableau
+	var index = gPresets.indexOf(gPreset);
+
+	// Si trouve, retirer de la liste
+	if (index > -1) {
+		gPresets.splice(index, 1);
+	}
+
+}
+
+// --- Fonction presetExiste
+// Description : Indique si un preset existe ou pas (selon la div)
+//
+function presetExiste(div){
+
+	// Recuperer le GBasePreset
+	var gPreset = getGPresetFromDiv(div);
+
+	// Verifier si le gPreset existe
+	if(gPreset != -1){
+
+		// Trouver l'indice du gPreset dans le tableau
+		var index = gPresets.indexOf(gPreset);
+
+		// Si trouve, indiquer qu'il existe
+		if (index > -1) 
+			return true;
+	}
+
+	// Indiquer qu'il n'existe pas
+	return false;
 }
 
 // --- Fonction savePresets
@@ -599,6 +685,32 @@ jspInstance.ready(function() {
 	//console.log("Il marche");
 	//jsPlumb.setContainer($("#affichagePresents"));
 	//jsPlumb.setContainer(document.getElementById("affichagePresents"));
+
+	// --- Gestion evenement doubleclick sur un preset qui n'est ni celui du debut, ni celui de la fin
+	//
+	$("#affichagePresents").delegate(".divPresetNormal", "dblclick", function() {
+
+		// Verifier si la div existe (corriger bug double demande, fonctionne sans car passe de on a delegate en d'hors du ready se trouvant dans ajouterPreset)
+		var pExiste = presetExiste(this);
+
+		// Recuperer l'instance de la div
+		var tmpThis = this;
+
+		// Demander confirmation de suppression du preset
+		if(pExiste)
+			bootbox.confirm("Êtes vous sûr de vouloir supprimer le preset?", function(result) {
+				
+				// Detacher si la demande est confirmee
+				if(result){
+
+					// Retirer le GBasePreset
+					retirerGBP(tmpThis);
+				}
+
+			});
+
+	});
+
 });
 
 // Evenement creation de connexion
@@ -642,6 +754,8 @@ $('#presetChoix').on('change', function() {
 
 });
 
+
+
 // --- Gestion evenement click sur connexion (suppression effective)
 // 
 jspInstance.bind("click", function (conn) {
@@ -650,30 +764,34 @@ jspInstance.bind("click", function (conn) {
 	//$("._jsPlumb_connector").attr("data-toggle", "confirmation");
 	//console.log($("._jsPlumb_connector"));
 
-	console.log();
+	// Verifier si la connexion existe reellement [CORRECTION BUG CLICK SUR ENDPOINT SANS CONNEXION]
+	if(conn.source != undefined && conn.target != undefined)
 
-	// Demander confirmation de suppression de la connexion
-	bootbox.confirm("Êtes vous sûr de vouloir\n supprimer la connexion?", function(result) {
-		
-		// Detacher si la demande est confirmee
-		if(result){
+		// Demander confirmation de suppression de la connexion
+		bootbox.confirm("Êtes vous sûr de vouloir\n supprimer la connexion?", function(result) {
+			
+			// Detacher si la demande est confirmee
+			if(result){
 
-			// Recuperer la source
-			var src = conn.source;
+				// Recuperer la source
+				var src = conn.source;
 
-			// Recuperer la destination
-			var trg = conn.target;
+				// Recuperer la destination
+				var trg = conn.target;
 
-			// Retirer le lien respectif
-			retirerLienGBP(src, trg);
+				// Retirer le lien respectif
+				retirerLienGBP(src, trg);
 
-			// Supprimer la connexion
-			jspInstance.detach(conn);
-		}
+				// Supprimer la connexion
+				jspInstance.detach(conn);
+			}
 
-	}); 
+		}); 
 
 });
+
+
+
 
 /*
 function displayPresets() {
