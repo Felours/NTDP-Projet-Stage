@@ -5,6 +5,11 @@
 
 /* ---------------------------------------------------------------------------------------- */
 
+
+/* Classes GBasePreset */
+/* =================== */
+
+
 /* Class Preset */
 /* Description : Class representant les informations d'un preset */
 /* Arguments : type - le nom d'un preset */
@@ -12,8 +17,10 @@ function Preset(type){
 
 	// --- Attributs
 	// 
-	var m_type = type;
-	var m_option = []; // Liste des options du preset
+	var m_type = type;	// Type de preset (nom)
+	var m_actif = true;	// Preset actif ou non
+	var m_parametre = []; // Liste des parametres du preset
+	var m_ancre;		// Lien vers le GBasePreset
 
 	// --- Methodes
 	// 
@@ -30,23 +37,52 @@ function Preset(type){
 		m_type = type;
 	};
 
-	// --- Methode ajouterOption
+	// --- Methode getActivation
 	// 
-	this.ajouterOption = function(option){
-		m_option.push(option);
+	this.getActivation = function(){
+		return(m_actif);
 	};
 
-	// --- Methode retirerOption
+	// --- Methode changerActivation
 	// 
-	this.retirerOption = function(option){
+	this.changerActivation = function(){
 
-		// Trouver l'indice de l'option
-		var index = m_option.indexOf(option);
+		if(m_actif)
+			m_actif = false;
+		else
+			m_actif = true;
+
+	};
+
+	// --- Methode ajouterParametre
+	// 
+	this.ajouterParametre = function(parametre){
+		m_parametre.push(parametre);
+	};
+
+	// --- Methode retirerParametre
+	// 
+	this.retirerParametre = function(parametre){
+
+		// Trouver l'indice du parametre
+		var index = m_parametre.indexOf(parametre);
 	
 		// Si trouve, retirer de la liste
 		if (index > -1) {
-    		m_option.splice(index, 1);
+    		m_parametre.splice(index, 1);
 		}
+	};
+
+	// --- Methode getAncre
+	// 
+	this.getAncre = function(){
+		return(m_ancre);
+	};
+	
+	// --- Methode setAncre
+	// 
+	this.setAncre = function(gbp){
+		m_ancre = gbp;
 	};
 
 }
@@ -61,6 +97,8 @@ function GBasePreset(div, preset) {
 	// 
 	var m_div = div;
 	var m_preset = preset;
+	//setAncre(m_preset);	// Faire le lien entre le preset et le GBP
+
 	//var m_dimension = new Dimension(10, 10); // Les dimensions du div
 	//var m_img
 
@@ -77,6 +115,16 @@ function GBasePreset(div, preset) {
 	// 
 	this.getDiv = function(){
 		return(m_div);
+	};
+
+	// --- Fonction setAncre
+	// Description : Permet de faire un lien entre le GBP et le preset (pour naviguer)
+	// 
+	this.setAncre = function(){
+
+		// Indiquer dans l'instance du preset le lien vers le GBasePreset
+		m_preset.setAncre(this);
+
 	};
 
 	// --- Methode setPosition
@@ -179,8 +227,8 @@ GPresetFin.prototype.ajouterPredecesseur = ajouterPredecesseur;
 GPresetFin.prototype.retirerPredecesseur = retirerPredecesseur;
 
 
-/* Methodes a ajouter aux classes */
-/* ============================== */
+/* Methodes a ajouter aux classes GBasePreset */
+/* ========================================== */
 
 // --- Methode ajouterPredecesseur
 // 
@@ -222,48 +270,164 @@ function retirerSuccesseur(successeur) {
 }
 
 
-/* Class Dimension */
-function Dimension(largeur, hauteur){
+/* Classes liees aux Parametre */
+/* =========================== */
+
+/* Class Parametre */
+/* Description : Class representant un parametre d'un preset (ne sera utilisee que par ses classes filles) */
+/* Arguments : nom - le nom du parametre
+			   m_gParametre - la classe contenant le graphique du parametre */
+function Parametre(nom, gParametre){
 
 	// --- Attributs
 	// 
-	var m_largeur = largeur;
-	var m_hauteur = hauteur;
+	var m_nom = nom;	// Le nom du parametre
+	var m_gParametre = gParametre; // Instance de la classe contenant le graphique representant le parametre
 
 	// --- Methodes
 	// 
-
-	// --- Methode getlargeur
+	
+	// --- Methode getNom
 	// 
-	this.getlargeur = function(){
-		return(m_largeur);
+	this.getNom = function(){
+		return(m_nom);
+	};
+	
+	// --- Methode setNom
+	// 
+	this.setNom = function(nom){
+		m_nom = nom;
 	};
 
-	// --- Methode gethauteur
+	// --- Methode getGParametre
 	// 
-	this.gethauteur = function(){
-		return(m_hauteur);
+	this.getGParametre = function(){
+		return(m_gParametre);
+	};
+	
+	// --- Methode setGParametre
+	// 
+	this.setGParametre = function(gp){
+		m_gParametre = gp;
 	};
 
-	// --- Methode set
-	// 
-	this.setlargeur = function(largeur){
-		m_largeur = largeur;
-	};
-
-	// --- Methode set
-	// 
-	this.sethauteur = function(hauteur){
-		m_hauteur = hauteur;
-	};
-
-	// --- Methode setDimension
-	// 
-	this.setDimension = function(largeur, hauteur){
-		m_largeur = largeur;
-		m_hauteur = hauteur;
-	};
 }
+
+/* Class GParametre */
+/* Description : Class representant le graphique d'un parametre (ne sera utilisee que par ses classes filles) */
+/* Arguments : graphique - l'element graphique (DOM, pedalboard, autre..)
+			   typeValeurs - le type de valeurs du graphique (interval, liste, autre..) */
+function GParametre(graphique, typeValeurs){
+
+	// --- Attributs
+	// 
+	var m_graphique = graphique;	// L'instance du graphique a afficher
+	var m_typeValeurs = typeValeurs; // Une chaine de caracteres indiquant le type de valeurs
+	var m_valeurs = []; // Tableau contenant les valeurs (en correlation avec le type de valeur)
+
+	// --- Methodes
+	// 
+	
+	// --- Methode getGraphique
+	// 
+	this.getGraphique = function(){
+		return(m_graphique);
+	};
+	
+	// --- Methode setGraphique
+	// 
+	this.setGraphique = function(g){
+		m_graphique = g;
+	};
+
+	// --- Methode getTypeValeurs
+	// 
+	this.getTypeValeurs = function(){
+		return(m_typeValeurs);
+	};
+	
+	// --- Methode setTypeValeurs
+	// 
+	this.setTypeValeurs = function(tv){
+		m_typeValeurs = tv;
+	};
+
+	// --- Methode ajouteValeur
+	// 
+	this.ajouteValeur = function(valeur){
+		m_valeurs.push(valeur);
+	};
+
+	// --- Methode retirerValeur
+	// 
+	this.retirerValeur = function(valeur){
+
+		// Trouver l'indice de la valeur
+		var index = m_valeurs.indexOf(valeur);
+	
+		// Si trouve, retirer de la liste
+		if (index > -1) {
+    		m_valeurs.splice(index, 1);
+		}
+	};
+
+}
+
+/* Classes filles de la classe Parametre */
+/* ===================================== */
+
+/* Class ParametreGain */
+/* Description : Class representant un parametre Gain d'un preset */
+/* Arguments : nom - le nom du parametre
+			   m_gParametre - la classe contenant le graphique du parametre */
+function ParametreGain(nom, gParametre){
+
+	// Heritage
+	Parametre.call(nom, gParametre);
+
+}
+ParametreGain.prototype = new Parametre();
+ParametreGain.prototype.traiterAudio = traiterAudioGain;
+
+/* Methodes a ajouter aux classes Parametre */
+/* ======================================== */
+
+// --- Methode traiterAudioGain
+// 
+function traiterAudioGain(flux) {
+	/* TODO */
+}
+
+
+/* Classes filles de la classe GParametre */
+/* ====================================== */
+
+/* Class GParametrePedalBoard */
+/* Description : Class representant le graphique d'un PedalBoard */
+/* Arguments : graphique - l'element graphique (DOM, pedalboard, autre..)
+			   typeValeurs - le type de valeurs du graphique (interval, liste, autre..) */
+function GParametrePedalBoard(graphique, typeValeurs){
+
+	// Heritage
+	GParametre.call(graphique, typeValeurs);
+
+}
+GParametrePedalBoard.prototype = new GParametre();
+GParametrePedalBoard.prototype.getValeurTraite = getValeurTraitePedalBoard;
+
+/* Methodes a ajouter aux classes GParametre */
+/* ===============================\========= */
+
+// --- Methode getValeurTraitePedalBoard
+// 
+function getValeurTraitePedalBoard() {
+	/* TODO */
+}
+
+/* ********************************************************* DEBUT TRAITEMENT ********************************************************* */
+/* ************************************************************************************************************************************ */
+/* ************************************************************************************************************************************ */
+/* ************************************************************************************************************************************ */
 
 /* Variables globales */
 /* ================== */
@@ -339,6 +503,8 @@ function ajouterPreset(type){
 
 	}
 
+	// Faire le lien entre le Preset et le GBasePreset respectif (pour la navigation)
+	gPreset.setAncre();
 
 	// Ajouter le CSS selon le type
 	switch(type){
