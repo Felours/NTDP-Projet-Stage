@@ -1,3 +1,6 @@
+/* ---------------------- CSS global ---------------------- */
+/* -------------------------------------------------------- */
+
 /* Enlever les espaces autour de la fenetre*/
 * { 
 	margin:0; padding:0; 
@@ -12,16 +15,23 @@ section {
 	padding:0px;
 }
 
+/* ---------------------- CSS de sectionPresets ---------------------- */
+/* ------------------------------------------------------------------- */
+
+/* Section générale contenant la page entière */
 section#sectionGenerale {
 	position: relative;
 	width: 100%;
 	height: 100%;
 }
 
+/* Section contenant les presets */
 section#sectionPresets{
 	position: relative;
 	width: 100%;
 	height: 70%;
+
+	background-color: rgba(255, 255, 240, 0.5);
 }
 
 /*form#presetChoixForm {
@@ -30,6 +40,7 @@ section#sectionPresets{
 	position: absolute;
 }*/
 
+/* L'input contenant la liste des presets à ajouter */
 select#presetChoix {
 	top: 0;
 	left: 0;
@@ -42,8 +53,22 @@ select#presetChoix {
 	border:1px solid #000000;
 	width: 50px;
 	height: 100px;
+	border-radius: 10%;
 }
 
+/* Lorsque la souris se trouve sur le GPreset */
+.divPreset:hover {
+	-moz-box-shadow: 0px 0px 5px 10px #ffffc7;
+	-webkit-box-shadow: 0px 0px 5px 10px #ffffc7;
+	-o-box-shadow: 0px 0px 5px 10px #ffffc7;
+	box-shadow: 0px 0px 5px 10px #ffffc7;
+	filter:progid:DXImageTransform.Microsoft.Shadow(color=#ffffc7, Direction=NaN, Strength=5);
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+}
+
+/* Affichage d'un preset normal */
 .divPresetNormal {
 	top: 50px;
 	left: 50px;
@@ -73,5 +98,36 @@ div#affichagePresents {
 	height: 100%;
 }
 
-section#sectionEffets{
+/* ---------------------- CSS de sectionParametres ---------------------- */
+/* ---------------------------------------------------------------------- */
+
+/* Section contenant les parametres d'un preset */
+section#sectionParametres{
+	position: relative;
+	width: 100%;
+	height: 30%;
+	background-color: rgba(242, 242, 242, 0.5);
+}
+
+/* Affichage des parametres d'un preset selectionne */
+div#affichageParametres{
+	/*border:1px solid #000000;*/
+	width: 100%;
+	height: 100%;
+}
+
+.nomPreset{
+	display: inline-block;
+	font-size: 1.3em;
+	margin: 0em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    padding-left: 0.3em;
+    padding-right: 0.8em;
+    font-weight: bold;
+
+    background-color: rgba(255, 240, 209, 1);/*#FFF6EE;*/
+
+
+    border-radius: 0px 0px 10px 0px;
 }

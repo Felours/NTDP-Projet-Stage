@@ -402,26 +402,46 @@ function traiterAudioGain(flux) {
 /* Classes filles de la classe GParametre */
 /* ====================================== */
 
-/* Class GParametrePedalBoard */
-/* Description : Class representant le graphique d'un PedalBoard */
-/* Arguments : graphique - l'element graphique (DOM, pedalboard, autre..)
-			   typeValeurs - le type de valeurs du graphique (interval, liste, autre..) */
-function GParametrePedalBoard(graphique, typeValeurs){
+/* Class GParametreKnob */
+/* Description : Class representant le graphique issu du plugin Knob */
+/* Arguments : valMin - valeur minimal de l'intervalle
+			   valMax - valeur maximale de l'intervalle 
+			   step - valeur de saut lors d'un changement */
+function GParametreKnob(valMin, valMax, step){
 
-	// Heritage
-	GParametre.call(graphique, typeValeurs);
+	// Appeler la classe mere (heritage)
+	GParametre.call();
+
+	// Creer un element Knob
+	var graphique = $("<input class='knob' data-height=75 data-width=75 data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round data-min='" + 
+		valMin + "' data-max='" + valMax + "' data-step='" + step + "' value='" + valMin + "'>");
+
+	// Indiquer que le type de valeurs est un interval
+	var typeValeurs = "Intervalle";
+
+	// Ajouter les parametres a l'instance (par heritage)
+	this.setTypeValeurs(typeValeurs);
+	this.setGraphique(graphique.get()[0]);
+	this.ajouteValeur(valMin);
+	this.ajouteValeur(valMax);
+	this.ajouteValeur(step);
 
 }
-GParametrePedalBoard.prototype = new GParametre();
-GParametrePedalBoard.prototype.getValeurTraite = getValeurTraitePedalBoard;
+GParametreKnob.prototype = new GParametre();
+GParametreKnob.prototype.getValeurTraite = getValeurTraiteKnob;
 
 /* Methodes a ajouter aux classes GParametre */
 /* ===============================\========= */
 
-// --- Methode getValeurTraitePedalBoard
+// --- Methode getValeurTraiteKnob
 // 
-function getValeurTraitePedalBoard() {
-	/* TODO */
+function getValeurTraiteKnob() {
+
+	// Recuperer la valeur ('value') du graphique
+	var val = $(this.getGraphique()).val();
+
+	// Renvoyer la valeur
+	return val;
 }
 
 /* ********************************************************* DEBUT TRAITEMENT ********************************************************* */
@@ -434,6 +454,7 @@ function getValeurTraitePedalBoard() {
 var gPresets = []; // Liste des presets existants
 var gPresetCourant; // Graphique preset courant
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
+var conteneurParametres = $("#affichageParametres"); // Conteneur des parametres
 var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
 var nomPDeb = "debut", nomPFin = "fin"; // Le nom des presets speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
@@ -843,6 +864,12 @@ $(document).ready(function(){
 	// Initialiser les presets de base
 	initialiserVuePresets();
 
+	// Essayer implementation Knob
+	/*var div = conteneurParametres;
+
+	var knob = new GParametreKnob(10, 100, 10);
+	$(knob.getGraphique()).appendTo(div);*/
+
 });
 
 // === Evenements jsPlumb === //
@@ -905,23 +932,6 @@ jspInstance.bind("connection", function (connInfo, originalEvent) {
 
 });
 
-// === /Fin Evenements jsPlumb === //
-// =============================== //
-
-// --- Gestion evenement click sur preset de la liste
-//
-$('#presetChoix').on('change', function() {
-
-	// Recuperer le type
-	var type = this.options[this.selectedIndex].text;
-
-	// Ajouter le preset
-	ajouterPreset(type);
-
-});
-
-
-
 // --- Gestion evenement click sur connexion (suppression effective)
 // 
 jspInstance.bind("click", function (conn) {
@@ -956,8 +966,66 @@ jspInstance.bind("click", function (conn) {
 
 });
 
+// === /Fin Evenements jsPlumb === //
+// =============================== //
 
+// --- Gestion evenement click sur preset de la liste
+//
+$('#presetChoix').on('change', function() {
 
+	// Recuperer le type
+	var type = this.options[this.selectedIndex].text;
+
+	// Ajouter le preset
+	ajouterPreset(type);
+
+});
+
+// --- Fonction resetConteneurParametres
+// Description : Retire tous les elements du conteneur des parametres
+//
+function resetConteneurParametres() {
+  
+	// Retirer tous les elements
+	conteneurParametres.empty();
+
+}
+
+// --- Gestion evenement click sur un GBasePreset (pour afficher les parametres)
+//
+$("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
+
+	// Restaurer l'etat de l'affichage des parametres
+	resetConteneurParametres();
+
+	// Recuperer le GBasePreset associe
+	var gbp = getGPresetFromDiv(this);
+
+	// Creer un titre contenant le nom du preset
+	var titrePreset = $("<h2>" + gbp.getPreset().getType() + "</h2>").attr('class','nomPreset');
+
+	// Ajouter le titre a l'affichage des parametres
+	titrePreset.appendTo(conteneurParametres);
+
+	//
+
+});
+
+// --- Activer les elements 
+$(function($) {
+
+  // Activer l'element Knob
+  $(".knob").knob(/* TODO parametres et evenements */
+
+  	/*{
+  		release : function (value) {
+			console.log("change : " + value);
+    	}
+
+  	}*/
+  )
+  
+});
 
 /*
 function displayPresets() {
