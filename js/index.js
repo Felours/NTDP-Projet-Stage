@@ -19,7 +19,7 @@ function Preset(type){
 	// 
 	var m_type = type;	// Type de preset (nom)
 	var m_actif = true;	// Preset actif ou non
-	var m_parametre = []; // Liste des parametres du preset
+	var m_parametres = []; // Liste des parametres du preset
 	var m_ancre;		// Lien vers le GBasePreset
 
 	// --- Methodes
@@ -43,6 +43,12 @@ function Preset(type){
 		return(m_actif);
 	};
 
+	// --- Methode getParametres
+	// 
+	this.getParametres = function(){
+		return(m_parametres);
+	};
+
 	// --- Methode changerActivation
 	// 
 	this.changerActivation = function(){
@@ -57,7 +63,7 @@ function Preset(type){
 	// --- Methode ajouterParametre
 	// 
 	this.ajouterParametre = function(parametre){
-		m_parametre.push(parametre);
+		m_parametres.push(parametre);
 	};
 
 	// --- Methode retirerParametre
@@ -65,11 +71,11 @@ function Preset(type){
 	this.retirerParametre = function(parametre){
 
 		// Trouver l'indice du parametre
-		var index = m_parametre.indexOf(parametre);
+		var index = m_parametres.indexOf(parametre);
 	
 		// Si trouve, retirer de la liste
 		if (index > -1) {
-    		m_parametre.splice(index, 1);
+    		m_parametres.splice(index, 1);
 		}
 	};
 
@@ -352,6 +358,13 @@ function GParametre(graphique, typeValeurs){
 		m_typeValeurs = tv;
 	};
 
+	// --- Methode getValeurs
+	// 
+	this.getValeurs = function(){
+		return(m_valeurs);
+	};
+	
+
 	// --- Methode ajouteValeur
 	// 
 	this.ajouteValeur = function(valeur){
@@ -378,23 +391,61 @@ function GParametre(graphique, typeValeurs){
 
 /* Class ParametreGain */
 /* Description : Class representant un parametre Gain d'un preset */
-/* Arguments : nom - le nom du parametre
-			   m_gParametre - la classe contenant le graphique du parametre */
-function ParametreGain(nom, gParametre){
+/* Arguments : minVal - la valeur minimale de l'intervalle
+			   maxVal - la valeur maximale de l'intervalle
+			   steps - valeur de saut lors d'un changement  */
+function ParametreGain(minVal, maxVal, steps){
 
 	// Heritage
-	Parametre.call(nom, gParametre);
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Gain");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(minVal, maxVal, steps);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
 
 }
 ParametreGain.prototype = new Parametre();
 ParametreGain.prototype.traiterAudio = traiterAudioGain;
 
+/* Class ParametrePan */
+/* Description : Class representant un parametre Pan d'un preset */
+function ParametrePan(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Pan");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(-1, 1, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametrePan.prototype = new Parametre();
+ParametrePan.prototype.traiterAudio = traiterAudioPan;
+
 /* Methodes a ajouter aux classes Parametre */
 /* ======================================== */
 
 // --- Methode traiterAudioGain
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
 // 
 function traiterAudioGain(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioPan
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioPan(flux) {
 	/* TODO */
 }
 
@@ -410,11 +461,20 @@ function traiterAudioGain(flux) {
 function GParametreKnob(valMin, valMax, step){
 
 	// Appeler la classe mere (heritage)
-	GParametre.call();
+	GParametre.call(this);
 
 	// Creer un element Knob
-	var graphique = $("<input class='knob' data-height=75 data-width=75 data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round data-min='" + 
-		valMin + "' data-max='" + valMax + "' data-step='" + step + "' value='" + valMin + "'>");
+	var graphique = $("<input class='knob' data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round>");
+
+	// Indiquer les valeurs parametres de l'element
+	graphique.attr("data-min", valMin);
+	graphique.attr("data-max", valMax);
+	graphique.attr("data-step", step);
+	graphique.attr("value", valMin);
+
+	// Indiquer la taille de l'element
+	graphique.attr("data-height", 75);
+	graphique.attr("data-width", 75);
 
 	// Indiquer que le type de valeurs est un interval
 	var typeValeurs = "Intervalle";
@@ -425,6 +485,9 @@ function GParametreKnob(valMin, valMax, step){
 	this.ajouteValeur(valMin);
 	this.ajouteValeur(valMax);
 	this.ajouteValeur(step);
+
+	/*for(var i=0; i<getValeurs().length; i++)
+		console.log("Le graphique " + i + " : " + getValeurs()[i]);*/
 
 }
 GParametreKnob.prototype = new GParametre();
@@ -452,7 +515,7 @@ function getValeurTraiteKnob() {
 /* Variables globales */
 /* ================== */
 var gPresets = []; // Liste des presets existants
-var gPresetCourant; // Graphique preset courant
+var gPresetCourant; // Graphique preset courant (pour traitements des elements independants du gPreset mais qui le concerne (ex : parametres associes))
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
 var conteneurParametres = $("#affichageParametres"); // Conteneur des parametres
 var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
@@ -488,126 +551,6 @@ var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 
 /* /Fin definition des elements jsPlumb */
 /* ==================================== */
-
-
-// --- Fonction ajouterPreset
-// --- Description : Ajouter un preset a la liste des presets existants
-//
-function ajouterPreset(type){
-
-	// Creer le preset
-	var preset = new Preset(type);
-
-	// Creer une div d'affichage
-	var divPreset = $("<div></div>").attr('class','divPreset');
-
-	// Creer le graphique du preset selon le type
-	var gPreset;
-
-	switch(type){
-
-		//divPreset.get()[0] == l'element div du DOM
-
-		// --- S'il s'agit d'un preset de debut
-		case nomPDeb :
-			gPreset = new GPresetDebut(divPreset.get()[0], preset);
-			break;
-
-		// --- S'il s'agit d'un preset de fin
-		case nomPFin :
-			gPreset = new GPresetFin(divPreset.get()[0], preset);
-			break;
-
-		// --- S'il s'agit d'un preset quelconque
-		default :
-			gPreset = new GPreset(divPreset.get()[0], preset);
-
-	}
-
-	// Faire le lien entre le Preset et le GBasePreset respectif (pour la navigation)
-	gPreset.setAncre();
-
-	// Ajouter le CSS selon le type
-	switch(type){
-
-		// --- S'il s'agit d'un preset de debut
-		case nomPDeb : 
-			divPreset.addClass('divPresetDeb');
-			break;
-
-		// --- S'il s'agit d'un preset de fin
-		case nomPFin : 
-			divPreset.addClass('divPresetFin');
-			break;
-
-		// --- S'il s'agit d'un preset normal
-		default :
-
-			// Ajouter le css normal
-			divPreset.addClass('divPresetNormal');
-
-	}
-
-	// Construire l'image de la div
-	var infoImg = constructImgPreset(type, divPreset, 
-		function() {
-
-			// --- jsPlumb ---
-			// ---------------
-			jspInstance.ready(function() {
-
-				// Rendre le graphique draggable uniquement dans le conteneur
-				jspInstance.draggable($(".divPreset"), {
-				  containment:conteneurPresets
-				});
-
-				// Ajouter les endpoints
-				//ajouterEndPoints(gPreset);
-
-			});
-			// --- /jsPlumb ---
-			// ----------------
-
-			// Ajouter les endpoints au gPreset
-			ajouterEndPoints(gPreset);
-		}
-	);
-
-	// Ajouter la div dans l'affichage
-	divPreset.appendTo(conteneurPresets);
-	
-	// --- jsPlumb ---
-	// ---------------
-	
-	// jspInstance.ready(function() {
-
-	// 	// Rendre le graphique draggable uniquement dans le conteneur
-	// 	jspInstance.draggable($(".divPreset"), {
-	// 	  containment:conteneurPresets
-	// 	});
-
-	// 	// Ajouter les endpoints
-	// 	//ajouterEndPoints(gPreset);
-
-	// });
-
-	// --- /jsPlumb ---
-	// ----------------
-
-	// Ajouter le preset a la liste
-	gPresets.push(gPreset);
-
-	// Renseigner le preset courant
-	if(type != nomPDeb || type != nomPFin)
-		gPresetCourant = gPreset;
-
-	// Indiquer l'ajout du preset
-	console.log("Preset " + type + " ajoute");
-
-	// Sauvegarder l'etat des variables a sauvegarder
-	//savePresets();
-
-}
 
 // --- Fonction getGPresetFromDiv
 // --- Description : Recuperer le GPreset correspondant au div donne en parametre
@@ -1001,21 +944,201 @@ $("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
 	// Recuperer le GBasePreset associe
 	var gbp = getGPresetFromDiv(this);
 
+	// Indiquer que le GBasePreset present est celui dont on a clique
+	gPresetCourant = gbp;
+
 	// Creer un titre contenant le nom du preset
 	var titrePreset = $("<h2>" + gbp.getPreset().getType() + "</h2>").attr('class','nomPreset');
 
 	// Ajouter le titre a l'affichage des parametres
 	titrePreset.appendTo(conteneurParametres);
 
-	//
+	// Ajouter les parametres du GBasePreset
+	var listeParams = gbp.getPreset().getParametres();
+
+	for(var i=0; i<listeParams.length; i++){
+		// Ajouter le graphique dans le conteneur
+		$(listeParams[i].getGParametre().getGraphique()).appendTo(conteneurParametres);
+	}
+
+	// Valider le Knob
+	$(".knob").knob(/* TODO parametres et evenements */);
 
 });
 
+// --- Fonction ajouterPreset
+// --- Description : Ajouter un preset a la liste des presets existants
+//
+function ajouterPreset(type){
+
+	// Initialiser le nom de la fonction a appeler
+	var nomFonctionCreationPreset = "creerGBasePreset";
+
+	// Verifier si la fonction associe a la creation existe
+	if (typeof window[nomFonctionCreationPreset + type] == 'function')
+		nomFonctionCreationPreset = nomFonctionCreationPreset + type;
+
+	// Indiquer console
+	console.log("Appel de la fonction " + nomFonctionCreationPreset);
+	
+	// Appeler la fonction de creation du preset et son graphique
+	window[nomFonctionCreationPreset](type);
+
+}
+
+// --- Fonction creerGBasePreset
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePreset(type){
+
+	// Creer le preset
+	var preset = new Preset(type);
+
+	// Creer une div d'affichage
+	var divPreset = $("<div></div>").attr('class','divPreset');
+
+	// Creer le graphique du preset selon le type
+	var gPreset;
+
+	switch(type){
+
+		//divPreset.get()[0] == l'element div du DOM
+
+		// --- S'il s'agit d'un preset de debut
+		case nomPDeb :
+			gPreset = new GPresetDebut(divPreset.get()[0], preset);
+			break;
+
+		// --- S'il s'agit d'un preset de fin
+		case nomPFin :
+			gPreset = new GPresetFin(divPreset.get()[0], preset);
+			break;
+
+		// --- S'il s'agit d'un preset quelconque
+		default :
+			gPreset = new GPreset(divPreset.get()[0], preset);
+
+	}
+
+	// Faire le lien entre le Preset et le GBasePreset respectif (pour la navigation)
+	gPreset.setAncre();
+
+	// Ajouter le CSS selon le type
+	switch(type){
+
+		// --- S'il s'agit d'un preset de debut
+		case nomPDeb : 
+			divPreset.addClass('divPresetDeb');
+			break;
+
+		// --- S'il s'agit d'un preset de fin
+		case nomPFin : 
+			divPreset.addClass('divPresetFin');
+			break;
+
+		// --- S'il s'agit d'un preset normal
+		default :
+
+			// Ajouter le css normal
+			divPreset.addClass('divPresetNormal');
+
+	}
+
+	// Construire l'image de la div
+	var infoImg = constructImgPreset(type, divPreset, 
+		function() {
+
+			// --- jsPlumb ---
+			// ---------------
+			jspInstance.ready(function() {
+
+				// Rendre le graphique draggable uniquement dans le conteneur
+				jspInstance.draggable($(".divPreset"), {
+				  containment:conteneurPresets
+				});
+
+				// Ajouter les endpoints
+				//ajouterEndPoints(gPreset);
+
+			});
+			// --- /jsPlumb ---
+			// ----------------
+
+			// Ajouter les endpoints au gPreset
+			ajouterEndPoints(gPreset);
+		}
+	);
+
+	// Ajouter la div dans l'affichage
+	divPreset.appendTo(conteneurPresets);
+	
+	// --- jsPlumb ---
+	// ---------------
+	
+	// jspInstance.ready(function() {
+
+	// 	// Rendre le graphique draggable uniquement dans le conteneur
+	// 	jspInstance.draggable($(".divPreset"), {
+	// 	  containment:conteneurPresets
+	// 	});
+
+	// 	// Ajouter les endpoints
+	// 	//ajouterEndPoints(gPreset);
+
+	// });
+
+	// --- /jsPlumb ---
+	// ----------------
+
+	// Ajouter le preset a la liste
+	gPresets.push(gPreset);
+
+	// Renseigner le preset courant
+	if(type != nomPDeb || type != nomPFin)
+		gPresetCourant = gPreset;
+
+	// Indiquer l'ajout du preset
+	console.log("Preset " + type + " cree");
+
+	// Retourner le gPreset cree
+	return gPreset;
+
+}
+
+// --- Fonction creerGBasePresetGain
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetGain(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Gain'
+	var param = new ParametreGain(0, 1, 0.01);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Pan'
+	var param2 = new ParametrePan();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param2);
+
+}
+
 // --- Activer les elements 
-$(function($) {
+//$(function($) {
+
+	//window['nomFonction']();
+	//if (typeof nomFonction == 'function')
 
   // Activer l'element Knob
-  $(".knob").knob(/* TODO parametres et evenements */
+  //$(".knob").knob(/* TODO parametres et evenements */
 
   	/*{
   		release : function (value) {
@@ -1023,9 +1146,9 @@ $(function($) {
     	}
 
   	}*/
-  )
+  //)
   
-});
+//});
 
 /*
 function displayPresets() {
