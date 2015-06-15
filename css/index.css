@@ -31,7 +31,9 @@ section#sectionPresets{
 	width: 100%;
 	height: 70%;
 
-	background-color: rgba(255, 255, 240, 0.5);
+	/*background-color: rgba(255, 255, 240, 0.5);*/
+	background-image: url(../imgs/fondEcran.png);
+	background-repeat:repeat-x;
 }
 
 /*form#presetChoixForm {
@@ -50,7 +52,7 @@ select#presetChoix {
 /* Affichage d'un preset */
 .divPreset {
 	position: absolute;
-	border:1px solid #000000;
+	border:1px solid #ffffff;
 	width: 50px;
 	height: 100px;
 	border-radius: 10%;
