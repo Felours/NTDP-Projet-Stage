@@ -393,8 +393,9 @@ function GParametre(graphique, typeValeurs){
 /* Description : Class representant un parametre Gain d'un preset */
 /* Arguments : minVal - la valeur minimale de l'intervalle
 			   maxVal - la valeur maximale de l'intervalle
+			   valInit - la valeur initiale
 			   steps - valeur de saut lors d'un changement  */
-function ParametreGain(minVal, maxVal, steps){
+function ParametreGain(minVal, maxVal, valInit, steps){
 
 	// Heritage
 	Parametre.call(this);
@@ -403,7 +404,7 @@ function ParametreGain(minVal, maxVal, steps){
 	this.setNom("Gain");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(minVal, maxVal, steps);
+	var g = new GParametreKnob(minVal, maxVal, valInit, steps);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -423,7 +424,7 @@ function ParametrePan(){
 	this.setNom("Pan");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(-1, 1, 0.01);
+	var g = new GParametreKnob(-1, 1, 0, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -443,7 +444,7 @@ function ParametreTone(){
 	this.setNom("Tone");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(100, 10000, 1);
+	var g = new GParametreKnob(100, 10000, 1000, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -454,16 +455,21 @@ ParametreTone.prototype.traiterAudio = traiterAudioTone;
 
 /* Class ParametreVolume */
 /* Description : Class representant un parametre Volume d'un preset */
-function ParametreVolume(){
+/* Argument : valInit - la valeur initiale */
+function ParametreVolume(valInit){
 
 	// Heritage
 	Parametre.call(this);
+
+	// Verifier si l'argument est correct
+	if(typeof(valInit) === 'undefined')
+		valInit = 1;
 
 	// Indiquer le nom du parametre
 	this.setNom("Volume");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 1, 0.01);
+	var g = new GParametreKnob(0, 1, valInit, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -504,7 +510,7 @@ function ParametreMix(){
 	this.setNom("Mix");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 100, 0.1);
+	var g = new GParametreKnob(0, 100, 20, 0.1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -524,7 +530,7 @@ function ParametreRoom(){
 	this.setNom("Room");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 100, 1);
+	var g = new GParametreKnob(0, 100, 0, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -544,7 +550,7 @@ function ParametreFeedBack(){
 	this.setNom("FeedBack");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 100, 1);
+	var g = new GParametreKnob(0, 100, 60, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -564,7 +570,7 @@ function ParametreTime(){
 	this.setNom("Time");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(1, 1000, 1);
+	var g = new GParametreKnob(1, 1000, 190, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -584,7 +590,7 @@ function ParametreDrive(){
 	this.setNom("Drive");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
+	var g = new GParametreKnob(0, 10, 3, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -604,27 +610,7 @@ function ParametreBass(){
 	this.setNom("Bass");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
-
-	// Indiquer le graphique du parametre
-	this.setGParametre(g);
-
-}
-ParametreBass.prototype = new Parametre();
-ParametreBass.prototype.traiterAudio = traiterAudioBass;
-
-/* Class ParametreBass */
-/* Description : Class representant un parametre Bass d'un preset */
-function ParametreBass(){
-
-	// Heritage
-	Parametre.call(this);
-
-	// Indiquer le nom du parametre
-	this.setNom("Bass");
-
-	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
+	var g = new GParametreKnob(0, 10, 5, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -644,7 +630,7 @@ function ParametreMid(){
 	this.setNom("Mid");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
+	var g = new GParametreKnob(0, 10, 5, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -664,7 +650,7 @@ function ParametreTreb(){
 	this.setNom("Treb");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
+	var g = new GParametreKnob(0, 10, 5, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -684,7 +670,7 @@ function ParametrePresence(){
 	this.setNom("Presence");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
+	var g = new GParametreKnob(0, 10, 5, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -695,16 +681,21 @@ ParametrePresence.prototype.traiterAudio = traiterAudioPresence;
 
 /* Class ParametreBoost */
 /* Description : Class representant un parametre Boost d'un preset */
-function ParametreBoost(){
+/* Argument : valInit - la valeur initiale */
+function ParametreBoost(valInit){
 
 	// Heritage
 	Parametre.call(this);
+
+	// Verifier si l'argument est correct
+	if(typeof(valInit) === 'undefined')
+		valInit = false;
 
 	// Indiquer le nom du parametre
 	this.setNom("Boost");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreSwitch();
+	var g = new GParametreSwitch(valInit);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -724,7 +715,7 @@ function ParametreMaster(){
 	this.setNom("Master");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 10, 0.01);
+	var g = new GParametreKnob(0, 10, 8, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -735,16 +726,21 @@ ParametreMaster.prototype.traiterAudio = traiterAudioMaster;
 
 /* Class ParametreFrequency */
 /* Description : Class representant un parametre Frequency d'un preset */
-function ParametreFrequency(){
+/* Argument : valInit - valeur initiale */
+function ParametreFrequency(valInit){
 
 	// Heritage
 	Parametre.call(this);
+
+	// Verifier si l'argument est correct
+	if(typeof(valInit) === 'undefined')
+		valInit = 500;
 
 	// Indiquer le nom du parametre
 	this.setNom("Frequency");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(20, 20000, 1);
+	var g = new GParametreKnob(20, 20000, valInit, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -764,7 +760,7 @@ function ParametreQ(){
 	this.setNom("Q");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 30, 1);
+	var g = new GParametreKnob(0, 30, 1, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -784,7 +780,7 @@ function ParametreRelease(){
 	this.setNom("Release");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 1, 0.01);
+	var g = new GParametreKnob(0, 1, 0.25, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -804,7 +800,7 @@ function ParametreThreshold(){
 	this.setNom("Threshold");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 1, 0.01);
+	var g = new GParametreKnob(-90, -10, -22, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -812,26 +808,6 @@ function ParametreThreshold(){
 }
 ParametreThreshold.prototype = new Parametre();
 ParametreThreshold.prototype.traiterAudio = traiterAudioThreshold;
-
-/* Class ParametreRelease */
-/* Description : Class representant un parametre Release d'un preset */
-function ParametreRelease(){
-
-	// Heritage
-	Parametre.call(this);
-
-	// Indiquer le nom du parametre
-	this.setNom("Release");
-
-	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 1, 0.01);
-
-	// Indiquer le graphique du parametre
-	this.setGParametre(g);
-
-}
-ParametreRelease.prototype = new Parametre();
-ParametreRelease.prototype.traiterAudio = traiterAudioRelease;
 
 /* Class ParametreResonance */
 /* Description : Class representant un parametre Resonance d'un preset */
@@ -844,7 +820,7 @@ function ParametreResonance(){
 	this.setNom("Resonance");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(2, 7, 0.01);
+	var g = new GParametreKnob(2, 7, 4, 0.01);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -864,7 +840,7 @@ function ParametreNum(nom){
 	this.setNom(nom);
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(-40, 40, 1);
+	var g = new GParametreKnob(-40, 40, 0, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -884,7 +860,7 @@ function ParametrePitch(){
 	this.setNom("Pitch");
 
 	// Creer le graphique associe (Instance fille de la classe GParametre)
-	var g = new GParametreKnob(0, 100, 1);
+	var g = new GParametreKnob(0, 100, 0, 1);
 
 	// Indiquer le graphique du parametre
 	this.setGParametre(g);
@@ -1092,8 +1068,9 @@ function traiterAudioMode(flux) {
 /* Description : Class representant le graphique issu du plugin Knob */
 /* Arguments : valMin - valeur minimal de l'intervalle
 			   valMax - valeur maximale de l'intervalle 
+			   valInit - la valeur initiale
 			   step - valeur de saut lors d'un changement */
-function GParametreKnob(valMin, valMax, step){
+function GParametreKnob(valMin, valMax, valInit, step){
 
 	// Appeler la classe mere (heritage)
 	GParametre.call(this);
@@ -1105,7 +1082,7 @@ function GParametreKnob(valMin, valMax, step){
 	graphique.attr("data-min", valMin);
 	graphique.attr("data-max", valMax);
 	graphique.attr("data-step", step);
-	graphique.attr("value", valMin);
+	graphique.attr("value", valInit);
 
 	// Indiquer la taille de l'element
 	graphique.attr("data-height", 75);
@@ -1161,14 +1138,24 @@ GParametreListe.prototype.getValeurTraite = getValeurTraiteListe;
 
 /* Class GParametreSwitch */
 /* Description : Class representant le graphique d'un switch */
-function GParametreSwitch(){
+/* Argument : valInit - la valeur initiale */
+function GParametreSwitch(valInit){
 
 	// Appeler la classe mere (heritage)
 	GParametre.call(this);
 
+	// Verifier si l'argument est correct
+	if(typeof(valInit) === 'undefined')
+		valInit = false;
+
 	// Creer un element switch
-	var graphique = $("<div class='switch'></div>");
-	$("<input id='cmn-toggle-4' class='cmn-toggle cmn-toggle-round-flat' type='checkbox'><label for='cmn-toggle-4'></label>").appendTo(graphique);
+	var graphique = $("<div class='switch'></div>");	// Conteneur
+	var input = $("<input id='cmn-toggle-4' class='cmn-toggle cmn-toggle-round-flat' type='checkbox'>").attr("checked", valInit); // Element input
+	var label = $("<label for='cmn-toggle-4'></label>");	// Element label (text)
+
+	// Ajouterles elements au conteneur
+	input.appendTo(graphique);
+	label.appendTo(graphique);
 
 	// Indiquer que le type de valeurs est un interval
 	var typeValeurs = "Switch";
@@ -1178,6 +1165,7 @@ function GParametreSwitch(){
 	this.setGraphique(graphique.get()[0]);
 	this.ajouteValeur(true);
 	this.ajouteValeur(false);
+	this.ajouteValeur(valInit);
 
 }
 GParametreSwitch.prototype = new GParametre();
@@ -1880,7 +1868,7 @@ function creerGBasePresetGain(type){
 	// ------------------------------------------------ //
 
 	// Creer le parametre 'Gain'
-	var param = new ParametreGain(0, 1, 0.01);
+	var param = new ParametreGain(0, 1, 1, 0.01);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -1912,7 +1900,7 @@ function creerGBasePresetReverb(type){
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
-	param = new ParametreVolume();
+	param = new ParametreVolume(0.8);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -1938,7 +1926,7 @@ function creerGBasePresetCabinet(type){
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
-	param = new ParametreVolume();
+	param = new ParametreVolume(1);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -1958,7 +1946,7 @@ function creerGBasePresetOverdrive(type){
 	// ------------------------------------------------ //
 
 	// Creer le parametre 'Gain'
-	var param = new ParametreGain(0, 10, 0.01);
+	var param = new ParametreGain(0, 10, 5, 0.01);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -1970,7 +1958,7 @@ function creerGBasePresetOverdrive(type){
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
-	param = new ParametreVolume();
+	param = new ParametreVolume(1);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2059,7 +2047,7 @@ function creerGBasePresetAmp(type){
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Boost'
-	param = new ParametreBoost();
+	param = new ParametreBoost(true);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2092,7 +2080,7 @@ function creerGBasePresetFilter(type){
 	// ------------------------------------------------ //
 
 	// Creer le parametre 'Frequency'
-	var param = new ParametreFrequency();
+	var param = new ParametreFrequency(500);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2104,7 +2092,7 @@ function creerGBasePresetFilter(type){
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
-	param = new ParametreVolume();
+	param = new ParametreVolume(1);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2157,7 +2145,7 @@ function creerGBasePresetWah(type){
 	// ------------------------------------------------ //
 
 	// Creer le parametre 'Frequency'
-	var param = new ParametreFrequency();
+	var param = new ParametreFrequency(600);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2245,7 +2233,7 @@ function creerGBasePresetPitch(type){
 	// ------------------------------------------------ //
 
 	// Creer le parametre 'Gain'
-	var param = new ParametreGain(0, 1, 0.01);
+	var param = new ParametreGain(0, 1, 1, 0.01);
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
