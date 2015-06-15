@@ -1263,18 +1263,20 @@ var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 	/* Endpoint */
 	/* ======== */
 	var endpointEntree = {
-		endpoint:"Dot",
+		endpoint:["Dot", { radius: 8}],
 		maxConnections : -1,
 		isSource:false,
 		isTarget:true,
+		paintStyle: { fillStyle: 'green' },
 		anchor : anchorEntree
 	};
 
 	var endpointSortie = {
-		endpoint:"Dot",
+		endpoint:["Dot", { radius: 8}],
 		maxConnections : -1,
 		isSource:true,
 		isTarget:false,
+		paintStyle: { fillStyle: 'blue' },
 		anchor : anchorSortie
 	};
 
