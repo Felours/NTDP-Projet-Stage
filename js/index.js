@@ -432,6 +432,488 @@ function ParametrePan(){
 ParametrePan.prototype = new Parametre();
 ParametrePan.prototype.traiterAudio = traiterAudioPan;
 
+/* Class ParametreTone */
+/* Description : Class representant un parametre Tone d'un preset */
+function ParametreTone(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Tone");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(100, 10000, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreTone.prototype = new Parametre();
+ParametreTone.prototype.traiterAudio = traiterAudioTone;
+
+/* Class ParametreVolume */
+/* Description : Class representant un parametre Volume d'un preset */
+function ParametreVolume(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Volume");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 1, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreVolume.prototype = new Parametre();
+ParametreVolume.prototype.traiterAudio = traiterAudioVolume;
+
+/* Class ParametreType */
+/* Description : Class representant un parametre Type d'un preset */
+/* Argument : tab - tableu contenant les elements de la liste */
+function ParametreType(tab){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Type");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreListe(tab);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreType.prototype = new Parametre();
+ParametreType.prototype.traiterAudio = traiterAudioType;
+
+/* Class ParametreMix */
+/* Description : Class representant un parametre Mix d'un preset */
+function ParametreMix(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Mix");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 100, 0.1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreMix.prototype = new Parametre();
+ParametreMix.prototype.traiterAudio = traiterAudioMix;
+
+/* Class ParametreRoom */
+/* Description : Class representant un parametre Room d'un preset */
+function ParametreRoom(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Room");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 100, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreRoom.prototype = new Parametre();
+ParametreRoom.prototype.traiterAudio = traiterAudioRoom;
+
+/* Class ParametreFeedBack */
+/* Description : Class representant un parametre FeedBack d'un preset */
+function ParametreFeedBack(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("FeedBack");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 100, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreFeedBack.prototype = new Parametre();
+ParametreFeedBack.prototype.traiterAudio = traiterAudioFeedBack;
+
+/* Class ParametreTime */
+/* Description : Class representant un parametre Time d'un preset */
+function ParametreTime(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Time");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(1, 1000, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreTime.prototype = new Parametre();
+ParametreTime.prototype.traiterAudio = traiterAudioTime;
+
+/* Class ParametreDrive */
+/* Description : Class representant un parametre Drive d'un preset */
+function ParametreDrive(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Drive");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreTime.prototype = new Parametre();
+ParametreTime.prototype.traiterAudio = traiterAudioDrive;
+
+/* Class ParametreBass */
+/* Description : Class representant un parametre Bass d'un preset */
+function ParametreBass(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Bass");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreBass.prototype = new Parametre();
+ParametreBass.prototype.traiterAudio = traiterAudioBass;
+
+/* Class ParametreBass */
+/* Description : Class representant un parametre Bass d'un preset */
+function ParametreBass(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Bass");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreBass.prototype = new Parametre();
+ParametreBass.prototype.traiterAudio = traiterAudioBass;
+
+/* Class ParametreMid */
+/* Description : Class representant un parametre Mid d'un preset */
+function ParametreMid(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Mid");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreMid.prototype = new Parametre();
+ParametreMid.prototype.traiterAudio = traiterAudioMid;
+
+/* Class ParametreTreb */
+/* Description : Class representant un parametre Treb d'un preset */
+function ParametreTreb(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Treb");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreTreb.prototype = new Parametre();
+ParametreTreb.prototype.traiterAudio = traiterAudioTreb;
+
+/* Class ParametrePresence */
+/* Description : Class representant un parametre Presence d'un preset */
+function ParametrePresence(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Presence");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametrePresence.prototype = new Parametre();
+ParametrePresence.prototype.traiterAudio = traiterAudioPresence;
+
+/* Class ParametreBoost */
+/* Description : Class representant un parametre Boost d'un preset */
+function ParametreBoost(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Boost");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreSwitch();
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreBoost.prototype = new Parametre();
+ParametreBoost.prototype.traiterAudio = traiterAudioBoost;
+
+/* Class ParametreMaster */
+/* Description : Class representant un parametre Presence d'un preset */
+function ParametreMaster(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Master");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 10, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreMaster.prototype = new Parametre();
+ParametreMaster.prototype.traiterAudio = traiterAudioMaster;
+
+/* Class ParametreFrequency */
+/* Description : Class representant un parametre Frequency d'un preset */
+function ParametreFrequency(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Frequency");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(20, 20000, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreFrequency.prototype = new Parametre();
+ParametreFrequency.prototype.traiterAudio = traiterAudioFrequency;
+
+/* Class ParametreQ */
+/* Description : Class representant un parametre Q d'un preset */
+function ParametreQ(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Q");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 30, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreQ.prototype = new Parametre();
+ParametreQ.prototype.traiterAudio = traiterAudioQ;
+
+/* Class ParametreRelease */
+/* Description : Class representant un parametre Release d'un preset */
+function ParametreRelease(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Release");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 1, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreRelease.prototype = new Parametre();
+ParametreRelease.prototype.traiterAudio = traiterAudioRelease;
+
+/* Class ParametreThreshold */
+/* Description : Class representant un parametre Threshold d'un preset */
+function ParametreThreshold(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Threshold");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 1, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreThreshold.prototype = new Parametre();
+ParametreThreshold.prototype.traiterAudio = traiterAudioThreshold;
+
+/* Class ParametreRelease */
+/* Description : Class representant un parametre Release d'un preset */
+function ParametreRelease(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Release");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 1, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreRelease.prototype = new Parametre();
+ParametreRelease.prototype.traiterAudio = traiterAudioRelease;
+
+/* Class ParametreResonance */
+/* Description : Class representant un parametre Resonance d'un preset */
+function ParametreResonance(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Resonance");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(2, 7, 0.01);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreResonance.prototype = new Parametre();
+ParametreResonance.prototype.traiterAudio = traiterAudioResonance;
+
+/* Class ParametreNum */
+/* Description : Class representant un parametre dont le nom est un nombre d'un preset */
+function ParametreNum(nom){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom(nom);
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(-40, 40, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreNum.prototype = new Parametre();
+ParametreNum.prototype.traiterAudio = traiterAudioNum;
+
+/* Class ParametrePitch */
+/* Description : Class representant un parametre dont le nom est un nombre d'un preset */
+function ParametrePitch(){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Pitch");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreKnob(0, 100, 1);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametrePitch.prototype = new Parametre();
+ParametrePitch.prototype.traiterAudio = traiterAudioPitch;
+
+/* Class ParametreMode */
+/* Description : Class representant un parametre Mode d'un preset */
+/* Argument : tab - tableu contenant les elements de la liste */
+function ParametreMode(tab){
+
+	// Heritage
+	Parametre.call(this);
+
+	// Indiquer le nom du parametre
+	this.setNom("Mode");
+
+	// Creer le graphique associe (Instance fille de la classe GParametre)
+	var g = new GParametreListe(tab);
+
+	// Indiquer le graphique du parametre
+	this.setGParametre(g);
+
+}
+ParametreMode.prototype = new Parametre();
+ParametreMode.prototype.traiterAudio = traiterAudioMode;
+
 /* Methodes a ajouter aux classes Parametre */
 /* ======================================== */
 
@@ -449,6 +931,159 @@ function traiterAudioPan(flux) {
 	/* TODO */
 }
 
+// --- Methode traiterAudioTone
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioTone(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioVolume
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioVolume(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioType
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioType(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioMix
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioMix(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioRoom
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioRoom(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioFeedBack
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioFeedBack(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioTime
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioTime(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioDrive
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioDrive(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioBass
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioBass(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioMid
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioMid(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioTreb
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioTreb(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioPresence
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioPresence(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioBoost
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioBoost(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioMaster
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioMaster(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioFrequency
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioFrequency(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioQ
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioQ(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioRelease
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioRelease(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioThreshold
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioThreshold(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioResonance
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioResonance(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioNum
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioNum(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioPitch
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioPitch(flux) {
+	/* TODO */
+}
+
+// --- Methode traiterAudioMode
+// --- Description : Methode permettant de recuperer un flux, d'appliquer le parametrage et de le rendre
+// 
+function traiterAudioMode(flux) {
+	/* TODO */
+}
 
 /* Classes filles de la classe GParametre */
 /* ====================================== */
@@ -493,8 +1128,88 @@ function GParametreKnob(valMin, valMax, step){
 GParametreKnob.prototype = new GParametre();
 GParametreKnob.prototype.getValeurTraite = getValeurTraiteKnob;
 
+
+/* Class GParametreListe */
+/* Description : Class representant le graphique d'une liste*/
+/* Arguments : tab - tableau contenant la liste des valeurs*/
+function GParametreListe(tab){
+
+	// Appeler la classe mere (heritage)
+	GParametre.call(this);
+
+	// Creer un element select (list)
+	var graphique = $("<select class='parametreList'></select>");
+
+	// Entrer les valeurs du tableau donne
+	for(var i=0; i<tab.length; i++){
+		// Ajouter la valeur dans le graphique
+		$("<option>" + tab[i] +"</option>").appendTo(graphique);
+		// Ajouter la valeur dans l'objet GParametreListe
+		this.ajouteValeur(tab[i]);
+	}
+
+	// Indiquer que le type de valeurs est un interval
+	var typeValeurs = "Liste";
+
+	// Ajouter les parametres a l'instance (par heritage)
+	this.setTypeValeurs(typeValeurs);
+	this.setGraphique(graphique.get()[0]);
+
+}
+GParametreListe.prototype = new GParametre();
+GParametreListe.prototype.getValeurTraite = getValeurTraiteListe;
+
+/* Class GParametreSwitch */
+/* Description : Class representant le graphique d'un switch */
+function GParametreSwitch(){
+
+	// Appeler la classe mere (heritage)
+	GParametre.call(this);
+
+	// Creer un element switch
+	var graphique = $("<div class='switch'></div>");
+	$("<input id='cmn-toggle-4' class='cmn-toggle cmn-toggle-round-flat' type='checkbox'><label for='cmn-toggle-4'></label>").appendTo(graphique);
+
+	// Indiquer que le type de valeurs est un interval
+	var typeValeurs = "Switch";
+
+	// Ajouter les parametres a l'instance (par heritage)
+	this.setTypeValeurs(typeValeurs);
+	this.setGraphique(graphique.get()[0]);
+	this.ajouteValeur(true);
+	this.ajouteValeur(false);
+
+}
+GParametreSwitch.prototype = new GParametre();
+GParametreSwitch.prototype.getValeurTraite = getValeurTraiteSwitch;
+// --- Surcharge methode ajouteValeur
+// 
+GParametreSwitch.prototype.ajouteValeur = function(valeur){
+
+	// Ajouter la valeur dans la liste de l'objet GParametre
+	m_valeurs.push(valeur);
+
+	// Ajouter la valeur dans le graphique
+	/* TODO */
+};
+// --- Surcharge methode retirerValeur
+// 
+GParametreSwitch.prototype.retirerValeur = function(valeur){
+
+	// Trouver l'indice de la valeur
+	var index = m_valeurs.indexOf(valeur);
+
+	// Si trouve, retirer de la liste
+	if (index > -1) {
+		m_valeurs.splice(index, 1);
+	}
+
+	// Retirer la valeur dans le graphique
+	/* TODO */
+};
+
 /* Methodes a ajouter aux classes GParametre */
-/* ===============================\========= */
+/* ========================================= */
 
 // --- Methode getValeurTraiteKnob
 // 
@@ -502,6 +1217,28 @@ function getValeurTraiteKnob() {
 
 	// Recuperer la valeur ('value') du graphique
 	var val = $(this.getGraphique()).val();
+
+	// Renvoyer la valeur
+	return val;
+}
+
+// --- Methode getValeurTraiteListe
+// 
+function getValeurTraiteListe() {
+
+	// Recuperer la valeur ('value') du graphique
+	var val = $(this.getGraphique()).val();
+
+	// Renvoyer la valeur
+	return val;
+}
+
+// --- Methode getValeurTraiteSwitch
+// 
+function getValeurTraiteSwitch() {
+
+	// Recuperer la valeur ('value') du graphique
+	var val = $(this.getGraphique()).children('#cmn-toggle-4').val();
 
 	// Renvoyer la valeur
 	return val;
@@ -530,6 +1267,10 @@ var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 	/* ======= */
 	var anchorSortie = [ "Right", { shape:"Square", anchorCount:150 }];
 	var anchorEntree = [ "Left", { shape:"Square", anchorCount:150 }];
+
+	/* Style connexion */
+	/* =============== */
+	var overlayStyle = [ "Arrow", { foldback:0, location:0.5, width:25 } ]; // Le style "fleche"
 
 	/* Endpoint */
 	/* ======== */
@@ -715,8 +1456,6 @@ function retirerGBP(div){
 	jspInstance.detach($(div));
 	$(div).remove();
 
-	console.log(gPresets.length);
-
 }
 
 // --- Fonction retirerLienGBP
@@ -857,12 +1596,16 @@ jspInstance.bind("connection", function (connInfo, originalEvent) {
     // console.log(getGPresetFromDiv(connInfo.source).getDiv().id);
     //console.log(connInfo.source);
     //console.log(gPresets[2].getDiv());
-    
+
     // Recuperer le GPreset source
     var GPS = getGPresetFromDiv(connInfo.source);
 
     // Recuperer le GPreset target
     var GPT = getGPresetFromDiv(connInfo.target);
+
+    // Ajouter le style fleche pour la connexion
+    if(typeof(overlayStyle) !== 'undefined')
+    	jspInstance.select(connInfo).addOverlay(overlayStyle);
 
     // Ajouter le lien (de class) du target dans le source
     GPS.ajouterSuccesseur(GPT);
@@ -953,12 +1696,31 @@ $("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
 	// Ajouter le titre a l'affichage des parametres
 	titrePreset.appendTo(conteneurParametres);
 
-	// Ajouter les parametres du GBasePreset
+	// Recuperer les parametres du GBasePreset
 	var listeParams = gbp.getPreset().getParametres();
 
+	// --- Construction de l'affichage de chacun des parametres du preset --- //
+	// ---------------------------------------------------------------------- //
+	var gParametreInfos, nomParametreInfo, gParametreInfo;
 	for(var i=0; i<listeParams.length; i++){
-		// Ajouter le graphique dans le conteneur
-		$(listeParams[i].getGParametre().getGraphique()).appendTo(conteneurParametres);
+
+		// Creer un conteneur assemblant les elements du parametre
+		gParametreInfos = $("<div class='gParametreInfos'></div>");
+
+		// Recuperer le nom du parametre
+		nomParametreInfo = listeParams[i].getNom();
+
+		// Recuperer le graphique du parametre
+		gParametreInfo = listeParams[i].getGParametre().getGraphique();
+
+		// Ajouter le nom du parametre dans les informations affichees
+		$("<div class='nomParametreInfo centerText'>" + nomParametreInfo + "</div>").appendTo(gParametreInfos);
+
+		// Ajouter le graphique du parametre dans les informations affichees
+		$(gParametreInfo).appendTo(gParametreInfos);
+
+		// Ajouter le parametre dans le conteneur
+		$(gParametreInfos).appendTo(conteneurParametres);
 	}
 
 	// Valider le Knob
@@ -1124,10 +1886,389 @@ function creerGBasePresetGain(type){
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Pan'
-	var param2 = new ParametrePan();
+	param = new ParametrePan();
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param2);
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetReverb
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetReverb(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Mix'
+	var param = new ParametreMix();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Volume'
+	param = new ParametreVolume();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetCabinet
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetCabinet(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Room'
+	var param = new ParametreRoom();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Volume'
+	param = new ParametreVolume();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetOverdrive
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetOverdrive(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Gain'
+	var param = new ParametreGain(0, 10, 0.01);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Tone'
+	param = new ParametreTone();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Volume'
+	param = new ParametreVolume();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Type'
+	var vals = ['Vintage', 'Modern'];
+	param = new ParametreType(vals);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetDelay
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetDelay(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'FeedBack'
+	var param = new ParametreFeedBack();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Mix'
+	param = new ParametreMix();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Time'
+	param = new ParametreTime();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetAmp
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetAmp(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Drive'
+	var param = new ParametreDrive();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Bass'
+	param = new ParametreBass();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Mid'
+	param = new ParametreMid();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Treb'
+	param = new ParametreTreb();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Presence'
+	param = new ParametrePresence();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Boost'
+	param = new ParametreBoost();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Master'
+	param = new ParametreMaster();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Type'
+	var vals = ['Brit Man', 'German Modern', 'Clean US', 'Class A'];
+	param = new ParametreType(vals);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetFilter
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetFilter(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Frequency'
+	var param = new ParametreFrequency();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Q'
+	param = new ParametreQ();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Volume'
+	param = new ParametreVolume();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Type'
+	var vals = ['LOWPASS', 'HIGHPASS', 'BANDPASS', 'LOWSHELF', 'HIGHSHELF', 'PEAKING', 'NOTCH', 'ALLPASS'];
+	param = new ParametreType(vals);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetGate
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetGate(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Release'
+	var param = new ParametreRelease();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Threshold'
+	param = new ParametreThreshold();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetWah
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetWah(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Frequency'
+	var param = new ParametreFrequency();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Resonance'
+	param = new ParametreResonance();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetGraphicEQ
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetGraphicEQ(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre '63'
+	var param = new ParametreNum('63');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '125'
+	var param = new ParametreNum('125');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '250'
+	var param = new ParametreNum('250');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '500'
+	var param = new ParametreNum('500');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '1K'
+	var param = new ParametreNum('1K');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '2K'
+	var param = new ParametreNum('2K');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '4K'
+	var param = new ParametreNum('4K');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre '8K'
+	var param = new ParametreNum('8K');
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+}
+
+// --- Fonction creerGBasePresetPitch
+// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// 
+function creerGBasePresetPitch(type){
+
+	// Creer la structure de base du gBasePreset
+	var gbp = creerGBasePreset(type);
+
+	// --- Creer et ajouter les parametres associes --- //
+	// ------------------------------------------------ //
+	// ------------------------------------------------ //
+
+	// Creer le parametre 'Gain'
+	var param = new ParametreGain(0, 1, 0.01);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Pitch'
+	var param = new ParametrePitch();
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Mode'
+	var vals = ['Octave UP', 'Octave Down'];
+	param = new ParametreMode(vals);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
+
+	// Creer le parametre 'Type'
+	vals = ['Whammy'];
+	param = new ParametreType(vals);
+
+	// Ajouter le parametre 
+	gbp.getPreset().ajouterParametre(param);
 
 }
 
