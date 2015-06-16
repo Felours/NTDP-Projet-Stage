@@ -1533,14 +1533,39 @@ function loadPresets() {
 // --------------------------------- //
 $(document).ready(function(){
    
+	// --- Calculer la taille des conteneurs selon la taille de l'ecran (corriger bug de zoom)--- //
+	var hauteurEcran = $(document).height();
+	var largeurEcran = $(document).width();
+
+	$("#sectionGenerale").css('height', hauteurEcran);
+	$("#sectionGenerale").css('width', largeurEcran);
+
 	// Initialiser les presets de base
 	initialiserVuePresets();
 
-	// Essayer implementation Knob
-	/*var div = conteneurParametres;
+	// Indiquer la procedure a suivre en cas de changement de taille de la fenetre
+	$(window).resize(function(){
+		
+		// Correction bug zoom avant
+		// Bouger les elements jsPlumb
+		// var gPresetCourant;	// Instance du gPreset courant
+		// var posGPresetCourant; // la position du gPreset courant
+		// for(var i=0; i<gPresets.length; i++){
 
-	var knob = new GParametreKnob(10, 100, 10);
-	$(knob.getGraphique()).appendTo(div);*/
+		// 	// Recuperer le gPreset courant
+		// 	gPresetCourant = gPresets[i].getDiv();
+
+		// 	// Recuperer la position du gPreset courant
+		// 	posGPresetCourant = $(gPresetCourant).position().top;
+
+		// 	console.log("La position de " + gPresets[i].getPreset().getType() + " est : " + screen.);
+
+		// }
+
+
+		// Repeindre tous les elements du jsPlumb
+		jspInstance.repaintEverything();
+	});
 
 });
 
@@ -1575,6 +1600,27 @@ jspInstance.ready(function() {
 			});
 
 	});
+
+	// Prendre en charge le zoom de la fenetre : https://jsplumbtoolkit.com/doc/zooming
+	// window.setZoom = function(zoom, instance, transformOrigin, el) {
+	//   transformOrigin = transformOrigin || [ 0.5, 0.5 ];
+	//   instance = instance || jspInstance;
+	//   el = el || instance.getContainer();
+	//   var p = [ "webkit", "moz", "ms", "o" ],
+	//       s = "scale(" + zoom + ")",
+	//       oString = (transformOrigin[0] * 100) + "% " + (transformOrigin[1] * 100) + "%";
+
+	//   for (var i = 0; i < p.length; i++) {
+	//     el.style[p[i] + "Transform"] = s;
+	//     el.style[p[i] + "TransformOrigin"] = oString;
+	//   }
+
+	//   el.style["transform"] = s;
+	//   el.style["transformOrigin"] = oString;
+
+	//   instance.setZoom(zoom);   
+	//   instance.repaintEverything(); 
+	// };
 
 });
 
