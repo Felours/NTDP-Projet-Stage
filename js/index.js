@@ -1887,9 +1887,12 @@ function restaurergBasePresets() {
 					// Ajouter les endpoints
 					//ajouterEndPoints(gPreset);
 
+
 				});
 				// --- /jsPlumb ---
 				// ----------------
+
+
 			}
 		);
 
@@ -1900,6 +1903,9 @@ function restaurergBasePresets() {
 		graphique.appendTo(conteneurPresets);
 
 	}
+
+	// Redessiner tous les elements jsPlumb (pour remettre a jour les endpoints)
+	jspInstance.repaintEverything();
 
 }
 
