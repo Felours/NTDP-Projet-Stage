@@ -52,6 +52,21 @@ select#presetChoix {
 	position: absolute;
 }
 
+/* Le button de sauvegarde */
+#buttonSauvegarde {
+	top: 0;
+	right: 0;
+	margin-right: 80px;
+	position: absolute;
+}
+
+/* Le button de restauration */
+#buttonRestaurer {
+	top: 0;
+	right: 0;
+	position: absolute;
+}
+
 /* Affichage d'un preset */
 .divPreset {
 	position: absolute;

@@ -174,7 +174,8 @@ function GBasePreset(div, preset) {
 
 	// --- Attributs
 	// 
-	this.m_div = div;
+	this.m_id = undefined;	// L'id representant le gBasePreset
+	var m_div = div;	// Le graphique (element div)
 	this.m_preset = preset;
 	this.m_position = new Position(0,0); // La position du graphique
 	//setAncre(m_preset);	// Faire le lien entre le preset et le GBP
@@ -185,6 +186,18 @@ function GBasePreset(div, preset) {
 	// --- Methodes
 	// 
 	
+	// --- Methode getId
+	// 
+	this.getId = function(){
+		return(this.m_id);
+	};
+
+	// --- Methode setId
+	// 
+	this.setId = function(id){
+		this.m_id = id;
+	};
+
 	// --- Methode getPreset
 	// 
 	this.getPreset = function(){
@@ -194,7 +207,13 @@ function GBasePreset(div, preset) {
 	// --- Methode getDiv
 	// 
 	this.getDiv = function(){
-		return(this.m_div);
+		return(m_div);
+	};
+
+	// --- Methode setDiv
+	// 
+	this.setDiv = function(div){
+		m_div = div;
 	};
 
 	// --- Fonction setAncre
@@ -468,14 +487,14 @@ function GParametre(graphique, typeValeurs){
 
 	// --- Attributs
 	// 
-	this.m_graphique = graphique;	// L'instance du graphique a afficher
+	this.m_graphique = graphique;	// Description HTML du graphique (chaine de caractere qui sera generee)
 	this.m_typeValeurs = typeValeurs; // Une chaine de caracteres indiquant le type de valeurs
-	this.m_valeurs = []; // Tableau contenant les valeurs (en correlation avec le type de valeur)
+	this.m_valeurs = []; // Tableau associatif (chaque instance du tableau contient 2 valeurs, [0] pour la clef --> [1] pour la valeur) contenant les valeurs (en correlation avec le type de valeur)
 
 	// --- Methodes
 	// 
 	
-	// --- Methode getGraphique
+	// --- Methode getGraphique (methode a surcharger pour retourner un element graphique genere de m_graphique)
 	// 
 	this.getGraphique = function(){
 		return(this.m_graphique);
@@ -508,21 +527,51 @@ function GParametre(graphique, typeValeurs){
 
 	// --- Methode ajouteValeur
 	// 
-	this.ajouteValeur = function(valeur){
-		this.m_valeurs.push(valeur);
+	this.ajouteValeur = function(clef, valeur){
+
+		// Ajouter l'association ([0] pour la clef, [1] pour la valeur)
+		this.m_valeurs.push([clef,valeur]);
+		//this.m_valeurs[clef] = valeur;
 	};
 
 	// --- Methode retirerValeur
 	// 
-	this.retirerValeur = function(valeur){
+	this.retirerValeur = function(clef, valeur){
 
-		// Trouver l'indice de la valeur
-		var index = this.m_valeurs.indexOf(valeur);
-	
-		// Si trouve, retirer de la liste
-		if (index > -1) {
-    		this.m_valeurs.splice(index, 1);
+		// Chercher la clef
+		var cle, val;
+		for(var i=0; i<this.m_valeurs.length; i++){
+
+			// Recuperer la cle
+			cle = this.m_valeurs[i][0];
+
+			// Verifier si la cle correspond
+			if(cle === clef){
+
+				// Verifier si on a enseigne la valeur en parametre
+				if(valeur !== undefined){
+
+					// Recuperer la valeur
+					val = this.m_valeurs[i][1];
+
+					// Verifier si la valeur correspond
+					if(val === valeur)
+						// Supprimer l'association
+						this.m_valeurs.splice(i, 1);
+
+				}
+				else
+					// Supprimer l'association
+					this.m_valeurs.splice(i, 1);
+
+			}
+
 		}
+
+
+		// for(var ob in tab)
+		// Supprimer la clef (puisque tableau associatif)
+		//delete this.m_valeurs[clef];
 	};
 
 }
@@ -1243,30 +1292,40 @@ function GParametreKnob(valMin, valMax, valInit, step){
 	this.setNomClass("GParametreKnob");
 
 	// Creer un element Knob
-	var graphique = $("<input class='knob' data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round>");
-
-	// Indiquer les valeurs parametres de l'element
-	graphique.attr("data-min", valMin);
-	graphique.attr("data-max", valMax);
-	graphique.attr("data-step", step);
-	graphique.attr("value", valInit);
-
-	// Indiquer la taille de l'element
-	graphique.attr("data-height", 75);
-	graphique.attr("data-width", 75);
+	var graphique = "<input class='knob' data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round>";
 
 	// Indiquer que le type de valeurs est un interval
 	var typeValeurs = "Intervalle";
 
 	// Ajouter les parametres a l'instance (par heritage)
 	this.setTypeValeurs(typeValeurs);
-	this.setGraphique(graphique.get()[0]);
-	this.ajouteValeur(valMin);
-	this.ajouteValeur(valMax);
-	this.ajouteValeur(step);
+	this.setGraphique(graphique);
+	this.ajouteValeur("data-min", valMin);
+	this.ajouteValeur("data-max", valMax);
+	this.ajouteValeur("data-step", step);
+	this.ajouteValeur("value", valInit);
 
-	/*for(var i=0; i<getValeurs().length; i++)
-		console.log("Le graphique " + i + " : " + getValeurs()[i]);*/
+	this.ajouteValeur("data-height", 75);
+	this.ajouteValeur("data-width", 75);
+
+	// --- Surcharge de la methode getGraphique (pour recuperer l'element graphique)
+	// 
+	this.getGraphique = function(){
+		
+		// Recuperer la description html du graphique
+		var graphique = $(this.m_graphique);
+
+		// Recuperer les valeurs du graphique
+		var vals = this.getValeurs();
+
+		// Ajouter les valeurs du graphique
+		for(var i=0; i<vals.length; i++)
+			graphique.attr(vals[i][0], vals[i][1]);
+
+		// Renvoyer le graphique
+		return graphique.get()[0];
+	};
+
 
 }
 GParametreKnob.prototype = new GParametre();
@@ -1283,14 +1342,14 @@ function GParametreListe(tab){
 	this.setNomClass("GParametreListe");
 
 	// Creer un element select (list)
-	var graphique = $("<select class='parametreList'></select>");
+	var graphique = "<select class='parametreList'></select>";
 
 	// Entrer les valeurs du tableau donne
-	for(var i=0; i<tab.length; i++){
-		// Ajouter la valeur dans le graphique
-		$("<option>" + tab[i] +"</option>").appendTo(graphique);
-		// Ajouter la valeur dans l'objet GParametreListe
-		this.ajouteValeur(tab[i]);
+	if(tab !== undefined){
+		for(var i=0; i<tab.length; i++){
+			// Ajouter la valeur dans l'objet GParametreListe
+			this.ajouteValeur("option", tab[i]);
+		}
 	}
 
 	// Indiquer que le type de valeurs est un interval
@@ -1298,7 +1357,32 @@ function GParametreListe(tab){
 
 	// Ajouter les parametres a l'instance (par heritage)
 	this.setTypeValeurs(typeValeurs);
-	this.setGraphique(graphique.get()[0]);
+	this.setGraphique(graphique);
+
+	// --- Surcharge de la methode getGraphique (pour recuperer l'element graphique)
+	// 
+	this.getGraphique = function(){
+		
+		// Recuperer la description html du graphique
+		var graphique = $(this.m_graphique);
+		
+		// Recuperer les valeurs du graphique
+		var vals = this.getValeurs();
+
+		// Ajouter les valeurs du graphique
+		for(var i=0; i<vals.length; i++){
+
+			// Ajouter les parametres (si c'est le cas de la valeur actuelle)
+			if(vals[i][0] === "option")
+				$("<option>" + vals[i][1] +"</option>").appendTo(graphique);
+			else
+				// Ajouter les autres attributs
+				graphique.attr(vals[i][0], vals[i][1]);
+		}
+
+		// Renvoyer le graphique
+		return graphique.get()[0];
+	};
 
 }
 GParametreListe.prototype = new GParametre();
@@ -1318,52 +1402,38 @@ function GParametreSwitch(valInit){
 		valInit = false;
 
 	// Creer un element switch
-	var graphique = $("<div class='switch'></div>");	// Conteneur
-	var input = $("<input id='cmn-toggle-4' class='cmn-toggle cmn-toggle-round-flat' type='checkbox'>").attr("checked", valInit); // Element input
-	var label = $("<label for='cmn-toggle-4'></label>");	// Element label (text)
-
-	// Ajouterles elements au conteneur
-	input.appendTo(graphique);
-	label.appendTo(graphique);
+	var graphique = "<div class='switch'> <input id='cmn-toggle-4' class='cmn-toggle cmn-toggle-round-flat' type='checkbox'> <label for='cmn-toggle-4'></label> </div>";
 
 	// Indiquer que le type de valeurs est un interval
 	var typeValeurs = "Switch";
 
 	// Ajouter les parametres a l'instance (par heritage)
 	this.setTypeValeurs(typeValeurs);
-	this.setGraphique(graphique.get()[0]);
-	this.ajouteValeur(true);
-	this.ajouteValeur(false);
-	this.ajouteValeur(valInit);
+	this.setGraphique(graphique);
+	this.ajouteValeur("checked", valInit);
+
+	// --- Surcharge de la methode getGraphique (pour recuperer l'element graphique)
+	// 
+	this.getGraphique = function(){
+		
+		// Recuperer la description html du graphique
+		var graphique = $(this.m_graphique);
+		
+		// Recuperer les valeurs du graphique
+		var vals = this.getValeurs();
+
+		// Ajouter les valeurs du graphique
+		for(var i=0; i<vals.length; i++)
+			graphique.attr(vals[i][0], vals[i][1]);
+
+		// Renvoyer le graphique
+		return graphique.get()[0];
+	};
 
 }
 GParametreSwitch.prototype = new GParametre();
 GParametreSwitch.prototype.getValeurTraite = getValeurTraiteSwitch;
-// --- Surcharge methode ajouteValeur
-// 
-GParametreSwitch.prototype.ajouteValeur = function(valeur){
 
-	// Ajouter la valeur dans la liste de l'objet GParametre
-	this.m_valeurs.push(valeur);
-
-	// Ajouter la valeur dans le graphique
-	/* TODO */
-};
-// --- Surcharge methode retirerValeur
-// 
-GParametreSwitch.prototype.retirerValeur = function(valeur){
-
-	// Trouver l'indice de la valeur
-	var index = this.m_valeurs.indexOf(valeur);
-
-	// Si trouve, retirer de la liste
-	if (index > -1) {
-		this.m_valeurs.splice(index, 1);
-	}
-
-	// Retirer la valeur dans le graphique
-	/* TODO */
-};
 
 /* Methodes a ajouter aux classes GParametre */
 /* ========================================= */
@@ -1458,7 +1528,6 @@ var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 function getGPresetFromDiv(div){
 
 	// Scanner les GPresets existants
-	
 	var GP, GPdiv;
 	for(var i=0; i<gPresets.length; i++){
 		
@@ -1470,6 +1539,32 @@ function getGPresetFromDiv(div){
 
 		// Verifier si la div correspond
 		if(GPdiv === div){
+			return GP;
+		}
+	}
+
+	// Renvoyer une erreur
+	return -1;
+
+}
+
+// --- Fonction getGPresetFromId()
+// Description : Recupere un GBasePreset par son id
+//
+function getGPresetFromId(id){
+
+	// Scanner les GPresets existants
+	var GP, GPId;
+	for(var i=0; i<gPresets.length; i++){
+		
+		// Recuperer le GPreset
+		GP = gPresets[i];
+
+		// Recuperer l'id du GPreset
+		GPId = GP.getId();
+
+		// Verifier si la div correspond
+		if(GPId === id){
 			return GP;
 		}
 	}
@@ -1549,7 +1644,7 @@ function initialiserVuePresets(){
 // --- function constructImgPreset
 // Description : Fonction permettant de construire l'image d'une div
 // 
-function constructImgPreset(nomPreset, div, CB){
+function constructImgPreset(nomPreset, div, gPreset, CB){
 
 	// Creer une instance image
 	var img = new Image();
@@ -1568,11 +1663,14 @@ function constructImgPreset(nomPreset, div, CB){
 		div.css("height", this.height);
 
 		// Appeler la fonction callback (construire les endpoints)
-		CB();
+		if(CB !== undefined)
+			CB();
 
 	};
 
 }
+
+
 
 // --- Fonction retirerGBP
 // Description : Retire le GBasePreset
@@ -1583,26 +1681,45 @@ function retirerGBP(div){
 	var gbp = getGPresetFromDiv(div);
 
 	// Retirer les predecesseurs (mutuellement)
-	var predecs = gbp.getPredecesseurs();
+	var predecs = gbp.getPredecesseurs();	// Liste des ids
+	var gbpPre;
 	for(var i=0; i<predecs.length; i++){
 
-		// Retirer le gPreset du predecesseur
-		predecs[i].retirerSuccesseur(gbp);
+		// Recuperer le gBasePreset par son id
+		gbpPre = getGPresetFromId(predecs[i]);
 
-		// Retirer le predecesseur du gPreset (optionnel, permet de laisser propre)
-		gbp.retirerPredecesseur(predecs[i]);
+		// Verifier si le GBasePreset existe
+		if(gbpPre !== -1){
+
+			// Retirer le gPreset du predecesseur
+			gbpPre.retirerSuccesseur(gbp.getId());
+
+			// Retirer le predecesseur du gPreset (optionnel, permet de laisser propre)
+			gbp.retirerPredecesseur(predecs[i]);
+
+		}
 
 	}
 
 	// Retirer les successeurs (mutuellement)
-	var success = gbp.getSuccesseurs();
+	var success = gbp.getSuccesseurs();	// Liste des ids
+	var gbpSucc;
+
 	for(i=0; i<success.length; i++){
 
-		// Retirer le gPreset du successeur
-		success[i].retirerPredecesseur(gbp);
+		// Recuperer le gBasePreset par son id
+		gbpSucc = getGPresetFromId(success[i]);
 
-		// Retirer le successeur du gPreset (optionnel, permet de laisser propre)
-		gbp.retirerSuccesseur(success[i]);
+		// Verifier si le GBasePreset existe
+		if(gbpSucc !== -1){
+
+			// Retirer le gPreset du successeur
+			gbpSucc.retirerPredecesseur(gbp.getId());
+
+			// Retirer le successeur du gPreset (optionnel, permet de laisser propre)
+			gbp.retirerSuccesseur(success[i]);
+
+		}
 
 	}
 
@@ -1629,10 +1746,10 @@ function retirerLienGBP(src, trg){
 	var GBPtrg = getGPresetFromDiv(trg);
 
 	// Retirer la source du target
-	GBPtrg.retirerPredecesseur(GBPsrc);
+	GBPtrg.retirerPredecesseur(GBPsrc.getId());
 
 	// Retirer le target de la source
-	GBPsrc.retirerSuccesseur(GBPtrg);
+	GBPsrc.retirerSuccesseur(GBPtrg.getId());
 
 }
 
@@ -1675,19 +1792,128 @@ function presetExiste(div){
 }
 
 // --- Fonction savePresets
-// Description : Sauvegarder l'etat de stockage des presets (version buggee)
+// Description : Sauvegarder l'etat de stockage des presets
 //
 function savePresets() {
-   localStorage.gPresets = JSON.stringify(gPresets);
+	// Sauvegarder le tableau contenant les gPresets
+	localStorage.gPresets = JSON.stringify(gPresets);
 }
 
 // --- Fonction loadPresets
 // Description : Restaurer l'etat de stockage des presets (version buggee)
 //
 function loadPresets() {
-  if(localStorage.gPresets) {
-    gPresets = JSON.parse(localStorage.gPresets);
-  }
+
+	// Verifier si le localStorage a sauvegarde les gPresets
+	if(localStorage.gPresets) {
+
+		// Effacer l'affichage courant de presets (et reinitialiser jsPlumb)
+		reinitialiserAffichagePresets();
+
+		// Recuperer du localStorage le tableau gPresets
+		gPresets = JSON.parse(localStorage.gPresets);
+
+		// Redonner au presets leur signfication (grace a la classe Serialize et sa methode)
+		restaurerClasses(gPresets);
+
+		// Reconstruire le graphique des gBasePresets
+		restaurergBasePresets();
+
+		// Reconstruire la structure jsPlumb
+
+	}
+}
+
+// --- Fonction restaurergBasePresets
+// Description : Restaure l'etat d'un gBasePreset (apres rechargement)
+//
+function restaurergBasePresets() {
+
+	// Recuperer le tableau des gPresets a reconstruire
+	var tabGPresets = gPresets;
+
+	// Traiter chaque gPreset
+	var gbp;
+	for(var i=0; i<tabGPresets.length; i++){
+
+		// Recuperer le gPreset courant
+		gbp = tabGPresets[i];
+
+		// Construire le graphique associe (div)
+		var graphique = $("<div></div>").attr('id', gbp.getId()).attr('class','divPreset');
+
+		// Renseigner la position du graphique
+		graphique.css('top', gbp.getPosition().getY());
+		graphique.css('left', gbp.getPosition().getX());
+
+		// Ajouter le CSS selon le type
+		var type = gbp.getPreset().getType();
+		switch(type){
+
+			// --- S'il s'agit d'un preset de debut
+			case nomPDeb : 
+				graphique.addClass('divPresetDeb');
+				break;
+
+			// --- S'il s'agit d'un preset de fin
+			case nomPFin :
+				graphique.addClass('divPresetFin');
+				break;
+
+			// --- S'il s'agit d'un preset normal
+			default :
+				// Ajouter le css normal
+				graphique.addClass('divPresetNormal');
+
+		}
+
+		// Redonner au gBasePreset l'instance du graphique
+		gbp.setDiv(graphique.get()[0]);
+
+		// Reconstruire l'image du graphique
+		constructImgPreset(type, graphique, gbp, 
+			function() {
+
+				// --- jsPlumb ---
+				// ---------------
+				jspInstance.ready(function() {
+
+					// Rendre le graphique draggable uniquement dans le conteneur
+					jspInstance.draggable($(".divPreset"), {
+						// Le conteneur
+						containment:conteneurPresets
+					});
+
+					// Ajouter les endpoints
+					//ajouterEndPoints(gPreset);
+
+				});
+				// --- /jsPlumb ---
+				// ----------------
+			}
+		);
+
+		// Ajouter les endpoints au gPreset
+		ajouterEndPoints(gbp);
+
+		// Ajouter la div dans l'affichage
+		graphique.appendTo(conteneurPresets);
+
+	}
+
+}
+
+// --- Fonction reinitialiserAffichagePresets
+// Description : Reinitialise l'etat de jsPlumb et de l'affichage courant des presets
+//
+function reinitialiserAffichagePresets() {
+
+	// Reinitialiser jsPlumb
+	jspInstance.reset();
+
+	// Reinitialiser l'affichage dans le conteneur des presets
+	conteneurPresets.empty();
+
 }
 
 /* Evenements globaux */
@@ -1845,10 +2071,10 @@ jspInstance.bind("connection", function (connInfo, originalEvent) {
     	jspInstance.select(connInfo).addOverlay(overlayStyle);
 
     // Ajouter le lien (de class) du target dans le source
-    GPS.ajouterSuccesseur(GPT);
+    GPS.ajouterSuccesseur(GPT.getId());
 
     // Ajouter le lien (de class) du source dans le target
-    GPT.ajouterPredecesseur(GPS);
+    GPT.ajouterPredecesseur(GPS.getId());
 
     // Sauvegarder l'etat des variables a sauvegarder
 	//savePresets();
@@ -1901,6 +2127,25 @@ $('#presetChoix').on('change', function() {
 
 	// Ajouter le preset
 	ajouterPreset(type);
+
+});
+
+// --- Gestion evenement click sur button sauvegarde
+//
+$('#buttonSauvegarde').on('click', function() {
+
+	// Appeler la fonction de sauvegarde
+	savePresets();
+
+});
+
+
+// --- Gestion evenement click sur button restaurer
+//
+$('#buttonRestaurer').on('click', function() {
+
+	// Appeler la fonction de restauration
+	loadPresets();
 
 });
 
@@ -2044,7 +2289,7 @@ function creerGBasePreset(type){
 	}
 
 	// Construire l'image de la div
-	var infoImg = constructImgPreset(type, divPreset, 
+	var infoImg = constructImgPreset(type, divPreset, gPreset, 
 		function() {
 
 			// --- jsPlumb ---
@@ -2059,6 +2304,9 @@ function creerGBasePreset(type){
 
 				// Ajouter les endpoints
 				//ajouterEndPoints(gPreset);
+
+				// Renseigner l'id au gBasePreset
+				gPreset.setId(divPreset[0].id);
 
 			});
 			// --- /jsPlumb ---
@@ -2089,6 +2337,12 @@ function creerGBasePreset(type){
 
 	// --- /jsPlumb ---
 	// ----------------
+
+	// Indiquer la position initiale du gBasePreset
+	var top = divPreset.get()[0].getBoundingClientRect().top;
+	var left = divPreset.get()[0].getBoundingClientRect().left;
+
+	gPreset.setPosition(left, top);
 
 	// Ajouter le preset a la liste
 	gPresets.push(gPreset);
