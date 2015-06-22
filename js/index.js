@@ -6,6 +6,72 @@
 /* ---------------------------------------------------------------------------------------- */
 
 
+/* Classe Serialize */
+/* ================ */
+
+/* Description : Class a implementer aux classes meres dont les informations doivent etre sauvegardees et restaurees */
+// --- Argument : nomClass - nom de la classe implementant Serialize. Doit etre renseigne au constructeur
+//
+function Serialize(nomClass){
+  
+  this.m_nomClass = nomClass;
+  
+  // --- Methode getNomClass
+	// 
+	this.getNomClass = function(){
+		return(this.m_nomClass);
+	};
+	
+	// --- Methode setNomClass
+	// 
+	this.setNomClass = function(nomClass){
+		this.m_nomClass = nomClass;
+	};
+  
+    //this.restaurerObjetsInternes = restaurerClasses;
+}
+Serialize.prototype.restaurerObjetsInternes = restaurerClasses;
+
+// --- Fonction restaurerClasses
+// --- Description : recreer les objets internes de l'objet traite en tant qu'instance de classe dont ils sont definies
+// --- Argument : instance - argument optionel contenant un objet non encore recree
+//
+function restaurerClasses(insta){
+  
+  // Verifier si l'argument existe
+  if(typeof(insta) === 'undefined')
+    insta = this;
+  
+  // Verifier si l'argument est un tableau
+  if(Array.isArray(insta)){
+    
+    // Passer chaque objet au niveau suivant
+    for(var i=0; i<insta.length; i++)
+      restaurerClasses(insta[i]);
+    
+  }
+  // Si c'est un objet quelconque
+  else{
+    
+    // Verifier si l'objet contient m_nomClass (si oui, il s'agit d'un objet issu de classe personnelle)
+    var nomClass = insta.m_nomClass;
+
+    if(typeof(nomClass) !== 'undefined'){
+      
+      // Indiquer a l'objet sa classe
+      insta.__proto__ = Object.create(new window[nomClass]());
+      
+      // Passer les attributs de l'objet (en cas de composition)
+      Object.keys(insta).forEach(function (key) {
+        insta.restaurerObjetsInternes(insta[key]);
+      });
+      
+    }
+    
+  }
+}
+
+
 /* Classes GBasePreset */
 /* =================== */
 
@@ -15,11 +81,14 @@
 /* Arguments : type - le nom d'un preset */
 function Preset(type){
 
+	// Implementer Serialize
+	Serialize.call(this,"Preset");
+
 	// --- Attributs
 	// 
-	var m_type = type;	// Type de preset (nom)
-	var m_actif = true;	// Preset actif ou non
-	var m_parametres = []; // Liste des parametres du preset
+	this.m_type = type;	// Type de preset (nom)
+	this.m_actif = true;	// Preset actif ou non
+	this.m_parametres = []; // Liste des parametres du preset
 	var m_ancre;		// Lien vers le GBasePreset
 
 	// --- Methodes
@@ -28,42 +97,42 @@ function Preset(type){
 	// --- Methode getType
 	// 
 	this.getType = function(){
-		return(m_type);
+		return(this.m_type);
 	};
 	
 	// --- Methode setType
 	// 
 	this.setType = function(type){
-		m_type = type;
+		this.m_type = type;
 	};
 
 	// --- Methode getActivation
 	// 
 	this.getActivation = function(){
-		return(m_actif);
+		return(this.m_actif);
 	};
 
 	// --- Methode getParametres
 	// 
 	this.getParametres = function(){
-		return(m_parametres);
+		return(this.m_parametres);
 	};
 
 	// --- Methode changerActivation
 	// 
 	this.changerActivation = function(){
 
-		if(m_actif)
-			m_actif = false;
+		if(this.m_actif)
+			this.m_actif = false;
 		else
-			m_actif = true;
+			this.m_actif = true;
 
 	};
 
 	// --- Methode ajouterParametre
 	// 
 	this.ajouterParametre = function(parametre){
-		m_parametres.push(parametre);
+		this.m_parametres.push(parametre);
 	};
 
 	// --- Methode retirerParametre
@@ -71,11 +140,11 @@ function Preset(type){
 	this.retirerParametre = function(parametre){
 
 		// Trouver l'indice du parametre
-		var index = m_parametres.indexOf(parametre);
+		var index = this.m_parametres.indexOf(parametre);
 	
 		// Si trouve, retirer de la liste
 		if (index > -1) {
-    		m_parametres.splice(index, 1);
+    		this.m_parametres.splice(index, 1);
 		}
 	};
 
@@ -92,6 +161,7 @@ function Preset(type){
 	};
 
 }
+Preset.prototype = new Serialize();
 
 /* Class GBasePreset */
 /* Description : Class representant le graphique d'un preset */
@@ -99,10 +169,14 @@ function Preset(type){
 			   preset - instance de la classe Preset descrivant le preset */
 function GBasePreset(div, preset) {
 
+	// Implementer Serialize
+	Serialize.call(this,"GBasePreset");
+
 	// --- Attributs
 	// 
-	var m_div = div;
-	var m_preset = preset;
+	this.m_div = div;
+	this.m_preset = preset;
+	this.m_position = new Position(0,0); // La position du graphique
 	//setAncre(m_preset);	// Faire le lien entre le preset et le GBP
 
 	//var m_dimension = new Dimension(10, 10); // Les dimensions du div
@@ -114,13 +188,13 @@ function GBasePreset(div, preset) {
 	// --- Methode getPreset
 	// 
 	this.getPreset = function(){
-		return(m_preset);
+		return(this.m_preset);
 	};
 
 	// --- Methode getDiv
 	// 
 	this.getDiv = function(){
-		return(m_div);
+		return(this.m_div);
 	};
 
 	// --- Fonction setAncre
@@ -129,17 +203,24 @@ function GBasePreset(div, preset) {
 	this.setAncre = function(){
 
 		// Indiquer dans l'instance du preset le lien vers le GBasePreset
-		m_preset.setAncre(this);
+		this.m_preset.setAncre(this);
 
+	};
+
+	// --- Methode getPosition
+	// 
+	this.getPosition = function(){
+		return(this.m_position);
 	};
 
 	// --- Methode setPosition
 	// 
-	/*this.setDimension = function(largeur, hauteur){
-		m_dimension.setDimension(largeur, hauteur);
-	};*/
+	this.setPosition = function(x, y){
+		this.m_position.setPosition(x, y);
+	};
 
 }
+GBasePreset.prototype = new Serialize();
 
 /* Class GPreset */
 /* Description : Class representant le graphique d'un preset reel */
@@ -149,11 +230,12 @@ function GPreset(div, preset) {
 
 	// Heritage
 	GBasePreset.call(this, div, preset);
+	this.setNomClass("GPreset");
 
 	// --- Attributs
 	// 
-	var m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
-	var m_successeur = []; // Les GBasePreset (ou filles) qui suivent
+	this.m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
+	this.m_successeur = []; // Les GBasePreset (ou filles) qui suivent
 
 	// --- Methodes
 	// 
@@ -161,13 +243,13 @@ function GPreset(div, preset) {
 	// --- Methode getPredecesseurs
 	// 
 	this.getPredecesseurs = function(){
-		return(m_predecesseur);
+		return(this.m_predecesseur);
 	};
 
 	// --- Methode getSuccesseurs
 	// 
 	this.getSuccesseurs = function(){
-		return(m_successeur);
+		return(this.m_successeur);
 	};
 
 }
@@ -186,10 +268,11 @@ function GPresetDebut(div, preset) {
 
 	// Heritage
 	GBasePreset.call(this, div, preset);
+	this.setNomClass("GPresetDebut");
 
 	// --- Attributs
 	// 
-	var m_successeur = []; // Les GBasePreset (ou filles) qui suivent
+	this.m_successeur = []; // Les GBasePreset (ou filles) qui suivent
 
 	// --- Methodes
 	// 
@@ -197,7 +280,7 @@ function GPresetDebut(div, preset) {
 	// --- Methode getSuccesseurs
 	// 
 	this.getSuccesseurs = function(){
-		return(m_successeur);
+		return(this.m_successeur);
 	};
 
 }
@@ -213,10 +296,11 @@ function GPresetFin(div, preset) {
 
 	// Heritage
 	GBasePreset.call(this, div, preset);
+	this.setNomClass("GPresetFin");
 
 	// --- Attributs
 	// 
-	var m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
+	this.m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
 
 	// --- Methodes
 	// 
@@ -224,7 +308,7 @@ function GPresetFin(div, preset) {
 	// --- Methode getPredecesseurs
 	// 
 	this.getPredecesseurs = function(){
-		return(m_predecesseur);
+		return(this.m_predecesseur);
 	};
 
 }
@@ -275,6 +359,56 @@ function retirerSuccesseur(successeur) {
 
 }
 
+/* Class Position */
+/* Description : Class representant la position d'un element */
+/* Arguments : x - la position horizontale
+			   y - la position verticale */
+function Position(x, y){
+
+	// Implementer Serialize
+	Serialize.call(this,"Position");
+
+	// --- Attributs
+	// 
+	this.m_x = x;
+	this.m_y = y;
+
+	// --- Methodes
+	// 
+
+	// --- Methode getX
+	// 
+	this.getX = function(){
+		return(this.m_x);
+	};
+
+	// --- Methode getY
+	// 
+	this.getY = function(){
+		return(this.m_y);
+	};
+
+	// --- Methode setX
+	// 
+	this.setX = function(x){
+		this.m_x = x;
+	};
+
+	// --- Methode setY
+	// 
+	this.setY = function(y){
+		this.m_y = y;
+	};
+
+	// --- Methode setDimension
+	// 
+	this.setPosition = function(x, y){
+		this.m_x = x;
+		this.m_y = y;
+	};
+}
+Position.prototype = new Serialize();
+
 
 /* Classes liees aux Parametre */
 /* =========================== */
@@ -285,10 +419,13 @@ function retirerSuccesseur(successeur) {
 			   m_gParametre - la classe contenant le graphique du parametre */
 function Parametre(nom, gParametre){
 
+	// Implementer Serialize
+	Serialize.call(this,"Parametre");
+
 	// --- Attributs
 	// 
-	var m_nom = nom;	// Le nom du parametre
-	var m_gParametre = gParametre; // Instance de la classe contenant le graphique representant le parametre
+	this.m_nom = nom;	// Le nom du parametre
+	this.m_gParametre = gParametre; // Instance de la classe contenant le graphique representant le parametre
 
 	// --- Methodes
 	// 
@@ -296,28 +433,29 @@ function Parametre(nom, gParametre){
 	// --- Methode getNom
 	// 
 	this.getNom = function(){
-		return(m_nom);
+		return(this.m_nom);
 	};
 	
 	// --- Methode setNom
 	// 
 	this.setNom = function(nom){
-		m_nom = nom;
+		this.m_nom = nom;
 	};
 
 	// --- Methode getGParametre
 	// 
 	this.getGParametre = function(){
-		return(m_gParametre);
+		return(this.m_gParametre);
 	};
 	
 	// --- Methode setGParametre
 	// 
 	this.setGParametre = function(gp){
-		m_gParametre = gp;
+		this.m_gParametre = gp;
 	};
 
 }
+Parametre.prototype = new Serialize();
 
 /* Class GParametre */
 /* Description : Class representant le graphique d'un parametre (ne sera utilisee que par ses classes filles) */
@@ -325,11 +463,14 @@ function Parametre(nom, gParametre){
 			   typeValeurs - le type de valeurs du graphique (interval, liste, autre..) */
 function GParametre(graphique, typeValeurs){
 
+	// Implementer Serialize
+	Serialize.call(this,"GParametre");
+
 	// --- Attributs
 	// 
-	var m_graphique = graphique;	// L'instance du graphique a afficher
-	var m_typeValeurs = typeValeurs; // Une chaine de caracteres indiquant le type de valeurs
-	var m_valeurs = []; // Tableau contenant les valeurs (en correlation avec le type de valeur)
+	this.m_graphique = graphique;	// L'instance du graphique a afficher
+	this.m_typeValeurs = typeValeurs; // Une chaine de caracteres indiquant le type de valeurs
+	this.m_valeurs = []; // Tableau contenant les valeurs (en correlation avec le type de valeur)
 
 	// --- Methodes
 	// 
@@ -337,38 +478,38 @@ function GParametre(graphique, typeValeurs){
 	// --- Methode getGraphique
 	// 
 	this.getGraphique = function(){
-		return(m_graphique);
+		return(this.m_graphique);
 	};
 	
 	// --- Methode setGraphique
 	// 
 	this.setGraphique = function(g){
-		m_graphique = g;
+		this.m_graphique = g;
 	};
 
 	// --- Methode getTypeValeurs
 	// 
 	this.getTypeValeurs = function(){
-		return(m_typeValeurs);
+		return(this.m_typeValeurs);
 	};
 	
 	// --- Methode setTypeValeurs
 	// 
 	this.setTypeValeurs = function(tv){
-		m_typeValeurs = tv;
+		this.m_typeValeurs = tv;
 	};
 
 	// --- Methode getValeurs
 	// 
 	this.getValeurs = function(){
-		return(m_valeurs);
+		return(this.m_valeurs);
 	};
 	
 
 	// --- Methode ajouteValeur
 	// 
 	this.ajouteValeur = function(valeur){
-		m_valeurs.push(valeur);
+		this.m_valeurs.push(valeur);
 	};
 
 	// --- Methode retirerValeur
@@ -376,15 +517,16 @@ function GParametre(graphique, typeValeurs){
 	this.retirerValeur = function(valeur){
 
 		// Trouver l'indice de la valeur
-		var index = m_valeurs.indexOf(valeur);
+		var index = this.m_valeurs.indexOf(valeur);
 	
 		// Si trouve, retirer de la liste
 		if (index > -1) {
-    		m_valeurs.splice(index, 1);
+    		this.m_valeurs.splice(index, 1);
 		}
 	};
 
 }
+GParametre.prototype = new Serialize();
 
 /* Classes filles de la classe Parametre */
 /* ===================================== */
@@ -399,6 +541,7 @@ function ParametreGain(minVal, maxVal, valInit, steps){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreGain");
 
 	// Indiquer le nom du parametre
 	this.setNom("Gain");
@@ -419,6 +562,7 @@ function ParametrePan(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametrePan");
 
 	// Indiquer le nom du parametre
 	this.setNom("Pan");
@@ -439,6 +583,7 @@ function ParametreTone(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreTone");
 
 	// Indiquer le nom du parametre
 	this.setNom("Tone");
@@ -460,6 +605,7 @@ function ParametreVolume(valInit){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreVolume");
 
 	// Verifier si l'argument est correct
 	if(typeof(valInit) === 'undefined')
@@ -485,6 +631,7 @@ function ParametreType(tab){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreType");
 
 	// Indiquer le nom du parametre
 	this.setNom("Type");
@@ -505,6 +652,7 @@ function ParametreMix(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreMix");
 
 	// Indiquer le nom du parametre
 	this.setNom("Mix");
@@ -525,6 +673,7 @@ function ParametreRoom(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreRoom");
 
 	// Indiquer le nom du parametre
 	this.setNom("Room");
@@ -545,6 +694,7 @@ function ParametreFeedBack(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreFeedBack");
 
 	// Indiquer le nom du parametre
 	this.setNom("FeedBack");
@@ -565,6 +715,7 @@ function ParametreTime(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreTime");
 
 	// Indiquer le nom du parametre
 	this.setNom("Time");
@@ -585,6 +736,7 @@ function ParametreDrive(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreDrive");
 
 	// Indiquer le nom du parametre
 	this.setNom("Drive");
@@ -605,6 +757,7 @@ function ParametreBass(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreBass");
 
 	// Indiquer le nom du parametre
 	this.setNom("Bass");
@@ -625,6 +778,7 @@ function ParametreMid(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreMid");
 
 	// Indiquer le nom du parametre
 	this.setNom("Mid");
@@ -645,6 +799,7 @@ function ParametreTreb(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreTreb");
 
 	// Indiquer le nom du parametre
 	this.setNom("Treb");
@@ -665,6 +820,7 @@ function ParametrePresence(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametrePresence");
 
 	// Indiquer le nom du parametre
 	this.setNom("Presence");
@@ -686,6 +842,7 @@ function ParametreBoost(valInit){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreBoost");
 
 	// Verifier si l'argument est correct
 	if(typeof(valInit) === 'undefined')
@@ -710,6 +867,7 @@ function ParametreMaster(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreMaster");
 
 	// Indiquer le nom du parametre
 	this.setNom("Master");
@@ -731,6 +889,7 @@ function ParametreFrequency(valInit){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreFrequency");
 
 	// Verifier si l'argument est correct
 	if(typeof(valInit) === 'undefined')
@@ -755,6 +914,7 @@ function ParametreQ(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreQ");
 
 	// Indiquer le nom du parametre
 	this.setNom("Q");
@@ -775,6 +935,7 @@ function ParametreRelease(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreRelease");
 
 	// Indiquer le nom du parametre
 	this.setNom("Release");
@@ -795,6 +956,7 @@ function ParametreThreshold(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreThreshold");
 
 	// Indiquer le nom du parametre
 	this.setNom("Threshold");
@@ -815,6 +977,7 @@ function ParametreResonance(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreResonance");
 
 	// Indiquer le nom du parametre
 	this.setNom("Resonance");
@@ -835,6 +998,7 @@ function ParametreNum(nom){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreNum");
 
 	// Indiquer le nom du parametre
 	this.setNom(nom);
@@ -855,6 +1019,7 @@ function ParametrePitch(){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametrePitch");
 
 	// Indiquer le nom du parametre
 	this.setNom("Pitch");
@@ -876,6 +1041,7 @@ function ParametreMode(tab){
 
 	// Heritage
 	Parametre.call(this);
+	this.setNomClass("ParametreMode");
 
 	// Indiquer le nom du parametre
 	this.setNom("Mode");
@@ -1074,6 +1240,7 @@ function GParametreKnob(valMin, valMax, valInit, step){
 
 	// Appeler la classe mere (heritage)
 	GParametre.call(this);
+	this.setNomClass("GParametreKnob");
 
 	// Creer un element Knob
 	var graphique = $("<input class='knob' data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round>");
@@ -1113,6 +1280,7 @@ function GParametreListe(tab){
 
 	// Appeler la classe mere (heritage)
 	GParametre.call(this);
+	this.setNomClass("GParametreListe");
 
 	// Creer un element select (list)
 	var graphique = $("<select class='parametreList'></select>");
@@ -1143,6 +1311,7 @@ function GParametreSwitch(valInit){
 
 	// Appeler la classe mere (heritage)
 	GParametre.call(this);
+	this.setNomClass("GParametreSwitch");
 
 	// Verifier si l'argument est correct
 	if(typeof(valInit) === 'undefined')
@@ -1175,7 +1344,7 @@ GParametreSwitch.prototype.getValeurTraite = getValeurTraiteSwitch;
 GParametreSwitch.prototype.ajouteValeur = function(valeur){
 
 	// Ajouter la valeur dans la liste de l'objet GParametre
-	m_valeurs.push(valeur);
+	this.m_valeurs.push(valeur);
 
 	// Ajouter la valeur dans le graphique
 	/* TODO */
@@ -1185,11 +1354,11 @@ GParametreSwitch.prototype.ajouteValeur = function(valeur){
 GParametreSwitch.prototype.retirerValeur = function(valeur){
 
 	// Trouver l'indice de la valeur
-	var index = m_valeurs.indexOf(valeur);
+	var index = this.m_valeurs.indexOf(valeur);
 
 	// Si trouve, retirer de la liste
 	if (index > -1) {
-		m_valeurs.splice(index, 1);
+		this.m_valeurs.splice(index, 1);
 	}
 
 	// Retirer la valeur dans le graphique
@@ -1510,7 +1679,6 @@ function presetExiste(div){
 //
 function savePresets() {
    localStorage.gPresets = JSON.stringify(gPresets);
-   //localStorage.jspInstance = JSON.stringify(jspInstance);
 }
 
 // --- Fonction loadPresets
@@ -1520,10 +1688,6 @@ function loadPresets() {
   if(localStorage.gPresets) {
     gPresets = JSON.parse(localStorage.gPresets);
   }
-
-  // if(localStorage.jspInstance) {
-  //   jspInstance = JSON.parse(localStorage.jspInstance);
-  // }
 }
 
 /* Evenements globaux */
@@ -1567,7 +1731,43 @@ $(document).ready(function(){
 		jspInstance.repaintEverything();
 	});
 
+	// Mettre a jour la position du GPreset
+	// $(".divPreset").droppable({
+
+	// 	drop: function (event, ui) {
+ //            console.log("La position : " + ui.position);  //ui.position.left and ui.position.top
+ //        }
+
+	// });
+
+	
+	// $(".divPreset").on( "mouseup", function(){
+	// 	console.log("YEAH");
+	// });
+
+	// --- Evenement drop d'un gPreset
+	// 
+	conteneurPresets.on("mouseup", ".divPreset", function(){
+
+		// Recuperer le div 
+		var div = this;
+
+		// Recuperer le GBasePreset
+		var gbp = getGPresetFromDiv(div);
+
+		// Recuperer la nouvelle position (relative au conteneur)
+		var top = div.getBoundingClientRect().top;
+		var left = div.getBoundingClientRect().left;
+
+		// Modifier la position
+		gbp.setPosition(left, top);
+
+	});
+	
+
 });
+
+
 
 // === Evenements jsPlumb === //
 // ========================== //
@@ -1621,6 +1821,7 @@ jspInstance.ready(function() {
 	//   instance.setZoom(zoom);   
 	//   instance.repaintEverything(); 
 	// };
+
 
 });
 
@@ -1852,7 +2053,8 @@ function creerGBasePreset(type){
 
 				// Rendre le graphique draggable uniquement dans le conteneur
 				jspInstance.draggable($(".divPreset"), {
-				  containment:conteneurPresets
+					// Le conteneur
+					containment:conteneurPresets
 				});
 
 				// Ajouter les endpoints
