@@ -797,8 +797,8 @@ function ParametreDrive(){
 	this.setGParametre(g);
 
 }
-ParametreTime.prototype = new Parametre();
-ParametreTime.prototype.traiterAudio = traiterAudioDrive;
+ParametreDrive.prototype = new Parametre();
+ParametreDrive.prototype.traiterAudio = traiterAudioDrive;
 
 /* Class ParametreBass */
 /* Description : Class representant un parametre Bass d'un preset */
@@ -1820,8 +1820,71 @@ function loadPresets() {
 		restaurergBasePresets();
 
 		// Reconstruire la structure jsPlumb
+		restaurerJSPlumbPresets();
 
 	}
+}
+
+// --- Fonction restaurerJSPlumbPresets
+// Description : Restaure l'etat du jsPlumb d'apres la structure du tableau des gBasePresets
+//
+function restaurerJSPlumbPresets() {
+
+	// Recuperer le tableau des gPresets contenant la structure de jsPlumb
+	var tabGPresets = gPresets;
+
+	// Recuperer et recreer les liens jsPlumb de chaque instance de gBasePreset
+	var gbp, tabSucc, srcId;
+	var endpointsSrc, endpointSrc, endpointsTarget, endpointTarget;
+	for(var i=0; i<tabGPresets.length; i++){
+
+		// Recuperer l'instance de gBasePreset
+		gbp = tabGPresets[i];
+
+		// Recuperer l'id du graphique
+		srcId = gbp.getId();
+
+		// Recuperer les endpoints du source
+		endpointsSrc = jspInstance.getEndpoints(srcId);
+
+		// Verifier quel endpoint est le point de sortie
+		if(endpointsSrc[0].isSource)
+			endpointSrc = endpointsSrc[0];
+		else
+			if(endpointsSrc[1] !== undefined)
+				endpointSrc = endpointsSrc[1];
+
+		// Verifier que le gBasePreset n'est pas le preset de fin
+		if(!(gbp instanceof GPresetFin)){
+
+			// Recuperer la liste des successeurs
+			tabSucc = gbp.getSuccesseurs();
+			for(var j=0; j<tabSucc.length; j++){
+
+				// Recuperer les endpoints du target
+				endpointsTarget = jspInstance.getEndpoints(tabSucc[j]);
+
+				// Verifier quel endpoint est le point de rentree
+				if(endpointsTarget[0].isTarget)
+					endpointTarget = endpointsTarget[0];
+				else
+					if(endpointsTarget[1] !== undefined)
+						endpointTarget = endpointsTarget[1];
+
+				// Connecter les graphiques par jsPlumb
+				jspInstance.connect({source:endpointSrc, target:endpointTarget, overlays: [overlayStyle]});
+				//jspInstance.repaintEverything();
+
+			}
+
+		}
+
+	}
+
+	// Restaurer les evenements de jsPlumb
+	jspInstance.bind("connection", jspEventConnecion);
+	jspInstance.bind("click", jspEventClick);
+
 }
 
 // --- Fonction restaurergBasePresets
@@ -1891,7 +1954,9 @@ function restaurergBasePresets() {
 				});
 				// --- /jsPlumb ---
 				// ----------------
-
+				
+				// Redessiner tous les elements jsPlumb (pour remettre a jour les endpoints)
+				jspInstance.repaintEverything();
 
 			}
 		);
@@ -1904,9 +1969,6 @@ function restaurergBasePresets() {
 
 	}
 
-	// Redessiner tous les elements jsPlumb (pour remettre a jour les endpoints)
-	jspInstance.repaintEverything();
-
 }
 
 // --- Fonction reinitialiserAffichagePresets
@@ -1915,10 +1977,19 @@ function restaurergBasePresets() {
 function reinitialiserAffichagePresets() {
 
 	// Reinitialiser jsPlumb
-	jspInstance.reset();
+	reinitialiserJSPlumb();
 
 	// Reinitialiser l'affichage dans le conteneur des presets
 	conteneurPresets.empty();
+
+}
+
+// --- Fonction reinitialiserJSPlumb
+// Description : Reinitialise l'etat de jsPlumb
+function reinitialiserJSPlumb() {
+
+	// Reinitialiser jsPlumb
+	jspInstance.reset();
 
 }
 
@@ -1928,7 +1999,7 @@ function reinitialiserAffichagePresets() {
 // --- Initialisation de la page --- //
 // --------------------------------- //
 $(document).ready(function(){
-   
+
 	// --- Calculer la taille des conteneurs selon la taille de l'ecran (corriger bug de zoom)--- //
 	var hauteurEcran = $(document).height();
 	var largeurEcran = $(document).width();
@@ -2055,11 +2126,14 @@ jspInstance.ready(function() {
 	// };
 
 
+
+
 });
 
 // Evenement creation de connexion
 // 
-jspInstance.bind("connection", function (connInfo, originalEvent) {
+jspInstance.bind("connection", jspEventConnecion);
+function jspEventConnecion(connInfo, originalEvent) {
     // console.log(getGPresetFromDiv(connInfo.source).getPreset().getType());
     //console.log(getGPresetFromDiv(connInfo.source).getdiv().id);
     // console.log(getGPresetFromDiv(connInfo.source).getDiv().id);
@@ -2085,15 +2159,12 @@ jspInstance.bind("connection", function (connInfo, originalEvent) {
     // Sauvegarder l'etat des variables a sauvegarder
 	//savePresets();
 
-});
+}
 
 // --- Gestion evenement click sur connexion (suppression effective)
 // 
-jspInstance.bind("click", function (conn) {
-
-	//conn.setParameter("data-toggle", "confirmation");
-	//$("._jsPlumb_connector").attr("data-toggle", "confirmation");
-	//console.log($("._jsPlumb_connector"));
+jspInstance.bind("click", jspEventClick);
+function jspEventClick(conn) {
 
 	// Verifier si la connexion existe reellement [CORRECTION BUG CLICK SUR ENDPOINT SANS CONNEXION]
 	if(conn.source != undefined && conn.target != undefined)
@@ -2119,7 +2190,7 @@ jspInstance.bind("click", function (conn) {
 
 		}); 
 
-});
+}
 
 // === /Fin Evenements jsPlumb === //
 // =============================== //
@@ -2217,7 +2288,7 @@ $("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
 });
 
 // --- Fonction ajouterPreset
-// --- Description : Ajouter un preset a la liste des presets existants
+// --- Description : Cree un preset a la liste des presets existants selon le type
 //
 function ajouterPreset(type){
 
@@ -2251,8 +2322,6 @@ function creerGBasePreset(type){
 	var gPreset;
 
 	switch(type){
-
-		//divPreset.get()[0] == l'element div du DOM
 
 		// --- S'il s'agit d'un preset de debut
 		case nomPDeb :
