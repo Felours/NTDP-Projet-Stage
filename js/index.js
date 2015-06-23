@@ -472,6 +472,14 @@ function Parametre(nom, gParametre){
 	this.setGParametre = function(gp){
 		this.m_gParametre = gp;
 	};
+	
+	// --- Methode modifierGPId
+	// Description : Change l'id du graphique du parametre
+	// 
+	this.modifierGPId = function(id){
+		if(this.m_gParametre !== undefined)
+			this.m_gParametre.setId(id);
+	};
 
 }
 Parametre.prototype = new Serialize();
@@ -489,6 +497,7 @@ function GParametre(graphique, typeValeurs){
 	// 
 	this.m_graphique = graphique;	// Description HTML du graphique (chaine de caractere qui sera generee)
 	this.m_typeValeurs = typeValeurs; // Une chaine de caracteres indiquant le type de valeurs
+	this.m_id = undefined;	// L'id du graphique (pour connaitre le graphique declanchant les evenements)
 	this.m_valeurs = []; // Tableau associatif (chaque instance du tableau contient 2 valeurs, [0] pour la clef --> [1] pour la valeur) contenant les valeurs (en correlation avec le type de valeur)
 
 	// --- Methodes
@@ -518,12 +527,23 @@ function GParametre(graphique, typeValeurs){
 		this.m_typeValeurs = tv;
 	};
 
+	// --- Methode getId
+	// 
+	this.getId = function(){
+		return(this.m_id);
+	};
+	
+	// --- Methode setId
+	// 
+	this.setId = function(id){
+		this.m_id = id;
+	};
+
 	// --- Methode getValeurs
 	// 
 	this.getValeurs = function(){
 		return(this.m_valeurs);
 	};
-	
 
 	// --- Methode ajouteValeur
 	// 
@@ -1292,7 +1312,7 @@ function GParametreKnob(valMin, valMax, valInit, step){
 	this.setNomClass("GParametreKnob");
 
 	// Creer un element Knob
-	var graphique = "<input class='knob' data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round>";
+	var graphique = "<input class='knob gParametre' data-angleOffset=-125 data-angleArc=250 data-rotation=clockwise data-linecap=round>";
 
 	// Indiquer que le type de valeurs est un interval
 	var typeValeurs = "Intervalle";
@@ -1315,6 +1335,9 @@ function GParametreKnob(valMin, valMax, valInit, step){
 		// Recuperer la description html du graphique
 		var graphique = $(this.m_graphique);
 
+		// Renseigner l'id du graphique
+		graphique.attr('id', this.getId());
+
 		// Recuperer les valeurs du graphique
 		var vals = this.getValeurs();
 
@@ -1330,7 +1353,7 @@ function GParametreKnob(valMin, valMax, valInit, step){
 }
 GParametreKnob.prototype = new GParametre();
 GParametreKnob.prototype.getValeurTraite = getValeurTraiteKnob;
-
+GParametreKnob.prototype.setValeurTraite = setValeurTraiteKnob;
 
 /* Class GParametreListe */
 /* Description : Class representant le graphique d'une liste*/
@@ -1342,7 +1365,7 @@ function GParametreListe(tab){
 	this.setNomClass("GParametreListe");
 
 	// Creer un element select (list)
-	var graphique = "<select class='parametreList'></select>";
+	var graphique = "<select class='parametreList gParametre'></select>";
 
 	// Entrer les valeurs du tableau donne
 	if(tab !== undefined){
@@ -1365,6 +1388,9 @@ function GParametreListe(tab){
 		
 		// Recuperer la description html du graphique
 		var graphique = $(this.m_graphique);
+
+		// Renseigner l'id du graphique
+		graphique.attr('id', this.getId());
 		
 		// Recuperer les valeurs du graphique
 		var vals = this.getValeurs();
@@ -1402,7 +1428,7 @@ function GParametreSwitch(valInit){
 		valInit = false;
 
 	// Creer un element switch
-	var graphique = "<div class='switch'> <input id='cmn-toggle-4' class='cmn-toggle cmn-toggle-round-flat' type='checkbox'> <label for='cmn-toggle-4'></label> </div>";
+	var graphique = "<div class='switch'> <input class='cmn-toggle cmn-toggle-round-flat gParametre' type='checkbox'> <label></label> </div>";
 
 	// Indiquer que le type de valeurs est un interval
 	var typeValeurs = "Switch";
@@ -1418,6 +1444,10 @@ function GParametreSwitch(valInit){
 		
 		// Recuperer la description html du graphique
 		var graphique = $(this.m_graphique);
+
+		// Renseigner l'id du graphique
+		graphique.find('input').attr('id', this.getId());
+		graphique.find('label').attr('for', this.getId());
 		
 		// Recuperer les valeurs du graphique
 		var vals = this.getValeurs();
@@ -1447,6 +1477,15 @@ function getValeurTraiteKnob() {
 
 	// Renvoyer la valeur
 	return val;
+}
+
+// --- Methode setValeurTraiteKnob
+//
+function setValeurTraiteKnob(val){
+
+	// Modifier la valeur 
+	this.retirerValeur('value');
+	this.ajouteValeur('value', val);
 }
 
 // --- Methode getValeurTraiteListe
@@ -1574,6 +1613,40 @@ function getGPresetFromId(id){
 
 }
 
+// --- Fonction getGParametreFromId
+// Description : Recupere un GParametre par son id issu d'un GBasePreset
+// Arguments : gbp - instance d'un GBasePreset contenant le parametre
+//			   id - id du GParametre
+//
+function getGParametreFromId(gbp, id){
+
+	// Recuperer les parametres 
+	var GPs;
+	if(gbp !== undefined && id !== undefined){
+		GPs = gbp.getPreset().getParametres();
+
+		// Scanner les GParametres existants
+		var GP, GPId;
+		for(var i=0; i<GPs.length; i++){
+			
+			// Recuperer le GParametre
+			GP = GPs[i].getGParametre();
+
+			// Recuperer l'id du GParametre
+			GPId = GP.getId();
+
+			// Verifier si la div correspond
+			if(GPId === id){
+				return GP;
+			}
+		}
+	}
+
+	// Renvoyer une erreur
+	return -1;
+
+}
+
 // --- Fonction ajouterEndPoints
 // --- Description : Ajouter au GBasePreset (ou fille) un end point jsPlumb
 //
@@ -1627,17 +1700,15 @@ function ajouterEndPoints(GBPreset){
 //
 function initialiserVuePresets(){
 
-	// Restaurer l'etat des variables stockees
-	// 
-	//loadPresets();
-
 	// Creer un preset de debut
 	// 
-	ajouterPreset(nomPDeb);
+	//ajouterPreset(nomPDeb);
+	creerGBasePreset(nomPDeb);
 
 	// Creer un preset de fin
 	// 
-	ajouterPreset(nomPFin);
+	//ajouterPreset(nomPFin);
+	creerGBasePreset(nomPFin);
 
 }
 
@@ -2066,10 +2137,20 @@ $(document).ready(function(){
 		gbp.setPosition(left, top);
 
 	});
-	
 
 });
 
+// --- Evenement change d'un parametre
+// 
+// $('#affichageParametres').on("click", ".gParametreInfos div .gParametre",  function(){
+
+// 	console.log("YEAH");
+
+// });
+
+// $(".gParametre").click(function(){
+// 	console.log("YEAH");
+// });
 
 
 // === Evenements jsPlumb === //
@@ -2098,6 +2179,10 @@ jspInstance.ready(function() {
 
 					// Retirer le GBasePreset
 					retirerGBP(tmpThis);
+
+					// Effacer la vue du conteneur des parametres
+					resetConteneurParametres();
+
 				}
 
 			});
@@ -2203,7 +2288,8 @@ $('#presetChoix').on('change', function() {
 	var type = this.options[this.selectedIndex].text;
 
 	// Ajouter le preset
-	ajouterPreset(type);
+	//ajouterPreset(type);
+	creerGBasePreset(type);
 
 });
 
@@ -2246,7 +2332,7 @@ $("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
 	// Recuperer le GBasePreset associe
 	var gbp = getGPresetFromDiv(this);
 
-	// Indiquer que le GBasePreset present est celui dont on a clique
+	// Indiquer que le GBasePreset present est celui dont on a clique (sert aux evenements sur les parametres)
 	gPresetCourant = gbp;
 
 	// Creer un titre contenant le nom du preset
@@ -2283,14 +2369,28 @@ $("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
 	}
 
 	// Valider le Knob
-	$(".knob").knob(/* TODO parametres et evenements */);
+	$(".knob").knob({/* TODO parametres et evenements */
+
+		// Evenement Knob : Changer valeur
+		'release' : function (v) { 
+
+			// Recuperer l'id
+			var id = this.i[0].id;
+
+			// Recuperer l'instance de GParametre
+			var gp = getGParametreFromId(gPresetCourant, id);
+			
+			// Modifier la valeur
+			gp.setValeurTraite(v);
+		}
+	});
 
 });
 
 // --- Fonction ajouterPreset
 // --- Description : Cree un preset a la liste des presets existants selon le type
 //
-function ajouterPreset(type){
+/*function ajouterPreset(type){
 
 	// Initialiser le nom de la fonction a appeler
 	var nomFonctionCreationPreset = "creerGBasePreset";
@@ -2304,6 +2404,29 @@ function ajouterPreset(type){
 	
 	// Appeler la fonction de creation du preset et son graphique
 	window[nomFonctionCreationPreset](type);
+
+}*/
+
+// --- Fonction definirPreset
+// --- Description : Cree la structure des parametres du preset souhaite (si le type est defini)
+//
+function definirPreset(type, gp){
+
+	// Initialiser le nom de la fonction a appeler
+	var nomFonctionCreationPreset = "creerGBasePreset";
+
+	// Verifier si la fonction associe a la creation existe
+	if (typeof window[nomFonctionCreationPreset + type] == 'function'){
+
+		//
+		nomFonctionCreationPreset = nomFonctionCreationPreset + type;
+
+		// Indiquer console
+		console.log("Appel de la fonction " + nomFonctionCreationPreset);
+		
+		// Appeler la fonction de creation du preset et son graphique
+		window[nomFonctionCreationPreset](gp);
+	}
 
 }
 
@@ -2383,6 +2506,9 @@ function creerGBasePreset(type){
 				// Renseigner l'id au gBasePreset
 				gPreset.setId(divPreset[0].id);
 
+				// Creer le GBasePreset souhaite (structure des parametres)
+				definirPreset(type, gPreset);
+
 			});
 			// --- /jsPlumb ---
 			// ----------------
@@ -2437,10 +2563,13 @@ function creerGBasePreset(type){
 // --- Fonction creerGBasePresetGain
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetGain(type){
+function creerGBasePresetGain(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2448,12 +2577,14 @@ function creerGBasePresetGain(type){
 
 	// Creer le parametre 'Gain'
 	var param = new ParametreGain(0, 1, 1, 0.01);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Pan'
 	param = new ParametrePan();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2463,10 +2594,13 @@ function creerGBasePresetGain(type){
 // --- Fonction creerGBasePresetReverb
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetReverb(type){
+function creerGBasePresetReverb(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2474,12 +2608,14 @@ function creerGBasePresetReverb(type){
 
 	// Creer le parametre 'Mix'
 	var param = new ParametreMix();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(0.8);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2489,10 +2625,13 @@ function creerGBasePresetReverb(type){
 // --- Fonction creerGBasePresetCabinet
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetCabinet(type){
+function creerGBasePresetCabinet(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2500,12 +2639,14 @@ function creerGBasePresetCabinet(type){
 
 	// Creer le parametre 'Room'
 	var param = new ParametreRoom();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(1);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2515,10 +2656,13 @@ function creerGBasePresetCabinet(type){
 // --- Fonction creerGBasePresetOverdrive
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetOverdrive(type){
+function creerGBasePresetOverdrive(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2526,18 +2670,21 @@ function creerGBasePresetOverdrive(type){
 
 	// Creer le parametre 'Gain'
 	var param = new ParametreGain(0, 10, 5, 0.01);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Tone'
 	param = new ParametreTone();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(1);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2545,6 +2692,7 @@ function creerGBasePresetOverdrive(type){
 	// Creer le parametre 'Type'
 	var vals = ['Vintage', 'Modern'];
 	param = new ParametreType(vals);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2554,10 +2702,13 @@ function creerGBasePresetOverdrive(type){
 // --- Fonction creerGBasePresetDelay
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetDelay(type){
+function creerGBasePresetDelay(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2565,18 +2716,21 @@ function creerGBasePresetDelay(type){
 
 	// Creer le parametre 'FeedBack'
 	var param = new ParametreFeedBack();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Mix'
 	param = new ParametreMix();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Time'
 	param = new ParametreTime();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2586,10 +2740,13 @@ function creerGBasePresetDelay(type){
 // --- Fonction creerGBasePresetAmp
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetAmp(type){
+function creerGBasePresetAmp(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2597,42 +2754,49 @@ function creerGBasePresetAmp(type){
 
 	// Creer le parametre 'Drive'
 	var param = new ParametreDrive();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Bass'
 	param = new ParametreBass();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Mid'
 	param = new ParametreMid();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Treb'
 	param = new ParametreTreb();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Presence'
 	param = new ParametrePresence();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Boost'
 	param = new ParametreBoost(true);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Master'
 	param = new ParametreMaster();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2640,6 +2804,7 @@ function creerGBasePresetAmp(type){
 	// Creer le parametre 'Type'
 	var vals = ['Brit Man', 'German Modern', 'Clean US', 'Class A'];
 	param = new ParametreType(vals);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2649,10 +2814,13 @@ function creerGBasePresetAmp(type){
 // --- Fonction creerGBasePresetFilter
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetFilter(type){
+function creerGBasePresetFilter(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2660,18 +2828,21 @@ function creerGBasePresetFilter(type){
 
 	// Creer le parametre 'Frequency'
 	var param = new ParametreFrequency(500);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Q'
 	param = new ParametreQ();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(1);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2679,6 +2850,7 @@ function creerGBasePresetFilter(type){
 	// Creer le parametre 'Type'
 	var vals = ['LOWPASS', 'HIGHPASS', 'BANDPASS', 'LOWSHELF', 'HIGHSHELF', 'PEAKING', 'NOTCH', 'ALLPASS'];
 	param = new ParametreType(vals);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2688,10 +2860,13 @@ function creerGBasePresetFilter(type){
 // --- Fonction creerGBasePresetGate
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetGate(type){
+function creerGBasePresetGate(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2699,12 +2874,14 @@ function creerGBasePresetGate(type){
 
 	// Creer le parametre 'Release'
 	var param = new ParametreRelease();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Threshold'
 	param = new ParametreThreshold();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2714,10 +2891,13 @@ function creerGBasePresetGate(type){
 // --- Fonction creerGBasePresetWah
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetWah(type){
+function creerGBasePresetWah(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2725,12 +2905,14 @@ function creerGBasePresetWah(type){
 
 	// Creer le parametre 'Frequency'
 	var param = new ParametreFrequency(600);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Resonance'
 	param = new ParametreResonance();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2740,10 +2922,13 @@ function creerGBasePresetWah(type){
 // --- Fonction creerGBasePresetGraphicEQ
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetGraphicEQ(type){
+function creerGBasePresetGraphicEQ(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2751,48 +2936,56 @@ function creerGBasePresetGraphicEQ(type){
 
 	// Creer le parametre '63'
 	var param = new ParametreNum('63');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '125'
 	var param = new ParametreNum('125');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '250'
 	var param = new ParametreNum('250');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '500'
 	var param = new ParametreNum('500');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '1K'
 	var param = new ParametreNum('1K');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '2K'
 	var param = new ParametreNum('2K');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '4K'
 	var param = new ParametreNum('4K');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre '8K'
 	var param = new ParametreNum('8K');
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2802,10 +2995,13 @@ function creerGBasePresetGraphicEQ(type){
 // --- Fonction creerGBasePresetPitch
 // --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
 // 
-function creerGBasePresetPitch(type){
+function creerGBasePresetPitch(gp){
 
 	// Creer la structure de base du gBasePreset
-	var gbp = creerGBasePreset(type);
+	var gbp = gp;//creerGBasePreset(type);
+
+	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
 	// ------------------------------------------------ //
@@ -2813,12 +3009,14 @@ function creerGBasePresetPitch(type){
 
 	// Creer le parametre 'Gain'
 	var param = new ParametreGain(0, 1, 1, 0.01);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
 
 	// Creer le parametre 'Pitch'
 	var param = new ParametrePitch();
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2826,6 +3024,7 @@ function creerGBasePresetPitch(type){
 	// Creer le parametre 'Mode'
 	var vals = ['Octave UP', 'Octave Down'];
 	param = new ParametreMode(vals);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
@@ -2833,6 +3032,7 @@ function creerGBasePresetPitch(type){
 	// Creer le parametre 'Type'
 	vals = ['Whammy'];
 	param = new ParametreType(vals);
+	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
 	gbp.getPreset().ajouterParametre(param);
