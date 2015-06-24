@@ -1370,6 +1370,11 @@ function GParametreListe(tab){
 	// Entrer les valeurs du tableau donne
 	if(tab !== undefined){
 		for(var i=0; i<tab.length; i++){
+
+			// Indiquer que le 1er de la liste est selectionnee
+			if(i === 0)
+				this.ajouteValeur("selected", tab[i]);
+
 			// Ajouter la valeur dans l'objet GParametreListe
 			this.ajouteValeur("option", tab[i]);
 		}
@@ -1395,15 +1400,26 @@ function GParametreListe(tab){
 		// Recuperer les valeurs du graphique
 		var vals = this.getValeurs();
 
+		// Trouver l'option selected
+		var selected;
+		for(var j=0; j<vals.length; j++)
+			if(vals[j][0] == "selected")
+				selected = vals[j][1];
+
 		// Ajouter les valeurs du graphique
 		for(var i=0; i<vals.length; i++){
 
 			// Ajouter les parametres (si c'est le cas de la valeur actuelle)
 			if(vals[i][0] === "option")
-				$("<option>" + vals[i][1] +"</option>").appendTo(graphique);
+				// Si l'option doit etre selectionnee
+				if(vals[i][1] == selected && selected !== undefined)
+					$("<option>" + vals[i][1] +"</option>").attr("selected", "selected").appendTo(graphique);
+				else
+					$("<option>" + vals[i][1] +"</option>").appendTo(graphique);
 			else
 				// Ajouter les autres attributs
-				graphique.attr(vals[i][0], vals[i][1]);
+				if(vals[i][0] != "selected")
+					graphique.attr(vals[i][0], vals[i][1]);
 		}
 
 		// Renvoyer le graphique
@@ -1413,6 +1429,7 @@ function GParametreListe(tab){
 }
 GParametreListe.prototype = new GParametre();
 GParametreListe.prototype.getValeurTraite = getValeurTraiteListe;
+GParametreListe.prototype.setValeurTraite = setValeurTraiteListe;
 
 /* Class GParametreSwitch */
 /* Description : Class representant le graphique d'un switch */
@@ -1453,8 +1470,9 @@ function GParametreSwitch(valInit){
 		var vals = this.getValeurs();
 
 		// Ajouter les valeurs du graphique
-		for(var i=0; i<vals.length; i++)
-			graphique.attr(vals[i][0], vals[i][1]);
+		for(var i=0; i<vals.length; i++){
+			graphique.find('input').attr(vals[i][0], vals[i][1]);
+		}
 
 		// Renvoyer le graphique
 		return graphique.get()[0];
@@ -1463,6 +1481,7 @@ function GParametreSwitch(valInit){
 }
 GParametreSwitch.prototype = new GParametre();
 GParametreSwitch.prototype.getValeurTraite = getValeurTraiteSwitch;
+GParametreSwitch.prototype.setValeurTraite = setValeurTraiteSwitch;
 
 
 /* Methodes a ajouter aux classes GParametre */
@@ -1499,6 +1518,15 @@ function getValeurTraiteListe() {
 	return val;
 }
 
+// --- Methode setValeurTraiteKnob
+//
+function setValeurTraiteListe(val){
+
+	// Modifier la valeur 
+	this.retirerValeur('selected');
+	this.ajouteValeur('selected', val);
+}
+
 // --- Methode getValeurTraiteSwitch
 // 
 function getValeurTraiteSwitch() {
@@ -1508,6 +1536,15 @@ function getValeurTraiteSwitch() {
 
 	// Renvoyer la valeur
 	return val;
+}
+
+// --- Methode setValeurTraiteSwitch
+//
+function setValeurTraiteSwitch(val){
+
+	// Modifier la valeur 
+	this.retirerValeur('checked');
+	this.ajouteValeur('checked', val);
 }
 
 /* ********************************************************* DEBUT TRAITEMENT ********************************************************* */
@@ -2135,6 +2172,30 @@ $(document).ready(function(){
 
 		// Modifier la position
 		gbp.setPosition(left, top);
+
+	});
+
+	// --- Evenement modification des GParametre de type basiques
+	// 
+	conteneurParametres.delegate(".gParametreInfos .gParametre", 'change', function(){
+
+		// Recuperer l'instance du gParametre
+		var gpara = getGParametreFromId(gPresetCourant, this.id);
+		
+		// Verifier si la recherche de l'instance a reussi
+		if(gpara !== -1){
+
+			// Recuperer la valeur souhaitee selon le type du graphique (/* TODO */ a enrichi si besoin d'autres types) (autre solution : Verifier le type de gpara)
+			var valeur;
+			if(this.checked === undefined)
+				valeur = this.value;
+			else
+				valeur = this.checked;
+			
+			// Renseigner la valeur
+			gpara.setValeurTraite(valeur);
+
+		}
 
 	});
 
