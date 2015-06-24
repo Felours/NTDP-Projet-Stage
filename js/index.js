@@ -2087,8 +2087,11 @@ function reinitialiserAffichagePresets() {
 	// Reinitialiser jsPlumb
 	reinitialiserJSPlumb();
 
-	// Reinitialiser l'affichage dans le conteneur des presets
+	// Reinitialiser l'affichage du conteneur des presets
 	conteneurPresets.empty();
+
+	// Reinitialiser l'affichage du conteneur des parametres
+	resetConteneurParametres();
 
 }
 
