@@ -1558,6 +1558,8 @@ var gPresets = []; // Liste des presets existants
 var gPresetCourant; // Graphique preset courant (pour traitements des elements independants du gPreset mais qui le concerne (ex : parametres associes))
 var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
 var conteneurParametres = $("#affichageParametres"); // Conteneur des parametres
+
+var sectionPresets = $("#sectionPresets"); // Section contenant l'affichage des presets (sert pour le resize)
 var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
 var nomPDeb = "debut", nomPFin = "fin"; // Le nom des presets speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
@@ -1930,6 +1932,9 @@ function loadPresets() {
 		// Reconstruire la structure jsPlumb
 		restaurerJSPlumbPresets();
 
+		// Redimensionner les composants de la fenetre
+		redimensionnerConteneursFenetre();
+
 	}
 }
 
@@ -2123,23 +2128,9 @@ $(document).ready(function(){
 
 	// Indiquer la procedure a suivre en cas de changement de taille de la fenetre
 	$(window).resize(function(){
-		
-		// Correction bug zoom avant
-		// Bouger les elements jsPlumb
-		// var gPresetCourant;	// Instance du gPreset courant
-		// var posGPresetCourant; // la position du gPreset courant
-		// for(var i=0; i<gPresets.length; i++){
 
-		// 	// Recuperer le gPreset courant
-		// 	gPresetCourant = gPresets[i].getDiv();
-
-		// 	// Recuperer la position du gPreset courant
-		// 	posGPresetCourant = $(gPresetCourant).position().top;
-
-		// 	console.log("La position de " + gPresets[i].getPreset().getType() + " est : " + screen.);
-
-		// }
-
+		// Redimensionner les composants de la fenetre
+		redimensionnerConteneursFenetre();
 
 		// Repeindre tous les elements du jsPlumb
 		jspInstance.repaintEverything();
@@ -2204,18 +2195,24 @@ $(document).ready(function(){
 
 });
 
-// --- Evenement change d'un parametre
-// 
-// $('#affichageParametres').on("click", ".gParametreInfos div .gParametre",  function(){
+// --- Fonction redimensionnerConteneursFenetre
+// Description : Redimensionne les conteneurs selon la taille de la fenetre
+//
+function redimensionnerConteneursFenetre() {
 
-// 	console.log("YEAH");
+	// --- Calculer la taille des conteneurs selon la taille de l'ecran --- //
+	var hauteurEcran = window.innerHeight;	//innerHeight pour recuperer la hauteur reelle
+	var largeurEcran = window.innerWidth;	//innerWidth pour recuperer la largeur reelle
 
-// });
+	// Indiquer a la section generale la taille de l'ecran
+	$("#sectionGenerale").css('height', hauteurEcran);
+	$("#sectionGenerale").css('width', largeurEcran);
 
-// $(".gParametre").click(function(){
-// 	console.log("YEAH");
-// });
+	// Redimensionner le conteneur des presets pour s'agrandir au cas de zoom in
+	conteneurPresets.css('height',sectionPresets.get()[0].scrollHeight);
+	conteneurPresets.css('width',sectionPresets.get()[0].scrollWidth); 
 
+}
 
 // === Evenements jsPlumb === //
 // ========================== //
@@ -2304,9 +2301,6 @@ function jspEventConnecion(connInfo, originalEvent) {
 
     // Ajouter le lien (de class) du source dans le target
     GPT.ajouterPredecesseur(GPS.getId());
-
-    // Sauvegarder l'etat des variables a sauvegarder
-	//savePresets();
 
 }
 
@@ -2563,9 +2557,6 @@ function creerGBasePreset(type){
 					// Le conteneur
 					containment:conteneurPresets
 				});
-
-				// Ajouter les endpoints
-				//ajouterEndPoints(gPreset);
 
 				// Renseigner l'id au gBasePreset
 				gPreset.setId(divPreset[0].id);
