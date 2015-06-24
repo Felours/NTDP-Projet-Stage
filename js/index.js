@@ -2208,9 +2208,36 @@ function redimensionnerConteneursFenetre() {
 	$("#sectionGenerale").css('height', hauteurEcran);
 	$("#sectionGenerale").css('width', largeurEcran);
 
+	// Recuperer la taille maximale des graphiques des presets (pour tenter de reduire la taille de l'affichage)
+	var hauteurMaxPresets = 0, largeurMaxPresets = 0, hauteurPresetCourant = 0, largeurPresetCourant = 0;
+	for(var i=0; i<gPresets.length; i++){
+
+		// Recuperer la position du preset courant
+		hauteurPresetCourant = gPresets[i].getPosition().getY() + $(gPresets[i].getDiv()).outerHeight();
+		largeurPresetCourant = gPresets[i].getPosition().getX() + $(gPresets[i].getDiv()).outerWidth();
+
+		// Recuperer la taille si elle est plus grande
+		if(hauteurMaxPresets<hauteurPresetCourant)
+			hauteurMaxPresets = hauteurPresetCourant;
+
+		if(largeurMaxPresets<largeurPresetCourant)
+			largeurMaxPresets = largeurPresetCourant;
+	}
+
+	// Recuperer la hauteur et largeur de la section des presets
+	var sectionPresetsHauteur = sectionPresets.height();//sectionPresets.get()[0].scrollHeight;
+	var sectionPresetsLargeur = sectionPresets.width();//sectionPresets.get()[0].scrollWidth;
+
+	// Verifier quel point est le plus eloigne
+	if(sectionPresetsHauteur<hauteurMaxPresets)
+		sectionPresetsHauteur = hauteurMaxPresets;
+
+	if(sectionPresetsLargeur<largeurMaxPresets)
+		sectionPresetsLargeur = largeurMaxPresets;
+
 	// Redimensionner le conteneur des presets pour s'agrandir au cas de zoom in
-	conteneurPresets.css('height',sectionPresets.get()[0].scrollHeight);
-	conteneurPresets.css('width',sectionPresets.get()[0].scrollWidth); 
+	conteneurPresets.css('height',sectionPresetsHauteur);
+	conteneurPresets.css('width',sectionPresetsLargeur); 
 
 }
 
