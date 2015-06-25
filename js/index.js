@@ -2379,10 +2379,10 @@ function jspEventClick(conn) {
 
 // --- Gestion evenement creation d'un nouveau preset lors d'un click sur un nom de preset de la liste
 //
-$(listeChoixPreset).on('click', "option", function() {
+$(listeChoixPreset).on('change', function() {
 
 	// Recuperer le type
-	var type = this.text;//this.options[this.selectedIndex].text;
+	var type = this.options[this.selectedIndex].text;
 
 	// Ajouter le preset
 	//ajouterPreset(type);
