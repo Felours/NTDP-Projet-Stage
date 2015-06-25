@@ -1564,7 +1564,7 @@ var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
 var nomPDeb = "debut", nomPFin = "fin"; // Le nom des presets speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 
-var listeChoixPreset = '#presetChoix';	// Liste contenant le nom des presets pouvant etre crees
+var listeChoixPreset = "#presetChoix";	// Liste contenant le nom des presets pouvant etre crees
 var boutonSauvegarde = '#buttonSauvegarde';	// Bouton permettant de sauvegarder
 var boutonRestaurer = '#buttonRestaurer';	// Bouton permettant de restaurer
 
@@ -1909,8 +1909,15 @@ function presetExiste(div){
 // Description : Sauvegarder l'etat de stockage des presets
 //
 function savePresets() {
-	// Sauvegarder le tableau contenant les gPresets
-	localStorage.gPresets = JSON.stringify(gPresets);
+
+	// Verifier si le navigateur utilise est IE (car localstorage ne fonctionne pas)
+	if(isIE()){
+		//window.localStorage.setItem("hello", "somedata");
+		//console.log(window.localStorage.getItem("hello"));
+	}
+	else
+		// Sauvegarder le tableau contenant les gPresets
+		localStorage.gPresets = JSON.stringify(gPresets);
 }
 
 // --- Fonction loadPresets
@@ -2262,7 +2269,7 @@ jspInstance.ready(function() {
 
 	// --- Gestion evenement doubleclick sur un preset qui n'est ni celui du debut, ni celui de la fin
 	//
-	$("#affichagePresents").delegate(".divPresetNormal", "dblclick", function() {
+	conteneurPresets.delegate(".divPresetNormal", "dblclick", function() {//affichagePresents
 
 		// Verifier si la div existe (corriger bug double demande, fonctionne sans car passe de on a delegate en d'hors du ready se trouvant dans ajouterPreset)
 		var pExiste = presetExiste(this);
@@ -2378,6 +2385,7 @@ function jspEventClick(conn) {
 // =============================== //
 
 // --- Gestion evenement creation d'un nouveau preset lors d'un click sur un nom de preset de la liste
+// Alert : L'evenement 'click' sur un element 'Option' n'est pas pris en charge sous Chrome, donc obligatoir de passer a 'change'
 //
 $(listeChoixPreset).on('change', function() {
 
@@ -2389,6 +2397,7 @@ $(listeChoixPreset).on('change', function() {
 	creerGBasePreset(type);
 
 });
+
 
 // --- Gestion evenement click sur bouton sauvegarde
 //
@@ -2421,7 +2430,7 @@ function resetConteneurParametres() {
 
 // --- Gestion evenement click sur un GBasePreset (pour afficher les parametres)
 //
-$("#affichagePresents").delegate(".divPresetNormal", 'click', function() {
+conteneurPresets.delegate(".divPresetNormal", 'click', function() {
 
 	// Restaurer l'etat de l'affichage des parametres
 	resetConteneurParametres();
@@ -3133,34 +3142,21 @@ function creerGBasePresetPitch(gp){
 
 }
 
-// --- Activer les elements 
-//$(function($) {
+/* ========================= Autres fonctions ========================== */
+/* ===================================================================== */
 
-	//window['nomFonction']();
-	//if (typeof nomFonction == 'function')
+// --- Fonction isIE
+// Description : Permet de verifier si le navigateur courant est Internet Explorer ou pas
+// Verification recuperee de http://stackoverflow.com/questions/19999388/jquery-check-if-user-is-using-ie
+// 
+function isIE(){
 
-  // Activer l'element Knob
-  //$(".knob").knob(/* TODO parametres et evenements */
+	// Verifier le navigateur
+	var isIE = false;
+	if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') > 0) {
+	    isIE = true;   
+	}
 
-  	/*{
-  		release : function (value) {
-			console.log("change : " + value);
-    	}
-
-  	}*/
-  //)
-  
-//});
-
-/*
-function displayPresets() {
-  listPR.innerHTML = "";
-  
-  for(var i = 0; i < presets.length; i++) {
-    console.log(presets[i].name);
-    var li = document.createElement("li");
-    li.innerHTML = "<button onclick='setValues(" + i + ");' >" + presets[i].name + "</button>";
-    listPR.appendChild(li);
-  }
+	// Renvoyer la valeur
+	return isIE;
 }
-*/
