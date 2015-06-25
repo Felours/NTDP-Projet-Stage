@@ -1913,6 +1913,7 @@ function savePresets() {
 	// Verifier si le navigateur utilise est IE (car localstorage ne fonctionne pas)
 	if(isIE()){
 		//window.localStorage.setItem("hello", "somedata");
+		//localstorage.setItem("gPresets", JSON.stringify(gPresets));
 		//console.log(window.localStorage.getItem("hello"));
 	}
 	else
