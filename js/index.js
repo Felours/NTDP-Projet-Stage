@@ -1564,6 +1564,10 @@ var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
 var nomPDeb = "debut", nomPFin = "fin"; // Le nom des presets speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 
+var listeChoixPreset = '#presetChoix';	// Liste contenant le nom des presets pouvant etre crees
+var boutonSauvegarde = '#buttonSauvegarde';	// Bouton permettant de sauvegarder
+var boutonRestaurer = '#buttonRestaurer';	// Bouton permettant de restaurer
+
 
 /* Definition des elements jsPlumb */
 /* =============================== */
@@ -2201,8 +2205,8 @@ $(document).ready(function(){
 function redimensionnerConteneursFenetre() {
 
 	// --- Calculer la taille des conteneurs selon la taille de l'ecran --- //
-	var hauteurEcran = window.innerHeight;	//innerHeight pour recuperer la hauteur reelle
-	var largeurEcran = window.innerWidth;	//innerWidth pour recuperer la largeur reelle
+	var hauteurEcran = Math.floor(window.innerHeight);	//innerHeight pour recuperer la hauteur reelle
+	var largeurEcran = Math.floor(window.innerWidth);	//innerWidth pour recuperer la largeur reelle
 
 	// Indiquer a la section generale la taille de l'ecran
 	$("#sectionGenerale").css('height', hauteurEcran);
@@ -2229,11 +2233,19 @@ function redimensionnerConteneursFenetre() {
 	var sectionPresetsLargeur = sectionPresets.width();//sectionPresets.get()[0].scrollWidth;
 
 	// Verifier quel point est le plus eloigne
-	if(sectionPresetsHauteur<hauteurMaxPresets)
+	if(sectionPresetsHauteur<hauteurMaxPresets){
 		sectionPresetsHauteur = hauteurMaxPresets;
+		sectionPresets.css('overflow-y', 'auto');
+	}
+	else
+		sectionPresets.css('overflow-y', 'hidden');
 
-	if(sectionPresetsLargeur<largeurMaxPresets)
+	if(sectionPresetsLargeur<largeurMaxPresets){
 		sectionPresetsLargeur = largeurMaxPresets;
+		sectionPresets.css('overflow-x', 'auto');
+	}
+	else
+		sectionPresets.css('overflow-x', 'hidden');
 
 	// Redimensionner le conteneur des presets pour s'agrandir au cas de zoom in
 	conteneurPresets.css('height',sectionPresetsHauteur);
@@ -2365,12 +2377,12 @@ function jspEventClick(conn) {
 // === /Fin Evenements jsPlumb === //
 // =============================== //
 
-// --- Gestion evenement click sur preset de la liste
+// --- Gestion evenement creation d'un nouveau preset lors d'un click sur un nom de preset de la liste
 //
-$('#presetChoix').on('change', function() {
+$(listeChoixPreset).on('click', "option", function() {
 
 	// Recuperer le type
-	var type = this.options[this.selectedIndex].text;
+	var type = this.text;//this.options[this.selectedIndex].text;
 
 	// Ajouter le preset
 	//ajouterPreset(type);
@@ -2378,9 +2390,9 @@ $('#presetChoix').on('change', function() {
 
 });
 
-// --- Gestion evenement click sur button sauvegarde
+// --- Gestion evenement click sur bouton sauvegarde
 //
-$('#buttonSauvegarde').on('click', function() {
+$(boutonSauvegarde).on('click', function() {
 
 	// Appeler la fonction de sauvegarde
 	savePresets();
@@ -2388,9 +2400,9 @@ $('#buttonSauvegarde').on('click', function() {
 });
 
 
-// --- Gestion evenement click sur button restaurer
+// --- Gestion evenement click sur bouton restaurer
 //
-$('#buttonRestaurer').on('click', function() {
+$(boutonRestaurer).on('click', function() {
 
 	// Appeler la fonction de restauration
 	loadPresets();
