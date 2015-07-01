@@ -1910,13 +1910,8 @@ function presetExiste(div){
 //
 function savePresets() {
 
-	// Verifier si le navigateur utilise est IE (car localstorage ne fonctionne pas)
-	if(isIE()){
-		//window.localStorage.setItem("hello", "somedata");
-		//localstorage.setItem("gPresets", JSON.stringify(gPresets));
-		//console.log(window.localStorage.getItem("hello"));
-	}
-	else
+	// Verifier si le localhost est reconnu (pour IE sous local)
+	if(localStorage !== undefined)
 		// Sauvegarder le tableau contenant les gPresets
 		localStorage.gPresets = JSON.stringify(gPresets);
 }
@@ -1926,28 +1921,30 @@ function savePresets() {
 //
 function loadPresets() {
 
-	// Verifier si le localStorage a sauvegarde les gPresets
-	if(localStorage.gPresets) {
+	// Verifier si le localhost est reconnu (pour IE sous local)
+	if(localStorage !== undefined)
+		// Verifier si le localStorage a sauvegarde les gPresets
+		if(localStorage.gPresets) {
 
-		// Effacer l'affichage courant de presets (et reinitialiser jsPlumb)
-		reinitialiserAffichagePresets();
+			// Effacer l'affichage courant de presets (et reinitialiser jsPlumb)
+			reinitialiserAffichagePresets();
 
-		// Recuperer du localStorage le tableau gPresets
-		gPresets = JSON.parse(localStorage.gPresets);
+			// Recuperer du localStorage le tableau gPresets
+			gPresets = JSON.parse(localStorage.gPresets);
 
-		// Redonner au presets leur signfication (grace a la classe Serialize et sa methode)
-		restaurerClasses(gPresets);
+			// Redonner au presets leur signfication (grace a la classe Serialize et sa methode)
+			restaurerClasses(gPresets);
 
-		// Reconstruire le graphique des gBasePresets
-		restaurergBasePresets();
+			// Reconstruire le graphique des gBasePresets
+			restaurergBasePresets();
 
-		// Reconstruire la structure jsPlumb
-		restaurerJSPlumbPresets();
+			// Reconstruire la structure jsPlumb
+			restaurerJSPlumbPresets();
 
-		// Redimensionner les composants de la fenetre
-		redimensionnerConteneursFenetre();
+			// Redimensionner les composants de la fenetre
+			redimensionnerConteneursFenetre();
 
-	}
+		}
 }
 
 // --- Fonction restaurerJSPlumbPresets
@@ -2398,7 +2395,6 @@ $(listeChoixPreset).on('change', function() {
 	creerGBasePreset(type);
 
 });
-
 
 // --- Gestion evenement click sur bouton sauvegarde
 //
