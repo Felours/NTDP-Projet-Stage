@@ -8,8 +8,18 @@
     <!-- ------------------ -->
     <link href="css/index.css" rel="stylesheet" />
     <link href="css/bootstrap.css" rel="stylesheet" />
+    <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link href="css/jsPlumb/jsplumb.css" rel="stylesheet" />
     <link href="css/jsPlumb/jsplumb-doc.css" rel="stylesheet" />
+    <link href="css/Bootstrap-select/bootstrap-select.css" rel="stylesheet" />
+
+    <!-- Liens fichiers Javascript -->
+    <!-- ------------------------- -->
+
+    <!-- CORE JQUERY FILE -->
+    <script src="js/jquery.js"></script>
+    <!-- REQUIRED BOOTSTRAP SCRIPTS -->
+    <script src="js/bootstrap.js"></script>
 
 </head>
 
@@ -18,54 +28,130 @@
   <!-- Section generale -->
   <section id="sectionGenerale">
 
-    <!-- Section d'affichage du graphique des presets -->
-    <section id="sectionPresets">
+      <!-- Header de l'applicaion pour l'affichage du logo et du menu deroulant -->
+      <header ><!-- class="btn-group" -->
 
-      <!-- Liste des presets -->
-      <SELECT id="presetChoix" size="1">
-        <OPTION selected disabled>Choix preset</OPTION>
-        <OPTION>Gain</OPTION>
-        <OPTION>Reverb</OPTION>
-        <OPTION>Chorus</OPTION>
-        <OPTION>Cabinet</OPTION>
-        <OPTION>Overdrive</OPTION>
-        <OPTION>Delay</OPTION>
-        <OPTION>Amp</OPTION>
-        <OPTION>Filter</OPTION>
-        <OPTION>Gate</OPTION>
-        <OPTION>Wah</OPTION>
-        <OPTION>GraphicEQ</OPTION>
-        <OPTION>Pitch</OPTION>
-      </SELECT>
+          <!-- Button affichant le menu -->
+          <button type="button" class="btn btn-default dropdown-toggle " 
+            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><!-- btn-sm btn-group-justified -->
+            <!-- <span class="buttonText">Menu</span> <span class="caret"></span> -->
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+          </button>
 
-      <!-- Buttons de sauvegarde et restauration -->
-      <button id="buttonSauvegarde">Sauvegarder</button>
-      <button id="buttonRestaurer">Restaurer</button>
+          <!-- Contenu du menu deroulant -->
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">Nouveau</a></li>
+            <li class="divider"></li>
+            <li><a href="#" id="buttonSauvegarde">Sauvegarder</a></li>
+            <li><a href="#" id="buttonRestaurer">Restaurer</a></li>
+            <li class="divider"></li>
+            <li><a href="#">A propos</a></li>
+          </ul>
+      </header>
 
-      <!-- Div affichant les presets-->
-      <div id="affichagePresents">
-      </div> 
-    </section>
+      <!-- Section emploi groupant les sections de travail -->
+      <section id="sectionEmploi">
+
+        <!-- Section management pour gerer les collections et sets -->
+        <section id="sectionManagement">
+
+          <!-- Partie contenant la gestion des categories et les sets -->
+          <div id="affichageGestionCategories" class="container">
+
+            <!-- Partie affichageManager : Contient le titre et un button de gestion -->
+            <div id="affichageManager" class="row">
+              <span id="titrePresetManager" class="col-xs-6 col-lg-6">Presets</span> 
+              <button id="buttonManagement" type="button" class="btn btn-default btn-sm col-xs-2 col-lg-2 " aria-label="Right Align" data-toggle="modal" data-target="#managementCategories">
+                <span class="glyphicon glyphicon-option-vertical"></span>
+              </button>
+            </div>
+
+            <!-- Liste de selection des categories existantes -->
+            <div class="row">
+              <SELECT id="categorieChoix" class="col-xs-12 col-sm-12 col-md-12 selectpicker" size="1">
+                <OPTION selected>Presets globaux</OPTION>
+              </SELECT>
+            </div>
+
+            <!-- Liste de selection des sets de la categorie choisie -->
+            <div id="affichageListeSets">
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- Section plateau pour la partie servant a creer et modifier les blocks -->
+        <section id="sectionPlateau">
+
+          <!-- Section d'affichage du graphique des blocks -->
+          <section id="sectionBlocks">
+
+            <!-- Liste des blocks -->
+            <SELECT id="blockChoix" size="1">
+              <OPTION selected disabled>Choix block</OPTION>
+              <OPTION>Gain</OPTION>
+              <OPTION>Reverb</OPTION>
+              <OPTION>Chorus</OPTION>
+              <OPTION>Cabinet</OPTION>
+              <OPTION>Overdrive</OPTION>
+              <OPTION>Delay</OPTION>
+              <OPTION>Amp</OPTION>
+              <OPTION>Filter</OPTION>
+              <OPTION>Gate</OPTION>
+              <OPTION>Wah</OPTION>
+              <OPTION>GraphicEQ</OPTION>
+              <OPTION>Pitch</OPTION>
+            </SELECT>
+
+            <!-- Buttons de sauvegarde et restauration -->
+            <!-- <button id="buttonSauvegarde">Sauvegarder</button>
+            <button id="buttonRestaurer">Restaurer</button> -->
+
+            <!-- Div affichant les blocks-->
+            <div id="affichageBlocks">
+            </div> 
+          </section>
 
 
-    <!-- Section d'affichage du graphique des parametres sur un present selectionne-->
-    <section id="sectionParametres">
-      <!-- Div affichant les parametres d'un preset-->
-      <div id="affichageParametres">
-      </div> 
-    </section>
+          <!-- Section d'affichage du graphique des parametres sur un present selectionne-->
+          <section id="sectionParametres">
+            <!-- Div affichant les parametres d'un block-->
+            <div id="affichageParametres">
+            </div> 
+          </section>
 
-</section>
+        </section>
 
-  <!-- Liens fichiers Javascript -->
-  <!-- ------------------------- -->
+      </section>
 
-  <!-- CORE JQUERY FILE -->
-  <script src="js/jquery.js"></script>
-  <!-- REQUIRED BOOTSTRAP SCRIPTS -->
-  <script src="js/bootstrap.js"></script>
-  <!-- REQUIRED BOOTSTRAP SCRIPTS -->
-  <script src="js/bootstrap.js"></script>
+  </section>
+
+  <!-- Fenetres pop-up de l'application -->
+  <!-- ================================ -->
+
+  <!-- Fenetre du management des categories -->
+  <!-- ------------------------------------ -->
+  <div class="modal" id="managementCategories" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"> <!-- modal fade -->
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- /Fin Fenetres pop-up de l'application -->
+  <!-- ===================================== -->
   
 
   <!-- Fichiers JS de la bibliotheque jsPlumb -->
@@ -81,6 +167,8 @@
   <script src="js/jsPlumb/external/jquery.ui.touch-punch-0.2.2.min.js"></script>
 
   <!-- JS -->
+  <!-- Bootstrap-select -->
+  <script src="js/Bootstrap-select/bootstrap-select.js"></script>
   <!-- support lib for bezier stuff -->
   <script src="js/jsPlumb/lib/jsBezier-0.7.js"></script>
   <!-- event adapter -->
@@ -126,7 +214,7 @@
   <!-- bootstrap confirmation bootbox -->
   <script type="text/javascript" src="js/bootbox.js"></script>
 
-  <!-- fonction generant un UUID (pour la creation des graphiques presets) -->
+  <!-- fonction generant un UUID (pour la creation des graphiques blocks) -->
   <script type="text/javascript" src="js/RandomUUID/UUID.js"></script>
 
   <!-- jQuery Knob (element graphique de type 'Dial') -->

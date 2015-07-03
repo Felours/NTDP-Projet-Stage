@@ -1,7 +1,7 @@
 /* Fichier index.js */
-/* Projet MT5 presets */
+/* Projet MT5 blocks */
 /* Auteur : Nouriel AZRIA */
-/* Description : Fichier js de creation et gestion des presets et de l'affichage de ceux la */
+/* Description : Fichier js de creation et gestion des blocks et de l'affichage de ceux la */
 
 /* ---------------------------------------------------------------------------------------- */
 
@@ -72,24 +72,24 @@ function restaurerClasses(insta){
 }
 
 
-/* Classes GBasePreset */
+/* Classes GBaseBlock */
 /* =================== */
 
 
-/* Class Preset */
-/* Description : Class representant les informations d'un preset */
-/* Arguments : type - le nom d'un preset */
-function Preset(type){
+/* Class Block */
+/* Description : Class reblockant les informations d'un block */
+/* Arguments : type - le nom d'un block */
+function Block(type){
 
 	// Implementer Serialize
-	Serialize.call(this,"Preset");
+	Serialize.call(this,"Block");
 
 	// --- Attributs
 	// 
-	this.m_type = type;	// Type de preset (nom)
-	this.m_actif = true;	// Preset actif ou non
-	this.m_parametres = []; // Liste des parametres du preset
-	var m_ancre;		// Lien vers le GBasePreset
+	this.m_type = type;	// Type de block (nom)
+	this.m_actif = true;	// Block actif ou non
+	this.m_parametres = []; // Liste des parametres du block
+	var m_ancre;		// Lien vers le GBaseBlock
 
 	// --- Methodes
 	// 
@@ -161,24 +161,24 @@ function Preset(type){
 	};
 
 }
-Preset.prototype = new Serialize();
+Block.prototype = new Serialize();
 
-/* Class GBasePreset */
-/* Description : Class representant le graphique d'un preset */
-/* Arguments : div - la div qui represente de maniere graphique le preset 
-			   preset - instance de la classe Preset descrivant le preset */
-function GBasePreset(div, preset) {
+/* Class GBaseBlock */
+/* Description : Class reblockant le graphique d'un block */
+/* Arguments : div - la div qui reblocke de maniere graphique le block 
+			   block - instance de la classe Block descrivant le block */
+function GBaseBlock(div, block) {
 
 	// Implementer Serialize
-	Serialize.call(this,"GBasePreset");
+	Serialize.call(this,"GBaseBlock");
 
 	// --- Attributs
 	// 
-	this.m_id = undefined;	// L'id representant le gBasePreset
+	this.m_id = undefined;	// L'id reblockant le gBaseBlock
 	var m_div = div;	// Le graphique (element div)
-	this.m_preset = preset;
+	this.m_block = block;
 	this.m_position = new Position(0,0); // La position du graphique
-	//setAncre(m_preset);	// Faire le lien entre le preset et le GBP
+	//setAncre(m_block);	// Faire le lien entre le block et le GBP
 
 	//var m_dimension = new Dimension(10, 10); // Les dimensions du div
 	//var m_img
@@ -198,10 +198,10 @@ function GBasePreset(div, preset) {
 		this.m_id = id;
 	};
 
-	// --- Methode getPreset
+	// --- Methode getBlock
 	// 
-	this.getPreset = function(){
-		return(this.m_preset);
+	this.getBlock = function(){
+		return(this.m_block);
 	};
 
 	// --- Methode getDiv
@@ -217,12 +217,12 @@ function GBasePreset(div, preset) {
 	};
 
 	// --- Fonction setAncre
-	// Description : Permet de faire un lien entre le GBP et le preset (pour naviguer)
+	// Description : Permet de faire un lien entre le GBP et le block (pour naviguer)
 	// 
 	this.setAncre = function(){
 
-		// Indiquer dans l'instance du preset le lien vers le GBasePreset
-		this.m_preset.setAncre(this);
+		// Indiquer dans l'instance du block le lien vers le GBaseBlock
+		this.m_block.setAncre(this);
 
 	};
 
@@ -239,22 +239,22 @@ function GBasePreset(div, preset) {
 	};
 
 }
-GBasePreset.prototype = new Serialize();
+GBaseBlock.prototype = new Serialize();
 
-/* Class GPreset */
-/* Description : Class representant le graphique d'un preset reel */
-/* Arguments : div - la div qui represente de maniere graphique le preset 
-			   preset - instance de la classe Preset descrivant le preset */
-function GPreset(div, preset) {
+/* Class GBlock */
+/* Description : Class reblockant le graphique d'un block reel */
+/* Arguments : div - la div qui reblocke de maniere graphique le block 
+			   block - instance de la classe Block descrivant le block */
+function GBlock(div, block) {
 
 	// Heritage
-	GBasePreset.call(this, div, preset);
-	this.setNomClass("GPreset");
+	GBaseBlock.call(this, div, block);
+	this.setNomClass("GBlock");
 
 	// --- Attributs
 	// 
-	this.m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
-	this.m_successeur = []; // Les GBasePreset (ou filles) qui suivent
+	this.m_predecesseur = []; // Les GBaseBlock (ou filles) qui precedent
+	this.m_successeur = []; // Les GBaseBlock (ou filles) qui suivent
 
 	// --- Methodes
 	// 
@@ -272,26 +272,26 @@ function GPreset(div, preset) {
 	};
 
 }
-GPreset.prototype = new GBasePreset();
-GPreset.prototype.ajouterPredecesseur = ajouterPredecesseur;
-GPreset.prototype.ajouterSuccesseur = ajouterSuccesseur;
-GPreset.prototype.retirerPredecesseur = retirerPredecesseur;
-GPreset.prototype.retirerSuccesseur = retirerSuccesseur;
+GBlock.prototype = new GBaseBlock();
+GBlock.prototype.ajouterPredecesseur = ajouterPredecesseur;
+GBlock.prototype.ajouterSuccesseur = ajouterSuccesseur;
+GBlock.prototype.retirerPredecesseur = retirerPredecesseur;
+GBlock.prototype.retirerSuccesseur = retirerSuccesseur;
 
 
-/* Class GPresetDebut */
-/* Description : Class representant le graphique de l'entree */
-/* Arguments : div - la div qui represente de maniere graphique le preset d'entree 
-			   preset - instance de la classe Preset descrivant le preset d'entree */
-function GPresetDebut(div, preset) {
+/* Class GBlockDebut */
+/* Description : Class reblockant le graphique de l'entree */
+/* Arguments : div - la div qui reblocke de maniere graphique le block d'entree 
+			   block - instance de la classe Block descrivant le block d'entree */
+function GBlockDebut(div, block) {
 
 	// Heritage
-	GBasePreset.call(this, div, preset);
-	this.setNomClass("GPresetDebut");
+	GBaseBlock.call(this, div, block);
+	this.setNomClass("GBlockDebut");
 
 	// --- Attributs
 	// 
-	this.m_successeur = []; // Les GBasePreset (ou filles) qui suivent
+	this.m_successeur = []; // Les GBaseBlock (ou filles) qui suivent
 
 	// --- Methodes
 	// 
@@ -303,23 +303,23 @@ function GPresetDebut(div, preset) {
 	};
 
 }
-GPresetDebut.prototype = new GBasePreset();
-GPresetDebut.prototype.ajouterSuccesseur = ajouterSuccesseur;
-GPresetDebut.prototype.retirerSuccesseur = retirerSuccesseur;
+GBlockDebut.prototype = new GBaseBlock();
+GBlockDebut.prototype.ajouterSuccesseur = ajouterSuccesseur;
+GBlockDebut.prototype.retirerSuccesseur = retirerSuccesseur;
 
-/* Class GPresetFin */
-/* Description : Class representant le graphique d'un preset de fin */
-/* Arguments : div - la div qui represente de maniere graphique le preset de fin
-			   preset - instance de la classe Preset descrivant le preset de fin */
-function GPresetFin(div, preset) {
+/* Class GBlockFin */
+/* Description : Class reblockant le graphique d'un block de fin */
+/* Arguments : div - la div qui reblocke de maniere graphique le block de fin
+			   block - instance de la classe Block descrivant le block de fin */
+function GBlockFin(div, block) {
 
 	// Heritage
-	GBasePreset.call(this, div, preset);
-	this.setNomClass("GPresetFin");
+	GBaseBlock.call(this, div, block);
+	this.setNomClass("GBlockFin");
 
 	// --- Attributs
 	// 
-	this.m_predecesseur = []; // Les GBasePreset (ou filles) qui precedent
+	this.m_predecesseur = []; // Les GBaseBlock (ou filles) qui precedent
 
 	// --- Methodes
 	// 
@@ -331,12 +331,12 @@ function GPresetFin(div, preset) {
 	};
 
 }
-GPresetFin.prototype = new GBasePreset();
-GPresetFin.prototype.ajouterPredecesseur = ajouterPredecesseur;
-GPresetFin.prototype.retirerPredecesseur = retirerPredecesseur;
+GBlockFin.prototype = new GBaseBlock();
+GBlockFin.prototype.ajouterPredecesseur = ajouterPredecesseur;
+GBlockFin.prototype.retirerPredecesseur = retirerPredecesseur;
 
 
-/* Methodes a ajouter aux classes GBasePreset */
+/* Methodes a ajouter aux classes GBaseBlock */
 /* ========================================== */
 
 // --- Methode ajouterPredecesseur
@@ -379,7 +379,7 @@ function retirerSuccesseur(successeur) {
 }
 
 /* Class Position */
-/* Description : Class representant la position d'un element */
+/* Description : Class reblockant la position d'un element */
 /* Arguments : x - la position horizontale
 			   y - la position verticale */
 function Position(x, y){
@@ -433,7 +433,7 @@ Position.prototype = new Serialize();
 /* =========================== */
 
 /* Class Parametre */
-/* Description : Class representant un parametre d'un preset (ne sera utilisee que par ses classes filles) */
+/* Description : Class reblockant un parametre d'un block (ne sera utilisee que par ses classes filles) */
 /* Arguments : nom - le nom du parametre
 			   m_gParametre - la classe contenant le graphique du parametre */
 function Parametre(nom, gParametre){
@@ -444,7 +444,7 @@ function Parametre(nom, gParametre){
 	// --- Attributs
 	// 
 	this.m_nom = nom;	// Le nom du parametre
-	this.m_gParametre = gParametre; // Instance de la classe contenant le graphique representant le parametre
+	this.m_gParametre = gParametre; // Instance de la classe contenant le graphique reblockant le parametre
 
 	// --- Methodes
 	// 
@@ -485,7 +485,7 @@ function Parametre(nom, gParametre){
 Parametre.prototype = new Serialize();
 
 /* Class GParametre */
-/* Description : Class representant le graphique d'un parametre (ne sera utilisee que par ses classes filles) */
+/* Description : Class reblockant le graphique d'un parametre (ne sera utilisee que par ses classes filles) */
 /* Arguments : graphique - l'element graphique (DOM, pedalboard, autre..)
 			   typeValeurs - le type de valeurs du graphique (interval, liste, autre..) */
 function GParametre(graphique, typeValeurs){
@@ -601,7 +601,7 @@ GParametre.prototype = new Serialize();
 /* ===================================== */
 
 /* Class ParametreGain */
-/* Description : Class representant un parametre Gain d'un preset */
+/* Description : Class reblockant un parametre Gain d'un block */
 /* Arguments : minVal - la valeur minimale de l'intervalle
 			   maxVal - la valeur maximale de l'intervalle
 			   valInit - la valeur initiale
@@ -626,7 +626,7 @@ ParametreGain.prototype = new Parametre();
 ParametreGain.prototype.traiterAudio = traiterAudioGain;
 
 /* Class ParametrePan */
-/* Description : Class representant un parametre Pan d'un preset */
+/* Description : Class reblockant un parametre Pan d'un block */
 function ParametrePan(){
 
 	// Heritage
@@ -647,7 +647,7 @@ ParametrePan.prototype = new Parametre();
 ParametrePan.prototype.traiterAudio = traiterAudioPan;
 
 /* Class ParametreTone */
-/* Description : Class representant un parametre Tone d'un preset */
+/* Description : Class reblockant un parametre Tone d'un block */
 function ParametreTone(){
 
 	// Heritage
@@ -668,7 +668,7 @@ ParametreTone.prototype = new Parametre();
 ParametreTone.prototype.traiterAudio = traiterAudioTone;
 
 /* Class ParametreVolume */
-/* Description : Class representant un parametre Volume d'un preset */
+/* Description : Class reblockant un parametre Volume d'un block */
 /* Argument : valInit - la valeur initiale */
 function ParametreVolume(valInit){
 
@@ -694,7 +694,7 @@ ParametreVolume.prototype = new Parametre();
 ParametreVolume.prototype.traiterAudio = traiterAudioVolume;
 
 /* Class ParametreType */
-/* Description : Class representant un parametre Type d'un preset */
+/* Description : Class reblockant un parametre Type d'un block */
 /* Argument : tab - tableu contenant les elements de la liste */
 function ParametreType(tab){
 
@@ -716,7 +716,7 @@ ParametreType.prototype = new Parametre();
 ParametreType.prototype.traiterAudio = traiterAudioType;
 
 /* Class ParametreMix */
-/* Description : Class representant un parametre Mix d'un preset */
+/* Description : Class reblockant un parametre Mix d'un block */
 function ParametreMix(){
 
 	// Heritage
@@ -737,7 +737,7 @@ ParametreMix.prototype = new Parametre();
 ParametreMix.prototype.traiterAudio = traiterAudioMix;
 
 /* Class ParametreRoom */
-/* Description : Class representant un parametre Room d'un preset */
+/* Description : Class reblockant un parametre Room d'un block */
 function ParametreRoom(){
 
 	// Heritage
@@ -758,7 +758,7 @@ ParametreRoom.prototype = new Parametre();
 ParametreRoom.prototype.traiterAudio = traiterAudioRoom;
 
 /* Class ParametreFeedBack */
-/* Description : Class representant un parametre FeedBack d'un preset */
+/* Description : Class reblockant un parametre FeedBack d'un block */
 function ParametreFeedBack(){
 
 	// Heritage
@@ -779,7 +779,7 @@ ParametreFeedBack.prototype = new Parametre();
 ParametreFeedBack.prototype.traiterAudio = traiterAudioFeedBack;
 
 /* Class ParametreTime */
-/* Description : Class representant un parametre Time d'un preset */
+/* Description : Class reblockant un parametre Time d'un block */
 function ParametreTime(){
 
 	// Heritage
@@ -800,7 +800,7 @@ ParametreTime.prototype = new Parametre();
 ParametreTime.prototype.traiterAudio = traiterAudioTime;
 
 /* Class ParametreDrive */
-/* Description : Class representant un parametre Drive d'un preset */
+/* Description : Class reblockant un parametre Drive d'un block */
 function ParametreDrive(){
 
 	// Heritage
@@ -821,7 +821,7 @@ ParametreDrive.prototype = new Parametre();
 ParametreDrive.prototype.traiterAudio = traiterAudioDrive;
 
 /* Class ParametreBass */
-/* Description : Class representant un parametre Bass d'un preset */
+/* Description : Class reblockant un parametre Bass d'un block */
 function ParametreBass(){
 
 	// Heritage
@@ -842,7 +842,7 @@ ParametreBass.prototype = new Parametre();
 ParametreBass.prototype.traiterAudio = traiterAudioBass;
 
 /* Class ParametreMid */
-/* Description : Class representant un parametre Mid d'un preset */
+/* Description : Class reblockant un parametre Mid d'un block */
 function ParametreMid(){
 
 	// Heritage
@@ -863,7 +863,7 @@ ParametreMid.prototype = new Parametre();
 ParametreMid.prototype.traiterAudio = traiterAudioMid;
 
 /* Class ParametreTreb */
-/* Description : Class representant un parametre Treb d'un preset */
+/* Description : Class reblockant un parametre Treb d'un block */
 function ParametreTreb(){
 
 	// Heritage
@@ -884,7 +884,7 @@ ParametreTreb.prototype = new Parametre();
 ParametreTreb.prototype.traiterAudio = traiterAudioTreb;
 
 /* Class ParametrePresence */
-/* Description : Class representant un parametre Presence d'un preset */
+/* Description : Class reblockant un parametre Presence d'un block */
 function ParametrePresence(){
 
 	// Heritage
@@ -905,7 +905,7 @@ ParametrePresence.prototype = new Parametre();
 ParametrePresence.prototype.traiterAudio = traiterAudioPresence;
 
 /* Class ParametreBoost */
-/* Description : Class representant un parametre Boost d'un preset */
+/* Description : Class reblockant un parametre Boost d'un block */
 /* Argument : valInit - la valeur initiale */
 function ParametreBoost(valInit){
 
@@ -931,7 +931,7 @@ ParametreBoost.prototype = new Parametre();
 ParametreBoost.prototype.traiterAudio = traiterAudioBoost;
 
 /* Class ParametreMaster */
-/* Description : Class representant un parametre Presence d'un preset */
+/* Description : Class reblockant un parametre Presence d'un block */
 function ParametreMaster(){
 
 	// Heritage
@@ -952,7 +952,7 @@ ParametreMaster.prototype = new Parametre();
 ParametreMaster.prototype.traiterAudio = traiterAudioMaster;
 
 /* Class ParametreFrequency */
-/* Description : Class representant un parametre Frequency d'un preset */
+/* Description : Class reblockant un parametre Frequency d'un block */
 /* Argument : valInit - valeur initiale */
 function ParametreFrequency(valInit){
 
@@ -978,7 +978,7 @@ ParametreFrequency.prototype = new Parametre();
 ParametreFrequency.prototype.traiterAudio = traiterAudioFrequency;
 
 /* Class ParametreQ */
-/* Description : Class representant un parametre Q d'un preset */
+/* Description : Class reblockant un parametre Q d'un block */
 function ParametreQ(){
 
 	// Heritage
@@ -999,7 +999,7 @@ ParametreQ.prototype = new Parametre();
 ParametreQ.prototype.traiterAudio = traiterAudioQ;
 
 /* Class ParametreRelease */
-/* Description : Class representant un parametre Release d'un preset */
+/* Description : Class reblockant un parametre Release d'un block */
 function ParametreRelease(){
 
 	// Heritage
@@ -1020,7 +1020,7 @@ ParametreRelease.prototype = new Parametre();
 ParametreRelease.prototype.traiterAudio = traiterAudioRelease;
 
 /* Class ParametreThreshold */
-/* Description : Class representant un parametre Threshold d'un preset */
+/* Description : Class reblockant un parametre Threshold d'un block */
 function ParametreThreshold(){
 
 	// Heritage
@@ -1041,7 +1041,7 @@ ParametreThreshold.prototype = new Parametre();
 ParametreThreshold.prototype.traiterAudio = traiterAudioThreshold;
 
 /* Class ParametreResonance */
-/* Description : Class representant un parametre Resonance d'un preset */
+/* Description : Class reblockant un parametre Resonance d'un block */
 function ParametreResonance(){
 
 	// Heritage
@@ -1062,7 +1062,7 @@ ParametreResonance.prototype = new Parametre();
 ParametreResonance.prototype.traiterAudio = traiterAudioResonance;
 
 /* Class ParametreNum */
-/* Description : Class representant un parametre dont le nom est un nombre d'un preset */
+/* Description : Class reblockant un parametre dont le nom est un nombre d'un block */
 function ParametreNum(nom){
 
 	// Heritage
@@ -1083,7 +1083,7 @@ ParametreNum.prototype = new Parametre();
 ParametreNum.prototype.traiterAudio = traiterAudioNum;
 
 /* Class ParametrePitch */
-/* Description : Class representant un parametre dont le nom est un nombre d'un preset */
+/* Description : Class reblockant un parametre dont le nom est un nombre d'un block */
 function ParametrePitch(){
 
 	// Heritage
@@ -1104,7 +1104,7 @@ ParametrePitch.prototype = new Parametre();
 ParametrePitch.prototype.traiterAudio = traiterAudioPitch;
 
 /* Class ParametreMode */
-/* Description : Class representant un parametre Mode d'un preset */
+/* Description : Class reblockant un parametre Mode d'un block */
 /* Argument : tab - tableu contenant les elements de la liste */
 function ParametreMode(tab){
 
@@ -1300,7 +1300,7 @@ function traiterAudioMode(flux) {
 /* ====================================== */
 
 /* Class GParametreKnob */
-/* Description : Class representant le graphique issu du plugin Knob */
+/* Description : Class reblockant le graphique issu du plugin Knob */
 /* Arguments : valMin - valeur minimal de l'intervalle
 			   valMax - valeur maximale de l'intervalle 
 			   valInit - la valeur initiale
@@ -1356,7 +1356,7 @@ GParametreKnob.prototype.getValeurTraite = getValeurTraiteKnob;
 GParametreKnob.prototype.setValeurTraite = setValeurTraiteKnob;
 
 /* Class GParametreListe */
-/* Description : Class representant le graphique d'une liste*/
+/* Description : Class reblockant le graphique d'une liste*/
 /* Arguments : tab - tableau contenant la liste des valeurs*/
 function GParametreListe(tab){
 
@@ -1432,7 +1432,7 @@ GParametreListe.prototype.getValeurTraite = getValeurTraiteListe;
 GParametreListe.prototype.setValeurTraite = setValeurTraiteListe;
 
 /* Class GParametreSwitch */
-/* Description : Class representant le graphique d'un switch */
+/* Description : Class reblockant le graphique d'un switch */
 /* Argument : valInit - la valeur initiale */
 function GParametreSwitch(valInit){
 
@@ -1554,17 +1554,17 @@ function setValeurTraiteSwitch(val){
 
 /* Variables globales */
 /* ================== */
-var gPresets = []; // Liste des presets existants
-var gPresetCourant; // Graphique preset courant (pour traitements des elements independants du gPreset mais qui le concerne (ex : parametres associes))
-var conteneurPresets = $("#affichagePresents"); // Conteneur des presets
+var gBlocks = []; // Liste des blocks existants
+var gBlockCourant; // Graphique block courant (pour traitements des elements independants du gBlock mais qui le concerne (ex : parametres associes))
+var conteneurBlocks = $("#affichageBlocks"); // Conteneur des blocks
 var conteneurParametres = $("#affichageParametres"); // Conteneur des parametres
 
-var sectionPresets = $("#sectionPresets"); // Section contenant l'affichage des presets (sert pour le resize)
+var sectionBlocks = $("#sectionBlocks"); // Section contenant l'affichage des blocks (sert pour le resize)
 var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
-var nomPDeb = "debut", nomPFin = "fin"; // Le nom des presets speciaux
+var nomPDeb = "debut", nomPFin = "fin"; // Le nom des blocks speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 
-var listeChoixPreset = "#presetChoix";	// Liste contenant le nom des presets pouvant etre crees
+var listeChoixBlock = "#blockChoix";	// Liste contenant le nom des blocks pouvant etre crees
 var boutonSauvegarde = '#buttonSauvegarde';	// Bouton permettant de sauvegarder
 var boutonRestaurer = '#buttonRestaurer';	// Bouton permettant de restaurer
 
@@ -1604,19 +1604,19 @@ var boutonRestaurer = '#buttonRestaurer';	// Bouton permettant de restaurer
 /* /Fin definition des elements jsPlumb */
 /* ==================================== */
 
-// --- Fonction getGPresetFromDiv
-// --- Description : Recuperer le GPreset correspondant au div donne en parametre
+// --- Fonction getGBlockFromDiv
+// --- Description : Recuperer le GBlock correspondant au div donne en parametre
 //
-function getGPresetFromDiv(div){
+function getGBlockFromDiv(div){
 
-	// Scanner les GPresets existants
+	// Scanner les GBlocks existants
 	var GP, GPdiv;
-	for(var i=0; i<gPresets.length; i++){
+	for(var i=0; i<gBlocks.length; i++){
 		
-		// Recuperer le GPreset
-		GP = gPresets[i];
+		// Recuperer le GBlock
+		GP = gBlocks[i];
 
-		// Recuperer la div du GPreset
+		// Recuperer la div du GBlock
 		GPdiv = GP.getDiv();
 
 		// Verifier si la div correspond
@@ -1630,19 +1630,19 @@ function getGPresetFromDiv(div){
 
 }
 
-// --- Fonction getGPresetFromId()
-// Description : Recupere un GBasePreset par son id
+// --- Fonction getGBlockFromId()
+// Description : Recupere un GBaseBlock par son id
 //
-function getGPresetFromId(id){
+function getGBlockFromId(id){
 
-	// Scanner les GPresets existants
+	// Scanner les GBlocks existants
 	var GP, GPId;
-	for(var i=0; i<gPresets.length; i++){
+	for(var i=0; i<gBlocks.length; i++){
 		
-		// Recuperer le GPreset
-		GP = gPresets[i];
+		// Recuperer le GBlock
+		GP = gBlocks[i];
 
-		// Recuperer l'id du GPreset
+		// Recuperer l'id du GBlock
 		GPId = GP.getId();
 
 		// Verifier si la div correspond
@@ -1657,8 +1657,8 @@ function getGPresetFromId(id){
 }
 
 // --- Fonction getGParametreFromId
-// Description : Recupere un GParametre par son id issu d'un GBasePreset
-// Arguments : gbp - instance d'un GBasePreset contenant le parametre
+// Description : Recupere un GParametre par son id issu d'un GBaseBlock
+// Arguments : gbp - instance d'un GBaseBlock contenant le parametre
 //			   id - id du GParametre
 //
 function getGParametreFromId(gbp, id){
@@ -1666,7 +1666,7 @@ function getGParametreFromId(gbp, id){
 	// Recuperer les parametres 
 	var GPs;
 	if(gbp !== undefined && id !== undefined){
-		GPs = gbp.getPreset().getParametres();
+		GPs = gbp.getBlock().getParametres();
 
 		// Scanner les GParametres existants
 		var GP, GPId;
@@ -1691,46 +1691,46 @@ function getGParametreFromId(gbp, id){
 }
 
 // --- Fonction ajouterEndPoints
-// --- Description : Ajouter au GBasePreset (ou fille) un end point jsPlumb
+// --- Description : Ajouter au GBaseBlock (ou fille) un end point jsPlumb
 //
-function ajouterEndPoints(GBPreset){
+function ajouterEndPoints(GBBlock){
 
-	// Verifier quel type de GBasePreset il s'agit
+	// Verifier quel type de GBaseBlock il s'agit
 	// -------------------------------------------
 
-	// console.log(GBPreset.getDiv());
-	// console.log($(GBPreset.getDiv()).width());
+	// console.log(GBBlock.getDiv());
+	// console.log($(GBBlock.getDiv()).width());
 
-	// Verifier s'il s'agit d'un GBasePreset
-	if(GBPreset instanceof GBasePreset){
+	// Verifier s'il s'agit d'un GBaseBlock
+	if(GBBlock instanceof GBaseBlock){
 
 		// Recuperer la div graphique
-		var divPreset = GBPreset.getDiv();
+		var divBlock = GBBlock.getDiv();
 
-		// Cas d'un GBPreset de debut
-		if(GBPreset instanceof GPresetDebut){
+		// Cas d'un GBBlock de debut
+		if(GBBlock instanceof GBlockDebut){
 
 			// Ajouter un endpoint de sortie
-			jspInstance.addEndpoint(divPreset, endpointSortie);
+			jspInstance.addEndpoint(divBlock, endpointSortie);
 
 		}
 
-		// Cas d'un GBPreset de fin	
-		if(GBPreset instanceof GPresetFin){
+		// Cas d'un GBBlock de fin	
+		if(GBBlock instanceof GBlockFin){
 
 			// Ajouter un endpoint d'entree
-			jspInstance.addEndpoint(divPreset, endpointEntree);
+			jspInstance.addEndpoint(divBlock, endpointEntree);
 			
 		}
 
-		// Cas d'un GBPreset normal
-		if(GBPreset instanceof GPreset){
+		// Cas d'un GBBlock normal
+		if(GBBlock instanceof GBlock){
 			
 			// Ajouter un endpoint de sortie
-			jspInstance.addEndpoint(divPreset, endpointSortie);
+			jspInstance.addEndpoint(divBlock, endpointSortie);
 
 			// Ajouter un endpoint d'entree
-			jspInstance.addEndpoint(divPreset, endpointEntree);
+			jspInstance.addEndpoint(divBlock, endpointEntree);
 
 		}
 
@@ -1738,33 +1738,33 @@ function ajouterEndPoints(GBPreset){
 
 }
 
-// --- Fonction initialiserVuePresets
-// --- Description : Initialiser la vue des presets 
+// --- Fonction initialiserVueBlocks
+// --- Description : Initialiser la vue des blocks 
 //
-function initialiserVuePresets(){
+function initialiserVueBlocks(){
 
-	// Creer un preset de debut
+	// Creer un block de debut
 	// 
-	//ajouterPreset(nomPDeb);
-	creerGBasePreset(nomPDeb);
+	//ajouterBlock(nomPDeb);
+	creerGBaseBlock(nomPDeb);
 
-	// Creer un preset de fin
+	// Creer un block de fin
 	// 
-	//ajouterPreset(nomPFin);
-	creerGBasePreset(nomPFin);
+	//ajouterBlock(nomPFin);
+	creerGBaseBlock(nomPFin);
 
 }
 
-// --- function constructImgPreset
+// --- function constructImgBlock
 // Description : Fonction permettant de construire l'image d'une div
 // 
-function constructImgPreset(nomPreset, div, gPreset, CB){
+function constructImgBlock(nomBlock, div, gBlock, CB){
 
 	// Creer une instance image
 	var img = new Image();
 
 	// Indiquer le lien dynamique
-	img.src = srcImgs + nomPreset + ".png";
+	img.src = srcImgs + nomBlock + ".png";
 
 	// Construire quand l'image s'est chargee
 	img.onload = function(){
@@ -1787,28 +1787,28 @@ function constructImgPreset(nomPreset, div, gPreset, CB){
 
 
 // --- Fonction retirerGBP
-// Description : Retire le GBasePreset
+// Description : Retire le GBaseBlock
 //
 function retirerGBP(div){
 
-	// Recuperer le GBasePreset
-	var gbp = getGPresetFromDiv(div);
+	// Recuperer le GBaseBlock
+	var gbp = getGBlockFromDiv(div);
 
 	// Retirer les predecesseurs (mutuellement)
 	var predecs = gbp.getPredecesseurs();	// Liste des ids
 	var gbpPre;
 	for(var i=0; i<predecs.length; i++){
 
-		// Recuperer le gBasePreset par son id
-		gbpPre = getGPresetFromId(predecs[i]);
+		// Recuperer le gBaseBlock par son id
+		gbpPre = getGBlockFromId(predecs[i]);
 
-		// Verifier si le GBasePreset existe
+		// Verifier si le GBaseBlock existe
 		if(gbpPre !== -1){
 
-			// Retirer le gPreset du predecesseur
+			// Retirer le gBlock du predecesseur
 			gbpPre.retirerSuccesseur(gbp.getId());
 
-			// Retirer le predecesseur du gPreset (optionnel, permet de laisser propre)
+			// Retirer le predecesseur du gBlock (optionnel, permet de laisser propre)
 			gbp.retirerPredecesseur(predecs[i]);
 
 		}
@@ -1821,24 +1821,24 @@ function retirerGBP(div){
 
 	for(i=0; i<success.length; i++){
 
-		// Recuperer le gBasePreset par son id
-		gbpSucc = getGPresetFromId(success[i]);
+		// Recuperer le gBaseBlock par son id
+		gbpSucc = getGBlockFromId(success[i]);
 
-		// Verifier si le GBasePreset existe
+		// Verifier si le GBaseBlock existe
 		if(gbpSucc !== -1){
 
-			// Retirer le gPreset du successeur
+			// Retirer le gBlock du successeur
 			gbpSucc.retirerPredecesseur(gbp.getId());
 
-			// Retirer le successeur du gPreset (optionnel, permet de laisser propre)
+			// Retirer le successeur du gBlock (optionnel, permet de laisser propre)
 			gbp.retirerSuccesseur(success[i]);
 
 		}
 
 	}
 
-	// Retirer le gPreset de la liste des gPresets globale
-	retirerGPreset(gbp);
+	// Retirer le gBlock de la liste des gBlocks globale
+	retirerGBlock(gbp);
 
 	// Retirer les connexions visuelles
 	jspInstance.detachAllConnections($(div));
@@ -1849,15 +1849,15 @@ function retirerGBP(div){
 }
 
 // --- Fonction retirerLienGBP
-// Description : Retire le lien GBasePreset (par les tableaux successeur et predeccesseur)
+// Description : Retire le lien GBaseBlock (par les tableaux successeur et predeccesseur)
 //
 function retirerLienGBP(src, trg){
 
 	// Recuperer GBP de la div src
-	var GBPsrc = getGPresetFromDiv(src);
+	var GBPsrc = getGBlockFromDiv(src);
 
 	// Recuperer GBP de la div trg
-	var GBPtrg = getGPresetFromDiv(trg);
+	var GBPtrg = getGBlockFromDiv(trg);
 
 	// Retirer la source du target
 	GBPtrg.retirerPredecesseur(GBPsrc.getId());
@@ -1867,34 +1867,34 @@ function retirerLienGBP(src, trg){
 
 }
 
-// --- Fonction retirerGPreset
-// Description : Retirer le gPreset de la liste des gPresets globale
+// --- Fonction retirerGBlock
+// Description : Retirer le gBlock de la liste des gBlocks globale
 //
-function retirerGPreset(gPreset){
+function retirerGBlock(gBlock){
 
-	// Trouver l'indice du gPreset dans le tableau
-	var index = gPresets.indexOf(gPreset);
+	// Trouver l'indice du gBlock dans le tableau
+	var index = gBlocks.indexOf(gBlock);
 
 	// Si trouve, retirer de la liste
 	if (index > -1) {
-		gPresets.splice(index, 1);
+		gBlocks.splice(index, 1);
 	}
 
 }
 
-// --- Fonction presetExiste
-// Description : Indique si un preset existe ou pas (selon la div)
+// --- Fonction blockExiste
+// Description : Indique si un block existe ou pas (selon la div)
 //
-function presetExiste(div){
+function blockExiste(div){
 
-	// Recuperer le GBasePreset
-	var gPreset = getGPresetFromDiv(div);
+	// Recuperer le GBaseBlock
+	var gBlock = getGBlockFromDiv(div);
 
-	// Verifier si le gPreset existe
-	if(gPreset != -1){
+	// Verifier si le gBlock existe
+	if(gBlock != -1){
 
-		// Trouver l'indice du gPreset dans le tableau
-		var index = gPresets.indexOf(gPreset);
+		// Trouver l'indice du gBlock dans le tableau
+		var index = gBlocks.indexOf(gBlock);
 
 		// Si trouve, indiquer qu'il existe
 		if (index > -1) 
@@ -1905,41 +1905,41 @@ function presetExiste(div){
 	return false;
 }
 
-// --- Fonction savePresets
-// Description : Sauvegarder l'etat de stockage des presets
+// --- Fonction saveBlocks
+// Description : Sauvegarder l'etat de stockage des blocks
 //
-function savePresets() {
+function saveBlocks() {
 
 	// Verifier si le localhost est reconnu (pour IE sous local)
 	if(localStorage !== undefined)
-		// Sauvegarder le tableau contenant les gPresets
-		localStorage.gPresets = JSON.stringify(gPresets);
+		// Sauvegarder le tableau contenant les gBlocks
+		localStorage.gBlocks = JSON.stringify(gBlocks);
 }
 
-// --- Fonction loadPresets
-// Description : Restaurer l'etat de stockage des presets (version buggee)
+// --- Fonction loadBlocks
+// Description : Restaurer l'etat de stockage des blocks (version buggee)
 //
-function loadPresets() {
+function loadBlocks() {
 
 	// Verifier si le localhost est reconnu (pour IE sous local)
 	if(localStorage !== undefined)
-		// Verifier si le localStorage a sauvegarde les gPresets
-		if(localStorage.gPresets) {
+		// Verifier si le localStorage a sauvegarde les gBlocks
+		if(localStorage.gBlocks) {
 
-			// Effacer l'affichage courant de presets (et reinitialiser jsPlumb)
-			reinitialiserAffichagePresets();
+			// Effacer l'affichage courant de blocks (et reinitialiser jsPlumb)
+			reinitialiserAffichageBlocks();
 
-			// Recuperer du localStorage le tableau gPresets
-			gPresets = JSON.parse(localStorage.gPresets);
+			// Recuperer du localStorage le tableau gBlocks
+			gBlocks = JSON.parse(localStorage.gBlocks);
 
-			// Redonner au presets leur signfication (grace a la classe Serialize et sa methode)
-			restaurerClasses(gPresets);
+			// Redonner au blocks leur signfication (grace a la classe Serialize et sa methode)
+			restaurerClasses(gBlocks);
 
-			// Reconstruire le graphique des gBasePresets
-			restaurergBasePresets();
+			// Reconstruire le graphique des gBaseBlocks
+			restaurergBaseBlocks();
 
 			// Reconstruire la structure jsPlumb
-			restaurerJSPlumbPresets();
+			restaurerJSPlumbBlocks();
 
 			// Redimensionner les composants de la fenetre
 			redimensionnerConteneursFenetre();
@@ -1947,21 +1947,21 @@ function loadPresets() {
 		}
 }
 
-// --- Fonction restaurerJSPlumbPresets
-// Description : Restaure l'etat du jsPlumb d'apres la structure du tableau des gBasePresets
+// --- Fonction restaurerJSPlumbBlocks
+// Description : Restaure l'etat du jsPlumb d'apres la structure du tableau des gBaseBlocks
 //
-function restaurerJSPlumbPresets() {
+function restaurerJSPlumbBlocks() {
 
-	// Recuperer le tableau des gPresets contenant la structure de jsPlumb
-	var tabGPresets = gPresets;
+	// Recuperer le tableau des gBlocks contenant la structure de jsPlumb
+	var tabGBlocks = gBlocks;
 
-	// Recuperer et recreer les liens jsPlumb de chaque instance de gBasePreset
+	// Recuperer et recreer les liens jsPlumb de chaque instance de gBaseBlock
 	var gbp, tabSucc, srcId;
 	var endpointsSrc, endpointSrc, endpointsTarget, endpointTarget;
-	for(var i=0; i<tabGPresets.length; i++){
+	for(var i=0; i<tabGBlocks.length; i++){
 
-		// Recuperer l'instance de gBasePreset
-		gbp = tabGPresets[i];
+		// Recuperer l'instance de gBaseBlock
+		gbp = tabGBlocks[i];
 
 		// Recuperer l'id du graphique
 		srcId = gbp.getId();
@@ -1976,8 +1976,8 @@ function restaurerJSPlumbPresets() {
 			if(endpointsSrc[1] !== undefined)
 				endpointSrc = endpointsSrc[1];
 
-		// Verifier que le gBasePreset n'est pas le preset de fin
-		if(!(gbp instanceof GPresetFin)){
+		// Verifier que le gBaseBlock n'est pas le block de fin
+		if(!(gbp instanceof GBlockFin)){
 
 			// Recuperer la liste des successeurs
 			tabSucc = gbp.getSuccesseurs();
@@ -2009,54 +2009,54 @@ function restaurerJSPlumbPresets() {
 
 }
 
-// --- Fonction restaurergBasePresets
-// Description : Restaure l'etat d'un gBasePreset (apres rechargement)
+// --- Fonction restaurergBaseBlocks
+// Description : Restaure l'etat d'un gBaseBlock (apres rechargement)
 //
-function restaurergBasePresets() {
+function restaurergBaseBlocks() {
 
-	// Recuperer le tableau des gPresets a reconstruire
-	var tabGPresets = gPresets;
+	// Recuperer le tableau des gBlocks a reconstruire
+	var tabGBlocks = gBlocks;
 
-	// Traiter chaque gPreset
+	// Traiter chaque gBlock
 	var gbp;
-	for(var i=0; i<tabGPresets.length; i++){
+	for(var i=0; i<tabGBlocks.length; i++){
 
-		// Recuperer le gPreset courant
-		gbp = tabGPresets[i];
+		// Recuperer le gBlock courant
+		gbp = tabGBlocks[i];
 
 		// Construire le graphique associe (div)
-		var graphique = $("<div></div>").attr('id', gbp.getId()).attr('class','divPreset');
+		var graphique = $("<div></div>").attr('id', gbp.getId()).attr('class','divBlock');
 
 		// Renseigner la position du graphique
 		graphique.css('top', gbp.getPosition().getY());
 		graphique.css('left', gbp.getPosition().getX());
 
 		// Ajouter le CSS selon le type
-		var type = gbp.getPreset().getType();
+		var type = gbp.getBlock().getType();
 		switch(type){
 
-			// --- S'il s'agit d'un preset de debut
+			// --- S'il s'agit d'un block de debut
 			case nomPDeb : 
-				graphique.addClass('divPresetDeb');
+				graphique.addClass('divBlockDeb');
 				break;
 
-			// --- S'il s'agit d'un preset de fin
+			// --- S'il s'agit d'un block de fin
 			case nomPFin :
-				graphique.addClass('divPresetFin');
+				graphique.addClass('divBlockFin');
 				break;
 
-			// --- S'il s'agit d'un preset normal
+			// --- S'il s'agit d'un block normal
 			default :
 				// Ajouter le css normal
-				graphique.addClass('divPresetNormal');
+				graphique.addClass('divBlockNormal');
 
 		}
 
-		// Redonner au gBasePreset l'instance du graphique
+		// Redonner au gBaseBlock l'instance du graphique
 		gbp.setDiv(graphique.get()[0]);
 
 		// Reconstruire l'image du graphique
-		constructImgPreset(type, graphique, gbp, 
+		constructImgBlock(type, graphique, gbp, 
 			function() {
 
 				// --- jsPlumb ---
@@ -2064,13 +2064,13 @@ function restaurergBasePresets() {
 				jspInstance.ready(function() {
 
 					// Rendre le graphique draggable uniquement dans le conteneur
-					jspInstance.draggable($(".divPreset"), {
+					jspInstance.draggable($(".divBlock"), {
 						// Le conteneur
-						containment:conteneurPresets
+						containment:conteneurBlocks
 					});
 
 					// Ajouter les endpoints
-					//ajouterEndPoints(gPreset);
+					//ajouterEndPoints(gBlock);
 
 
 				});
@@ -2083,26 +2083,26 @@ function restaurergBasePresets() {
 			}
 		);
 
-		// Ajouter les endpoints au gPreset
+		// Ajouter les endpoints au gBlock
 		ajouterEndPoints(gbp);
 
 		// Ajouter la div dans l'affichage
-		graphique.appendTo(conteneurPresets);
+		graphique.appendTo(conteneurBlocks);
 
 	}
 
 }
 
-// --- Fonction reinitialiserAffichagePresets
-// Description : Reinitialise l'etat de jsPlumb et de l'affichage courant des presets
+// --- Fonction reinitialiserAffichageBlocks
+// Description : Reinitialise l'etat de jsPlumb et de l'affichage courant des blocks
 //
-function reinitialiserAffichagePresets() {
+function reinitialiserAffichageBlocks() {
 
 	// Reinitialiser jsPlumb
 	reinitialiserJSPlumb();
 
-	// Reinitialiser l'affichage du conteneur des presets
-	conteneurPresets.empty();
+	// Reinitialiser l'affichage du conteneur des blocks
+	conteneurBlocks.empty();
 
 	// Reinitialiser l'affichage du conteneur des parametres
 	resetConteneurParametres();
@@ -2132,8 +2132,8 @@ $(document).ready(function(){
 	$("#sectionGenerale").css('height', hauteurEcran);
 	$("#sectionGenerale").css('width', largeurEcran);
 
-	// Initialiser les presets de base
-	initialiserVuePresets();
+	// Initialiser les blocks de base
+	initialiserVueBlocks();
 
 	// Indiquer la procedure a suivre en cas de changement de taille de la fenetre
 	$(window).resize(function(){
@@ -2143,10 +2143,13 @@ $(document).ready(function(){
 
 		// Repeindre tous les elements du jsPlumb
 		jspInstance.repaintEverything();
+
+		// Redimensionner les autres composants de l'application
+		redimensionnerComposantsApplication();
 	});
 
-	// Mettre a jour la position du GPreset
-	// $(".divPreset").droppable({
+	// Mettre a jour la position du GBlock
+	// $(".divBlock").droppable({
 
 	// 	drop: function (event, ui) {
  //            console.log("La position : " + ui.position);  //ui.position.left and ui.position.top
@@ -2155,23 +2158,23 @@ $(document).ready(function(){
 	// });
 
 	
-	// $(".divPreset").on( "mouseup", function(){
+	// $(".divBlock").on( "mouseup", function(){
 	// 	console.log("YEAH");
 	// });
 
-	// --- Evenement drop d'un gPreset
+	// --- Evenement drop d'un gBlock
 	// 
-	conteneurPresets.on("mouseup", ".divPreset", function(){
+	conteneurBlocks.on("mouseup", ".divBlock", function(){
 
 		// Recuperer le div 
 		var div = this;
 
-		// Recuperer le GBasePreset
-		var gbp = getGPresetFromDiv(div);
+		// Recuperer le GBaseBlock
+		var gbp = getGBlockFromDiv(div);
 
 		// Recuperer la nouvelle position (relative au conteneur)
-		var top = div.getBoundingClientRect().top;
-		var left = div.getBoundingClientRect().left;
+		var top = div.offsetTop; // var top = div.getBoundingClientRect().top;
+		var left = div.offsetLeft; // var left = div.getBoundingClientRect().left;
 
 		// Modifier la position
 		gbp.setPosition(left, top);
@@ -2183,7 +2186,7 @@ $(document).ready(function(){
 	conteneurParametres.delegate(".gParametreInfos .gParametre", 'change', function(){
 
 		// Recuperer l'instance du gParametre
-		var gpara = getGParametreFromId(gPresetCourant, this.id);
+		var gpara = getGParametreFromId(gBlockCourant, this.id);
 		
 		// Verifier si la recherche de l'instance a reussi
 		if(gpara !== -1){
@@ -2217,44 +2220,65 @@ function redimensionnerConteneursFenetre() {
 	$("#sectionGenerale").css('height', hauteurEcran);
 	$("#sectionGenerale").css('width', largeurEcran);
 
-	// Recuperer la taille maximale des graphiques des presets (pour tenter de reduire la taille de l'affichage)
-	var hauteurMaxPresets = 0, largeurMaxPresets = 0, hauteurPresetCourant = 0, largeurPresetCourant = 0;
-	for(var i=0; i<gPresets.length; i++){
+	// Recuperer la taille maximale des graphiques des blocks (pour tenter de reduire la taille de l'affichage)
+	var hauteurMaxBlocks = 0, largeurMaxBlocks = 0, hauteurBlockCourant = 0, largeurBlockCourant = 0;
+	for(var i=0; i<gBlocks.length; i++){
 
-		// Recuperer la position du preset courant
-		hauteurPresetCourant = gPresets[i].getPosition().getY() + $(gPresets[i].getDiv()).outerHeight();
-		largeurPresetCourant = gPresets[i].getPosition().getX() + $(gPresets[i].getDiv()).outerWidth();
+		// Recuperer la position du block courant
+		hauteurBlockCourant = gBlocks[i].getPosition().getY() + $(gBlocks[i].getDiv()).outerHeight();
+		largeurBlockCourant = gBlocks[i].getPosition().getX() + $(gBlocks[i].getDiv()).outerWidth();
 
 		// Recuperer la taille si elle est plus grande
-		if(hauteurMaxPresets<hauteurPresetCourant)
-			hauteurMaxPresets = hauteurPresetCourant;
+		if(hauteurMaxBlocks<hauteurBlockCourant)
+			hauteurMaxBlocks = hauteurBlockCourant;
 
-		if(largeurMaxPresets<largeurPresetCourant)
-			largeurMaxPresets = largeurPresetCourant;
+		if(largeurMaxBlocks<largeurBlockCourant)
+			largeurMaxBlocks = largeurBlockCourant;
 	}
 
-	// Recuperer la hauteur et largeur de la section des presets
-	var sectionPresetsHauteur = sectionPresets.height();//sectionPresets.get()[0].scrollHeight;
-	var sectionPresetsLargeur = sectionPresets.width();//sectionPresets.get()[0].scrollWidth;
+	// Recuperer la hauteur et largeur de la section des blocks
+	var sectionBlocksHauteur = sectionBlocks.height();//sectionBlocks.get()[0].scrollHeight;
+	var sectionBlocksLargeur = sectionBlocks.width();//sectionBlocks.get()[0].scrollWidth;
 
 	// Verifier quel point est le plus eloigne
-	if(sectionPresetsHauteur<hauteurMaxPresets){
-		sectionPresetsHauteur = hauteurMaxPresets;
-		sectionPresets.css('overflow-y', 'auto');
+	if(sectionBlocksHauteur<hauteurMaxBlocks){
+		sectionBlocksHauteur = hauteurMaxBlocks;
+		sectionBlocks.css('overflow-y', 'auto');
 	}
 	else
-		sectionPresets.css('overflow-y', 'hidden');
+		sectionBlocks.css('overflow-y', 'hidden');
 
-	if(sectionPresetsLargeur<largeurMaxPresets){
-		sectionPresetsLargeur = largeurMaxPresets;
-		sectionPresets.css('overflow-x', 'auto');
+	if(sectionBlocksLargeur<largeurMaxBlocks){
+		sectionBlocksLargeur = largeurMaxBlocks;
+		sectionBlocks.css('overflow-x', 'auto');
 	}
 	else
-		sectionPresets.css('overflow-x', 'hidden');
+		sectionBlocks.css('overflow-x', 'hidden');
 
-	// Redimensionner le conteneur des presets pour s'agrandir au cas de zoom in
-	conteneurPresets.css('height',sectionPresetsHauteur);
-	conteneurPresets.css('width',sectionPresetsLargeur); 
+	// Redimensionner le conteneur des blocks pour s'agrandir au cas de zoom in
+	conteneurBlocks.css('height',sectionBlocksHauteur);
+	conteneurBlocks.css('width',sectionBlocksLargeur); 
+
+}
+
+// --- Fonction redimensionnerComposantsApplication
+// Description : Redimensionne les composants generaux de la fenetre
+//
+function redimensionnerComposantsApplication() {
+
+	/** REDIMENSIONNER LE MENU **/
+	/****************************/
+
+	// Recuperer le button menu
+	var menu = $("header > button");
+
+	// Recuperer la hauteur du conteneur du menu
+	var hHeader = $("header").css('height');
+
+	// Redimensionner le button du menu
+	menu.css('height', hHeader);
+	menu.css('top', 0);
+	menu.css('bottom', 0);
 
 }
 
@@ -2262,27 +2286,27 @@ function redimensionnerConteneursFenetre() {
 // ========================== //
 jspInstance.ready(function() {
 	//console.log("Il marche");
-	//jsPlumb.setContainer($("#affichagePresents"));
-	//jsPlumb.setContainer(document.getElementById("affichagePresents"));
+	//jsPlumb.setContainer($("#affichageBlocks"));
+	//jsPlumb.setContainer(document.getElementById("affichageBlocks"));
 
-	// --- Gestion evenement doubleclick sur un preset qui n'est ni celui du debut, ni celui de la fin
+	// --- Gestion evenement doubleclick sur un block qui n'est ni celui du debut, ni celui de la fin
 	//
-	conteneurPresets.delegate(".divPresetNormal", "dblclick", function() {//affichagePresents
+	conteneurBlocks.delegate(".divBlockNormal", "dblclick", function() {//affichageBlocks
 
-		// Verifier si la div existe (corriger bug double demande, fonctionne sans car passe de on a delegate en d'hors du ready se trouvant dans ajouterPreset)
-		var pExiste = presetExiste(this);
+		// Verifier si la div existe (corriger bug double demande, fonctionne sans car passe de on a delegate en d'hors du ready se trouvant dans ajouterBlock)
+		var pExiste = blockExiste(this);
 
 		// Recuperer l'instance de la div
 		var tmpThis = this;
 
-		// Demander confirmation de suppression du preset
+		// Demander confirmation de suppression du block
 		if(pExiste)
-			bootbox.confirm("Êtes vous sûr de vouloir supprimer le preset?", function(result) {
+			bootbox.confirm("Êtes vous sûr de vouloir supprimer le block?", function(result) {
 				
 				// Detacher si la demande est confirmee
 				if(result){
 
-					// Retirer le GBasePreset
+					// Retirer le GBaseBlock
 					retirerGBP(tmpThis);
 
 					// Effacer la vue du conteneur des parametres
@@ -2324,17 +2348,17 @@ jspInstance.ready(function() {
 // 
 jspInstance.bind("connection", jspEventConnecion);
 function jspEventConnecion(connInfo, originalEvent) {
-    // console.log(getGPresetFromDiv(connInfo.source).getPreset().getType());
-    //console.log(getGPresetFromDiv(connInfo.source).getdiv().id);
-    // console.log(getGPresetFromDiv(connInfo.source).getDiv().id);
+    // console.log(getGBlockFromDiv(connInfo.source).getBlock().getType());
+    //console.log(getGBlockFromDiv(connInfo.source).getdiv().id);
+    // console.log(getGBlockFromDiv(connInfo.source).getDiv().id);
     //console.log(connInfo.source);
-    //console.log(gPresets[2].getDiv());
+    //console.log(gBlocks[2].getDiv());
 
-    // Recuperer le GPreset source
-    var GPS = getGPresetFromDiv(connInfo.source);
+    // Recuperer le GBlock source
+    var GPS = getGBlockFromDiv(connInfo.source);
 
-    // Recuperer le GPreset target
-    var GPT = getGPresetFromDiv(connInfo.target);
+    // Recuperer le GBlock target
+    var GPT = getGBlockFromDiv(connInfo.target);
 
     // Ajouter le style fleche pour la connexion
     if(typeof(overlayStyle) !== 'undefined')
@@ -2382,17 +2406,17 @@ function jspEventClick(conn) {
 // === /Fin Evenements jsPlumb === //
 // =============================== //
 
-// --- Gestion evenement creation d'un nouveau preset lors d'un click sur un nom de preset de la liste
+// --- Gestion evenement creation d'un nouveau block lors d'un click sur un nom de block de la liste
 // Alert : L'evenement 'click' sur un element 'Option' n'est pas pris en charge sous Chrome, donc obligatoir de passer a 'change'
 //
-$(listeChoixPreset).on('change', function() {
+$(listeChoixBlock).on('change', function() {
 
 	// Recuperer le type
 	var type = this.options[this.selectedIndex].text;
 
-	// Ajouter le preset
-	//ajouterPreset(type);
-	creerGBasePreset(type);
+	// Ajouter le block
+	//ajouterBlock(type);
+	creerGBaseBlock(type);
 
 });
 
@@ -2401,7 +2425,7 @@ $(listeChoixPreset).on('change', function() {
 $(boutonSauvegarde).on('click', function() {
 
 	// Appeler la fonction de sauvegarde
-	savePresets();
+	saveBlocks();
 
 });
 
@@ -2411,7 +2435,7 @@ $(boutonSauvegarde).on('click', function() {
 $(boutonRestaurer).on('click', function() {
 
 	// Appeler la fonction de restauration
-	loadPresets();
+	loadBlocks();
 
 });
 
@@ -2425,29 +2449,29 @@ function resetConteneurParametres() {
 
 }
 
-// --- Gestion evenement click sur un GBasePreset (pour afficher les parametres)
+// --- Gestion evenement click sur un GBaseBlock (pour afficher les parametres)
 //
-conteneurPresets.delegate(".divPresetNormal", 'click', function() {
+conteneurBlocks.delegate(".divBlockNormal", 'click', function() {
 
 	// Restaurer l'etat de l'affichage des parametres
 	resetConteneurParametres();
 
-	// Recuperer le GBasePreset associe
-	var gbp = getGPresetFromDiv(this);
+	// Recuperer le GBaseBlock associe
+	var gbp = getGBlockFromDiv(this);
 
-	// Indiquer que le GBasePreset present est celui dont on a clique (sert aux evenements sur les parametres)
-	gPresetCourant = gbp;
+	// Indiquer que le GBaseBlock block est celui dont on a clique (sert aux evenements sur les parametres)
+	gBlockCourant = gbp;
 
-	// Creer un titre contenant le nom du preset
-	var titrePreset = $("<h2>" + gbp.getPreset().getType() + "</h2>").attr('class','nomPreset');
+	// Creer un titre contenant le nom du block
+	var titreBlock = $("<h2>" + gbp.getBlock().getType() + "</h2>").attr('class','nomBlock');
 
 	// Ajouter le titre a l'affichage des parametres
-	titrePreset.appendTo(conteneurParametres);
+	titreBlock.appendTo(conteneurParametres);
 
-	// Recuperer les parametres du GBasePreset
-	var listeParams = gbp.getPreset().getParametres();
+	// Recuperer les parametres du GBaseBlock
+	var listeParams = gbp.getBlock().getParametres();
 
-	// --- Construction de l'affichage de chacun des parametres du preset --- //
+	// --- Construction de l'affichage de chacun des parametres du block --- //
 	// ---------------------------------------------------------------------- //
 	var gParametreInfos, nomParametreInfo, gParametreInfo;
 	for(var i=0; i<listeParams.length; i++){
@@ -2481,7 +2505,7 @@ conteneurPresets.delegate(".divPresetNormal", 'click', function() {
 			var id = this.i[0].id;
 
 			// Recuperer l'instance de GParametre
-			var gp = getGParametreFromId(gPresetCourant, id);
+			var gp = getGParametreFromId(gBlockCourant, id);
 			
 			// Modifier la valeur
 			gp.setValeurTraite(v);
@@ -2490,107 +2514,107 @@ conteneurPresets.delegate(".divPresetNormal", 'click', function() {
 
 });
 
-// --- Fonction ajouterPreset
-// --- Description : Cree un preset a la liste des presets existants selon le type
+// --- Fonction ajouterBlock
+// --- Description : Cree un block a la liste des blocks existants selon le type
 //
-/*function ajouterPreset(type){
+/*function ajouterBlock(type){
 
 	// Initialiser le nom de la fonction a appeler
-	var nomFonctionCreationPreset = "creerGBasePreset";
+	var nomFonctionCreationBlock = "creerGBaseBlock";
 
 	// Verifier si la fonction associe a la creation existe
-	if (typeof window[nomFonctionCreationPreset + type] == 'function')
-		nomFonctionCreationPreset = nomFonctionCreationPreset + type;
+	if (typeof window[nomFonctionCreationBlock + type] == 'function')
+		nomFonctionCreationBlock = nomFonctionCreationBlock + type;
 
 	// Indiquer console
-	console.log("Appel de la fonction " + nomFonctionCreationPreset);
+	console.log("Appel de la fonction " + nomFonctionCreationBlock);
 	
-	// Appeler la fonction de creation du preset et son graphique
-	window[nomFonctionCreationPreset](type);
+	// Appeler la fonction de creation du block et son graphique
+	window[nomFonctionCreationBlock](type);
 
 }*/
 
-// --- Fonction definirPreset
-// --- Description : Cree la structure des parametres du preset souhaite (si le type est defini)
+// --- Fonction definirBlock
+// --- Description : Cree la structure des parametres du block souhaite (si le type est defini)
 //
-function definirPreset(type, gp){
+function definirBlock(type, gp){
 
 	// Initialiser le nom de la fonction a appeler
-	var nomFonctionCreationPreset = "creerGBasePreset";
+	var nomFonctionCreationBlock = "creerGBaseBlock";
 
 	// Verifier si la fonction associe a la creation existe
-	if (typeof window[nomFonctionCreationPreset + type] == 'function'){
+	if (typeof window[nomFonctionCreationBlock + type] == 'function'){
 
 		//
-		nomFonctionCreationPreset = nomFonctionCreationPreset + type;
+		nomFonctionCreationBlock = nomFonctionCreationBlock + type;
 
 		// Indiquer console
-		console.log("Appel de la fonction " + nomFonctionCreationPreset);
+		console.log("Appel de la fonction " + nomFonctionCreationBlock);
 		
-		// Appeler la fonction de creation du preset et son graphique
-		window[nomFonctionCreationPreset](gp);
+		// Appeler la fonction de creation du block et son graphique
+		window[nomFonctionCreationBlock](gp);
 	}
 
 }
 
-// --- Fonction creerGBasePreset
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlock
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePreset(type){
+function creerGBaseBlock(type){
 
-	// Creer le preset
-	var preset = new Preset(type);
+	// Creer le block
+	var block = new Block(type);
 
 	// Creer une div d'affichage
-	var divPreset = $("<div></div>").attr('class','divPreset');
+	var divBlock = $("<div></div>").attr('class','divBlock');
 
-	// Creer le graphique du preset selon le type
-	var gPreset;
+	// Creer le graphique du block selon le type
+	var gBlock;
 
 	switch(type){
 
-		// --- S'il s'agit d'un preset de debut
+		// --- S'il s'agit d'un block de debut
 		case nomPDeb :
-			gPreset = new GPresetDebut(divPreset.get()[0], preset);
+			gBlock = new GBlockDebut(divBlock.get()[0], block);
 			break;
 
-		// --- S'il s'agit d'un preset de fin
+		// --- S'il s'agit d'un block de fin
 		case nomPFin :
-			gPreset = new GPresetFin(divPreset.get()[0], preset);
+			gBlock = new GBlockFin(divBlock.get()[0], block);
 			break;
 
-		// --- S'il s'agit d'un preset quelconque
+		// --- S'il s'agit d'un block quelconque
 		default :
-			gPreset = new GPreset(divPreset.get()[0], preset);
+			gBlock = new GBlock(divBlock.get()[0], block);
 
 	}
 
-	// Faire le lien entre le Preset et le GBasePreset respectif (pour la navigation)
-	gPreset.setAncre();
+	// Faire le lien entre le Block et le GBaseBlock respectif (pour la navigation)
+	gBlock.setAncre();
 
 	// Ajouter le CSS selon le type
 	switch(type){
 
-		// --- S'il s'agit d'un preset de debut
+		// --- S'il s'agit d'un block de debut
 		case nomPDeb : 
-			divPreset.addClass('divPresetDeb');
+			divBlock.addClass('divBlockDeb');
 			break;
 
-		// --- S'il s'agit d'un preset de fin
+		// --- S'il s'agit d'un block de fin
 		case nomPFin : 
-			divPreset.addClass('divPresetFin');
+			divBlock.addClass('divBlockFin');
 			break;
 
-		// --- S'il s'agit d'un preset normal
+		// --- S'il s'agit d'un block normal
 		default :
 
 			// Ajouter le css normal
-			divPreset.addClass('divPresetNormal');
+			divBlock.addClass('divBlockNormal');
 
 	}
 
 	// Construire l'image de la div
-	var infoImg = constructImgPreset(type, divPreset, gPreset, 
+	var infoImg = constructImgBlock(type, divBlock, gBlock, 
 		function() {
 
 			// --- jsPlumb ---
@@ -2598,28 +2622,28 @@ function creerGBasePreset(type){
 			jspInstance.ready(function() {
 
 				// Rendre le graphique draggable uniquement dans le conteneur
-				jspInstance.draggable($(".divPreset"), {
+				jspInstance.draggable($(".divBlock"), {
 					// Le conteneur
-					containment:conteneurPresets
+					containment:conteneurBlocks
 				});
 
-				// Renseigner l'id au gBasePreset
-				gPreset.setId(divPreset[0].id);
+				// Renseigner l'id au gBaseBlock
+				gBlock.setId(divBlock[0].id);
 
-				// Creer le GBasePreset souhaite (structure des parametres)
-				definirPreset(type, gPreset);
+				// Creer le GBaseBlock souhaite (structure des parametres)
+				definirBlock(type, gBlock);
 
 			});
 			// --- /jsPlumb ---
 			// ----------------
 
-			// Ajouter les endpoints au gPreset
-			ajouterEndPoints(gPreset);
+			// Ajouter les endpoints au gBlock
+			ajouterEndPoints(gBlock);
 		}
 	);
 
 	// Ajouter la div dans l'affichage
-	divPreset.appendTo(conteneurPresets);
+	divBlock.appendTo(conteneurBlocks);
 	
 	// --- jsPlumb ---
 	// ---------------
@@ -2627,48 +2651,51 @@ function creerGBasePreset(type){
 	// jspInstance.ready(function() {
 
 	// 	// Rendre le graphique draggable uniquement dans le conteneur
-	// 	jspInstance.draggable($(".divPreset"), {
-	// 	  containment:conteneurPresets
+	// 	jspInstance.draggable($(".divBlock"), {
+	// 	  containment:conteneurBlocks
 	// 	});
 
 	// 	// Ajouter les endpoints
-	// 	//ajouterEndPoints(gPreset);
+	// 	//ajouterEndPoints(gBlock);
 
 	// });
 
 	// --- /jsPlumb ---
 	// ----------------
 
-	// Indiquer la position initiale du gBasePreset
-	var top = divPreset.get()[0].getBoundingClientRect().top;
-	var left = divPreset.get()[0].getBoundingClientRect().left;
+	// Indiquer la position initiale du gBaseBlock
+	// var top = divBlock.get()[0].getBoundingClientRect().top;
+	// var left = divBlock.get()[0].getBoundingClientRect().left;
+	
+	var top = divBlock.get()[0].top;
+	var left = divBlock.get()[0].left;
 
-	gPreset.setPosition(left, top);
+	gBlock.setPosition(left, top);
 
-	// Ajouter le preset a la liste
-	gPresets.push(gPreset);
+	// Ajouter le block a la liste
+	gBlocks.push(gBlock);
 
-	// Renseigner le preset courant
+	// Renseigner le block courant
 	if(type != nomPDeb || type != nomPFin)
-		gPresetCourant = gPreset;
+		gBlockCourant = gBlock;
 
-	// Indiquer l'ajout du preset
-	console.log("Preset " + type + " cree");
+	// Indiquer l'ajout du block
+	console.log("Block " + type + " cree");
 
-	// Retourner le gPreset cree
-	return gPreset;
+	// Retourner le gBlock cree
+	return gBlock;
 
 }
 
-// --- Fonction creerGBasePresetGain
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockGain
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetGain(gp){
+function creerGBaseBlockGain(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2680,26 +2707,26 @@ function creerGBasePresetGain(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Pan'
 	param = new ParametrePan();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetReverb
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockReverb
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetReverb(gp){
+function creerGBaseBlockReverb(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2711,26 +2738,26 @@ function creerGBasePresetReverb(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(0.8);
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetCabinet
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockCabinet
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetCabinet(gp){
+function creerGBaseBlockCabinet(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2742,26 +2769,26 @@ function creerGBasePresetCabinet(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(1);
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetOverdrive
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockOverdrive
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetOverdrive(gp){
+function creerGBaseBlockOverdrive(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2773,21 +2800,21 @@ function creerGBasePresetOverdrive(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Tone'
 	param = new ParametreTone();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(1);
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Type'
 	var vals = ['Vintage', 'Modern'];
@@ -2795,19 +2822,19 @@ function creerGBasePresetOverdrive(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetDelay
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockDelay
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetDelay(gp){
+function creerGBaseBlockDelay(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2819,33 +2846,33 @@ function creerGBasePresetDelay(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Mix'
 	param = new ParametreMix();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Time'
 	param = new ParametreTime();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetAmp
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockAmp
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetAmp(gp){
+function creerGBaseBlockAmp(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2857,49 +2884,49 @@ function creerGBasePresetAmp(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Bass'
 	param = new ParametreBass();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Mid'
 	param = new ParametreMid();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Treb'
 	param = new ParametreTreb();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Presence'
 	param = new ParametrePresence();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Boost'
 	param = new ParametreBoost(true);
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Master'
 	param = new ParametreMaster();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Type'
 	var vals = ['Brit Man', 'German Modern', 'Clean US', 'Class A'];
@@ -2907,19 +2934,19 @@ function creerGBasePresetAmp(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetFilter
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockFilter
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetFilter(gp){
+function creerGBaseBlockFilter(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2931,21 +2958,21 @@ function creerGBasePresetFilter(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Q'
 	param = new ParametreQ();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Volume'
 	param = new ParametreVolume(1);
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Type'
 	var vals = ['LOWPASS', 'HIGHPASS', 'BANDPASS', 'LOWSHELF', 'HIGHSHELF', 'PEAKING', 'NOTCH', 'ALLPASS'];
@@ -2953,19 +2980,19 @@ function creerGBasePresetFilter(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetGate
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockGate
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetGate(gp){
+function creerGBaseBlockGate(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -2977,26 +3004,26 @@ function creerGBasePresetGate(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Threshold'
 	param = new ParametreThreshold();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetWah
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockWah
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetWah(gp){
+function creerGBaseBlockWah(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -3008,26 +3035,26 @@ function creerGBasePresetWah(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Resonance'
 	param = new ParametreResonance();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetGraphicEQ
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockGraphicEQ
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetGraphicEQ(gp){
+function creerGBaseBlockGraphicEQ(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -3039,68 +3066,68 @@ function creerGBasePresetGraphicEQ(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '125'
 	var param = new ParametreNum('125');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '250'
 	var param = new ParametreNum('250');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '500'
 	var param = new ParametreNum('500');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '1K'
 	var param = new ParametreNum('1K');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '2K'
 	var param = new ParametreNum('2K');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '4K'
 	var param = new ParametreNum('4K');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre '8K'
 	var param = new ParametreNum('8K');
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
-// --- Fonction creerGBasePresetPitch
-// --- Description : Fonction permettant de creer une structure contenant un GBasePreset et le preset associe (avec tous les traitements)
+// --- Fonction creerGBaseBlockPitch
+// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 // 
-function creerGBasePresetPitch(gp){
+function creerGBaseBlockPitch(gp){
 
-	// Creer la structure de base du gBasePreset
-	var gbp = gp;//creerGBasePreset(type);
+	// Creer la structure de base du gBaseBlock
+	var gbp = gp;//creerGBaseBlock(type);
 
-	// Recuperer l'id du GBasePreset (pour creer l'id des GParametre)
+	// Recuperer l'id du GBaseBlock (pour creer l'id des GParametre)
 	var gbpid = gbp.getId() + '-';
 
 	// --- Creer et ajouter les parametres associes --- //
@@ -3112,14 +3139,14 @@ function creerGBasePresetPitch(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Pitch'
 	var param = new ParametrePitch();
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Mode'
 	var vals = ['Octave UP', 'Octave Down'];
@@ -3127,7 +3154,7 @@ function creerGBasePresetPitch(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 	// Creer le parametre 'Type'
 	vals = ['Whammy'];
@@ -3135,7 +3162,7 @@ function creerGBasePresetPitch(gp){
 	param.modifierGPId(gbpid + param.getNom());	// Renseigner l'id du Graphique du parametre
 
 	// Ajouter le parametre 
-	gbp.getPreset().ajouterParametre(param);
+	gbp.getBlock().ajouterParametre(param);
 
 }
 
