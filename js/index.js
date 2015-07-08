@@ -2360,6 +2360,9 @@ function loadStructure() {
 			// Renseigner les valeurs affichables des lists du GUI gestion
 			construireGUIGestion();
 
+			// Regenerer la liste des liens de la categorie choisie
+			relisterLiensPresets($(categorieChoix).get()[0]);
+
 			// Renseigner le nom du preset dans l'affichage
 			if(presetCourant !== undefined && presetCourant instanceof Preset){
 				var nomPresetChoisi = presetCourant.getNom();
