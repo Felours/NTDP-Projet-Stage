@@ -2360,6 +2360,13 @@ function loadStructure() {
 			// Renseigner les valeurs affichables des lists du GUI gestion
 			construireGUIGestion();
 
+			// Renseigner le nom du preset dans l'affichage
+			if(presetCourant !== undefined && presetCourant instanceof Preset){
+				var nomPresetChoisi = presetCourant.getNom();
+				$(nomPresetAffichable).text(nomPresetChoisi);
+				$(nomPresetModifiable).val(nomPresetChoisi);
+			}
+
 		}
 }
 
