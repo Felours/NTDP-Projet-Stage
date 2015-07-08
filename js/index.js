@@ -3360,6 +3360,10 @@ $("#listeCategories").on('keypress', '.'+cssElementInputNomCategorie, function(e
 			// Recuperer le nouveau nom
 			nouveauNom = baliseNomModifiable.val();
 
+			// Verifier si le nom est valide
+			if(nouveauNom.length <=0)
+				nouveauNom = categorie.getNom();
+
 			// Changer le nom de la categorie
 			categorie.setNom(nouveauNom);
 
@@ -3414,11 +3418,18 @@ $(nomPresetModifiable).on('keypress', function(event) {
 			// Recuperer le nouveau nom
 			nouveauNom = $(this).val();
 
+			// Verifier si le nom est valide
+			if(nouveauNom.length <=0)
+				nouveauNom = unPreset.getNom();
+
 			// Changer le nom de la categorie
 			unPreset.setNom(nouveauNom);
 
 			// Changer le nom affichable
 			baliseNomAffichable.text(nouveauNom);
+
+			// Changer le nom modifiable
+			$(this).val(nouveauNom);
 
 			// Recuperer le lien pour une mise a jour
 			if(categorieCourante !== undefined && categorieCourante instanceof CategoriePresets)
