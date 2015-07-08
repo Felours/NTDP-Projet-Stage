@@ -116,6 +116,26 @@ select#blockChoix {
 	position: fixed;
 }
 
+/* Le nom du preset a afficher dans la section des blocks */
+#nomPresetAffichable {
+	display: inline;
+	top: 8%;
+	left: 32%;
+	position: fixed;
+	max-width: 250px;
+	color: white;
+}
+
+/* Le nom du preset a afficher dans la section des blocks */
+#nomPresetModifiable {
+	display: none;
+	top: 8%;
+	left: 32%;
+	position: fixed;
+	max-width: 250px;
+	
+}
+
 /* Affichage d'un block */
 .divBlock {
 	position: absolute;
@@ -123,6 +143,7 @@ select#blockChoix {
 	width: 50px;
 	height: 100px;
 	border-radius: 10%;
+	cursor: move;
 }
 
 /* Lorsque la souris se trouve sur le GBlock */
@@ -315,14 +336,37 @@ input.cmn-toggle-round-flat:checked + label:after {
 /* --------------------------------------------------------- */
 
 
-header > button {
-	padding-top: 0;
-	font-size: 100%;
-	height: 100%;
+/* Ajuster le menu selon la taille */
+@media (min-width: 0px) and (max-width: 1000px) {
+	
+	.zoneMenu {
+		padding-top: 0;
+		height: 100%;
+	}
+
+}
+@media (min-width: 1000px) {
+
+	header button {
+		padding-top: 0;
+		font-size: 100%;
+		height: 100%;
+	}
+	
+}
+
+/* Balise permettant de definir en tant qu'inline */
+.typeInline {
+	display: inline-block;
 }
 
 ul.dropdown-menu, ul.dropdown-menu li{
 	list-style-type:none; 
+}
+
+/* Le button de creation de preset */
+#buttonNouveauPreset {
+
 }
 
 /* Le button de sauvegarde */
@@ -376,6 +420,120 @@ select#categorieChoix {
 }
 
 /* Liste d'affichage des sets d'une categorie choisie */
-#affichageListeSets {
+#affichageListePresets {
 	overflow: auto;
+}
+
+/* ---------------------- CSS du pop-up de management des categories ---------------------- */
+/* ---------------------------------------------------------------------------------------- */
+
+/* Sous-titre du pop-up*/
+.titrePopUp {
+	color: #757575;
+	transform: translateY(20%);
+}
+
+/* Arranger le text interne des buttons selon la taille */
+/*:not([data-id="categorieChoix"])*/
+button > span {
+	float: left;
+	right:auto;
+}
+/* Ajuster le menu selon la taille */
+@media (min-width: 0px) and (max-width: 300px) {
+	
+	button> span{
+		font-size: 1vmax;
+	}
+
+}
+@media (min-width: 300px) and (max-width: 600px) {
+	
+	button> span{
+		font-size: 2vmax;
+	}
+
+}
+@media (min-width: 600px) and (max-width: 900px) {
+	
+	button > span, .titrePopUp {
+		font-size: 1.5vmax;
+	}
+
+}
+@media (min-width: 900px) and (max-width: 1200px) {
+	
+	button > span, .titrePopUp  {
+		font-size: 1vmax;
+	}
+
+}
+@media (min-width: 1200px) and (max-width: 1500px) {
+	
+	button > span, .titrePopUp  {
+		font-size: 0.9vmax;
+	}
+
+}
+@media (min-width: 1500px) and (max-width: 2300px) {
+
+	button > span, .titrePopUp  {
+		font-size: 0.8vmin;
+	}
+}
+
+@media (min-width: 2300px) {
+
+	button > span, .titrePopUp  {
+		font-size: 0.6vmin;
+	}
+}
+
+/* Liste contenant la gestion des categories */
+#listeCategories {
+	max-height: 10vmax;
+	overflow-y: auto;
+}
+
+/* Conteneur des informations d'une categorie */
+.cssElementCategorie {
+
+	border-bottom: 1px solid black;
+	margin-bottom: 5px; 
+
+}
+
+
+/* Champ contenant le nom d'une categorie */
+.cssElementNomCategorie {
+
+	color:grey;
+
+}
+
+/* Button de modification du nom de la categorie*/
+.cssElementButtonModifierCategorie{
+	float: right;
+	margin-left: 5px;
+}
+
+/* Button de supression du nom de la categorie*/
+.cssElementButtonSupprimerCategorie{
+	float: right;
+	margin-left: 5px;
+}
+
+/* Conteneur du lien d'un preset */
+.conteneurLienPreset {
+
+}
+
+/* Numero du lien du preset */
+.numeroLienPreset {
+	margin-right: 2px;
+}
+
+/* Lien dans la liste des presets d'une categorie */
+#lienPreset {
+
 }

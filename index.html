@@ -29,10 +29,13 @@
   <section id="sectionGenerale">
 
       <!-- Header de l'applicaion pour l'affichage du logo et du menu deroulant -->
-      <header ><!-- class="btn-group" -->
+      <header><!-- class="btn-group" -->
+
+        <!-- Positionner correctement les elements -->
+        <span id="zoneMenu">
 
           <!-- Button affichant le menu -->
-          <button type="button" class="btn btn-default dropdown-toggle " 
+          <button type="button" class="btn btn-default dropdown-toggle"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><!-- btn-sm btn-group-justified -->
             <!-- <span class="buttonText">Menu</span> <span class="caret"></span> -->
             <span class="glyphicon glyphicon-menu-hamburger"></span>
@@ -40,13 +43,16 @@
 
           <!-- Contenu du menu deroulant -->
           <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Nouveau</a></li>
+            <li><a href="#" id="buttonNouveauPreset">Nouveau</a></li>
             <li class="divider"></li>
             <li><a href="#" id="buttonSauvegarde">Sauvegarder</a></li>
             <li><a href="#" id="buttonRestaurer">Restaurer</a></li>
             <li class="divider"></li>
             <li><a href="#">A propos</a></li>
           </ul>
+
+        </span>
+
       </header>
 
       <!-- Section emploi groupant les sections de travail -->
@@ -56,7 +62,7 @@
         <section id="sectionManagement">
 
           <!-- Partie contenant la gestion des categories et les sets -->
-          <div id="affichageGestionCategories" class="container">
+          <div id="affichageGestionCategories" class="container-fluid">
 
             <!-- Partie affichageManager : Contient le titre et un button de gestion -->
             <div id="affichageManager" class="row">
@@ -69,12 +75,12 @@
             <!-- Liste de selection des categories existantes -->
             <div class="row">
               <SELECT id="categorieChoix" class="col-xs-12 col-sm-12 col-md-12 selectpicker" size="1">
-                <OPTION selected>Presets globaux</OPTION>
+                <!-- <OPTION selected>Presets globaux</OPTION> -->
               </SELECT>
             </div>
 
-            <!-- Liste de selection des sets de la categorie choisie -->
-            <div id="affichageListeSets">
+            <!-- Liste de selection des presets de la categorie choisie -->
+            <div id="affichageListePresets">
             </div>
 
           </div>
@@ -104,6 +110,10 @@
               <OPTION>Pitch</OPTION>
             </SELECT>
 
+            <!-- Nom affiche du preset -->
+            <span id="nomPresetAffichable"></span>
+            <input id="nomPresetModifiable"/>
+
             <!-- Buttons de sauvegarde et restauration -->
             <!-- <button id="buttonSauvegarde">Sauvegarder</button>
             <button id="buttonRestaurer">Restaurer</button> -->
@@ -130,21 +140,45 @@
   <!-- Fenetres pop-up de l'application -->
   <!-- ================================ -->
 
-  <!-- Fenetre du management des categories -->
-  <!-- ------------------------------------ -->
+  <!-- Fenetre pop-up du management des categories -->
+  <!-- ------------------------------------------- -->
   <div class="modal" id="managementCategories" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"> <!-- modal fade -->
     <div class="modal-dialog" role="document">
       <div class="modal-content">
+        <!-- En-tete du pop-up -->
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+          <h4 class="modal-title" id="myModalLabel">Management des catégories</h4>
         </div>
+        <!-- Corps du pop-up -->
         <div class="modal-body">
-          ...
+          
+          <!-- Bootstrap grille conteneur-->
+          <div class="container-fluid">
+
+            <!-- Partie contenant la logique de creation des categories -->
+            <div class="row col-xs-6">
+              <!-- Barre titre -->
+              <div class="row">
+                <span class="titrePopUp col-xs-6">Catégories</span> 
+                <button id="buttonNouvelleCategorie" type="button" class="btn btn-default btn-sm col-xs-offset-3 col-xs-3">
+                  <span>Nouveau</span> 
+                </button>
+              </div>
+
+              <!-- Liste des categories  -->
+              <div id="listeCategories" class="row">
+                
+              </div>
+
+            </div>
+
+
         </div>
+        <!-- Pieds du pop-up -->
         <div class="modal-footer">
+          <!-- Button de fermeture -->
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>

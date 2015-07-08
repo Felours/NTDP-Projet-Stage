@@ -75,9 +75,248 @@ function restaurerClasses(insta){
 /* Classes GBaseBlock */
 /* =================== */
 
+/* Class Preset */
+/* Description : Class regroupant un ensemble de GBlocks */
+/* Argument : id- id du preset */
+function Preset(id){
+
+	// Implementer Serialize
+	Serialize.call(this,"Preset");
+
+	// --- Attributs
+	// 
+	this.m_id = id;//undefined;	// L'id (unique) d'un preset
+	this.m_nom = "Nouveau preset";	// Le nom d'un preset (sera affiche)
+
+	this.m_gBlocks = [];	// Tableau contenant les instances des m_gBlocks a afficher
+
+	// --- Methodes
+	// 
+	
+	// --- Methode getId
+	// 
+	this.getId = function(){
+		return(this.m_id);
+	};
+
+	// --- Methode getNom
+	// 
+	this.getNom = function(){
+		return(this.m_nom);
+	};
+	
+	// --- Methode setNom
+	// 
+	this.setNom = function(nom){
+		this.m_nom = nom;
+	};
+
+	// --- Methode getGBlocks
+	// 
+	this.getGBlocks = function(){
+		return(this.m_gBlocks);
+	};
+	
+	// --- Methode setGBlocks
+	// 
+	this.setGBlocks = function(gBlocks){
+		this.m_gBlocks = gBlocks;
+	};
+
+}
+Preset.prototype = new Serialize();
+
+/* Class CategoriePresets */
+/* Description : Class regroupant une categorie contenant des presets */
+/* Argument : id- id de la categorie */
+function CategoriePresets(id){
+
+	// Implementer Serialize
+	Serialize.call(this,"CategoriePresets");
+
+	// --- Attributs
+	// 
+	this.m_id = id;//undefined;	// L'id (unique) d'un preset
+	this.m_nom = "Nouvelle categorie";	// Le nom de la categorie (sera affiche)
+
+	this.m_presets = [];	// Tableau contenant les instances des presets
+	this.m_presetsImportes = [];	// Tableau contenant un couple : id de la categorie + id du preset de la categorie
+
+	// --- Methodes
+	// 
+	
+	// --- Methode getId
+	// 
+	this.getId = function(){
+		return(this.m_id);
+	};
+
+	// --- Methode getNom
+	// 
+	this.getNom = function(){
+		return(this.m_nom);
+	};
+	
+	// --- Methode setNom
+	// 
+	this.setNom = function(nom){
+		this.m_nom = nom;
+	};
+
+	// --- Methode getPresets
+	// 
+	this.getPresets = function(){
+		return(this.m_presets);
+	};
+
+	// --- Methode getPresetById
+	// --- Retour : Instance de preset
+	// 
+	this.getPresetById = function(id){
+
+		// Verifier si l'argument existe
+		if(id !== undefined){
+
+			//Trouver le preset
+			var preset = -1;
+			for(var i=0; i< this.m_presets.length; i++){
+
+				// Verifier si l'id correspond
+				if(this.m_presets[i].getId() == id)
+					preset = this.m_presets[i];
+			}
+
+			// Renvoyer le resultat
+			return preset;
+		}
+	};
+	
+	// --- Methode setPresets
+	// 
+	// this.setPresets = function(TabPresets){
+	// 	this.m_presets = TabPresets;
+	// };
+
+	// --- Methode creerPreset
+	// --- Retour : Instance de preset
+	// 
+	this.creerPreset = function(){
+
+		// --- Chercher un id non expoloite et le plus bas possible --- //
+		// Raison : Permet d'eviter la creation d'id en cas d'un element avec un id inferieur.
+		//
+
+		// Recuperer la liste contenante
+		var tab = this.m_presets;
+		
+		// Recuperer les id et l'id le plus eleve
+		var idMax=0, tabIds = [], idRecup;
+		for(var i=0; i<tab.length; i++){
+
+			// Recuperer l'id
+			idRecup = tab[i].getId();
+			tabIds.push(idRecup);
+
+			// Verifier si l'id est plus grand
+			if(idMax<idRecup)
+				idMax = idRecup;
+
+		}
+
+		// Chercher un id inferieur non existant
+		var preset = undefined;
+		for(i=0; i<=idMax; i++){
+
+			// Verifier dans le tableau des id si l'element existe
+			if(tabIds.indexOf(i) <= -1){
+
+				// Creer un preset
+				preset = new Preset(i);
+
+				// Ajouter le preset a la liste
+				tab.push(preset);
+
+				// Renvoyer le preset
+				return preset;
+
+			}
+
+		}
+
+		// Creer un preset a id nouveau si id non trouve
+		preset = new Preset(idMax+1);
+
+		// Ajouter le preset dans la liste
+		tab.push(preset);
+
+		// Renvoyer le preset
+		return preset;
+
+	};
+
+	// --- Methode supprimerPreset (TODO)
+	// 
+	this.supprimerPreset = function(preset){
+
+		// Trouver l'indice du parametre
+		// var index = this.m_presets.indexOf(preset);
+	
+		// // Si trouve, retirer de la liste
+		// if (index > -1) {
+  //   		this.m_presets.splice(index, 1);
+		// }
+	};
+
+	// --- Methode ajouterPresetImporte
+	// 
+	this.ajouterPresetImporte = function(idCategorie, idPreset){
+
+		// Ajouter l'association ([0] pour l'id de la categorie, [1] pour l'id du preset)
+		this.m_presetsImportes.push([idCategorie,idPreset]);
+	};
+
+	// --- Methode retirerPresetImporte
+	// 
+	this.retirerPresetImporte = function(idCategorie, idPreset){
+
+		// Chercher l'id categorie
+		var idCat, val;
+		for(var i=0; i<this.m_presetsImportes.length; i++){
+
+			// Recuperer la idCat
+			idCat = this.m_presetsImportes[i][0];
+
+			// Verifier si la idCat correspond
+			if(idCat === idCategorie){
+
+				// Verifier si on a enseigne l'idPreset en parametre
+				if(idPreset !== undefined){
+
+					// Recuperer l'idPreset
+					val = this.m_presetsImportes[i][1];
+
+					// Verifier si l'idPreset correspond
+					if(val === idPreset)
+						// Supprimer l'association
+						this.m_presetsImportes.splice(i, 1);
+
+				}
+				else
+					// Supprimer l'association
+					this.m_presetsImportes.splice(i, 1);
+
+			}
+
+		}
+
+	};
+
+}
+CategoriePresets.prototype = new Serialize();
+
 
 /* Class Block */
-/* Description : Class reblockant les informations d'un block */
+/* Description : Class representant les informations d'un block */
 /* Arguments : type - le nom d'un block */
 function Block(type){
 
@@ -164,8 +403,8 @@ function Block(type){
 Block.prototype = new Serialize();
 
 /* Class GBaseBlock */
-/* Description : Class reblockant le graphique d'un block */
-/* Arguments : div - la div qui reblocke de maniere graphique le block 
+/* Description : Class representant le graphique d'un block */
+/* Arguments : div - la div qui represente de maniere graphique le block 
 			   block - instance de la classe Block descrivant le block */
 function GBaseBlock(div, block) {
 
@@ -174,11 +413,11 @@ function GBaseBlock(div, block) {
 
 	// --- Attributs
 	// 
-	this.m_id = undefined;	// L'id reblockant le gBaseBlock
+	this.m_id = undefined;	// L'id representant le gBaseBlock
 	var m_div = div;	// Le graphique (element div)
 	this.m_block = block;
 	this.m_position = new Position(0,0); // La position du graphique
-	//setAncre(m_block);	// Faire le lien entre le block et le GBP
+	//setAncre(m_block);	// Faire le lien entre le block et le GBB
 
 	//var m_dimension = new Dimension(10, 10); // Les dimensions du div
 	//var m_img
@@ -217,7 +456,7 @@ function GBaseBlock(div, block) {
 	};
 
 	// --- Fonction setAncre
-	// Description : Permet de faire un lien entre le GBP et le block (pour naviguer)
+	// Description : Permet de faire un lien entre le GBB et le block (pour naviguer)
 	// 
 	this.setAncre = function(){
 
@@ -242,8 +481,8 @@ function GBaseBlock(div, block) {
 GBaseBlock.prototype = new Serialize();
 
 /* Class GBlock */
-/* Description : Class reblockant le graphique d'un block reel */
-/* Arguments : div - la div qui reblocke de maniere graphique le block 
+/* Description : Class representant le graphique d'un block reel */
+/* Arguments : div - la div qui represente de maniere graphique le block 
 			   block - instance de la classe Block descrivant le block */
 function GBlock(div, block) {
 
@@ -280,8 +519,8 @@ GBlock.prototype.retirerSuccesseur = retirerSuccesseur;
 
 
 /* Class GBlockDebut */
-/* Description : Class reblockant le graphique de l'entree */
-/* Arguments : div - la div qui reblocke de maniere graphique le block d'entree 
+/* Description : Class representant le graphique de l'entree */
+/* Arguments : div - la div qui represente de maniere graphique le block d'entree 
 			   block - instance de la classe Block descrivant le block d'entree */
 function GBlockDebut(div, block) {
 
@@ -308,8 +547,8 @@ GBlockDebut.prototype.ajouterSuccesseur = ajouterSuccesseur;
 GBlockDebut.prototype.retirerSuccesseur = retirerSuccesseur;
 
 /* Class GBlockFin */
-/* Description : Class reblockant le graphique d'un block de fin */
-/* Arguments : div - la div qui reblocke de maniere graphique le block de fin
+/* Description : Class representant le graphique d'un block de fin */
+/* Arguments : div - la div qui represente de maniere graphique le block de fin
 			   block - instance de la classe Block descrivant le block de fin */
 function GBlockFin(div, block) {
 
@@ -379,7 +618,7 @@ function retirerSuccesseur(successeur) {
 }
 
 /* Class Position */
-/* Description : Class reblockant la position d'un element */
+/* Description : Class representant la position d'un element */
 /* Arguments : x - la position horizontale
 			   y - la position verticale */
 function Position(x, y){
@@ -433,7 +672,7 @@ Position.prototype = new Serialize();
 /* =========================== */
 
 /* Class Parametre */
-/* Description : Class reblockant un parametre d'un block (ne sera utilisee que par ses classes filles) */
+/* Description : Class representant un parametre d'un block (ne sera utilisee que par ses classes filles) */
 /* Arguments : nom - le nom du parametre
 			   m_gParametre - la classe contenant le graphique du parametre */
 function Parametre(nom, gParametre){
@@ -444,7 +683,7 @@ function Parametre(nom, gParametre){
 	// --- Attributs
 	// 
 	this.m_nom = nom;	// Le nom du parametre
-	this.m_gParametre = gParametre; // Instance de la classe contenant le graphique reblockant le parametre
+	this.m_gParametre = gParametre; // Instance de la classe contenant le graphique representant le parametre
 
 	// --- Methodes
 	// 
@@ -485,7 +724,7 @@ function Parametre(nom, gParametre){
 Parametre.prototype = new Serialize();
 
 /* Class GParametre */
-/* Description : Class reblockant le graphique d'un parametre (ne sera utilisee que par ses classes filles) */
+/* Description : Class representant le graphique d'un parametre (ne sera utilisee que par ses classes filles) */
 /* Arguments : graphique - l'element graphique (DOM, pedalboard, autre..)
 			   typeValeurs - le type de valeurs du graphique (interval, liste, autre..) */
 function GParametre(graphique, typeValeurs){
@@ -545,9 +784,9 @@ function GParametre(graphique, typeValeurs){
 		return(this.m_valeurs);
 	};
 
-	// --- Methode ajouteValeur
+	// --- Methode ajouterValeur
 	// 
-	this.ajouteValeur = function(clef, valeur){
+	this.ajouterValeur = function(clef, valeur){
 
 		// Ajouter l'association ([0] pour la clef, [1] pour la valeur)
 		this.m_valeurs.push([clef,valeur]);
@@ -601,7 +840,7 @@ GParametre.prototype = new Serialize();
 /* ===================================== */
 
 /* Class ParametreGain */
-/* Description : Class reblockant un parametre Gain d'un block */
+/* Description : Class representant un parametre Gain d'un block */
 /* Arguments : minVal - la valeur minimale de l'intervalle
 			   maxVal - la valeur maximale de l'intervalle
 			   valInit - la valeur initiale
@@ -626,7 +865,7 @@ ParametreGain.prototype = new Parametre();
 ParametreGain.prototype.traiterAudio = traiterAudioGain;
 
 /* Class ParametrePan */
-/* Description : Class reblockant un parametre Pan d'un block */
+/* Description : Class representant un parametre Pan d'un block */
 function ParametrePan(){
 
 	// Heritage
@@ -647,7 +886,7 @@ ParametrePan.prototype = new Parametre();
 ParametrePan.prototype.traiterAudio = traiterAudioPan;
 
 /* Class ParametreTone */
-/* Description : Class reblockant un parametre Tone d'un block */
+/* Description : Class representant un parametre Tone d'un block */
 function ParametreTone(){
 
 	// Heritage
@@ -668,7 +907,7 @@ ParametreTone.prototype = new Parametre();
 ParametreTone.prototype.traiterAudio = traiterAudioTone;
 
 /* Class ParametreVolume */
-/* Description : Class reblockant un parametre Volume d'un block */
+/* Description : Class representant un parametre Volume d'un block */
 /* Argument : valInit - la valeur initiale */
 function ParametreVolume(valInit){
 
@@ -694,7 +933,7 @@ ParametreVolume.prototype = new Parametre();
 ParametreVolume.prototype.traiterAudio = traiterAudioVolume;
 
 /* Class ParametreType */
-/* Description : Class reblockant un parametre Type d'un block */
+/* Description : Class representant un parametre Type d'un block */
 /* Argument : tab - tableu contenant les elements de la liste */
 function ParametreType(tab){
 
@@ -716,7 +955,7 @@ ParametreType.prototype = new Parametre();
 ParametreType.prototype.traiterAudio = traiterAudioType;
 
 /* Class ParametreMix */
-/* Description : Class reblockant un parametre Mix d'un block */
+/* Description : Class representant un parametre Mix d'un block */
 function ParametreMix(){
 
 	// Heritage
@@ -737,7 +976,7 @@ ParametreMix.prototype = new Parametre();
 ParametreMix.prototype.traiterAudio = traiterAudioMix;
 
 /* Class ParametreRoom */
-/* Description : Class reblockant un parametre Room d'un block */
+/* Description : Class representant un parametre Room d'un block */
 function ParametreRoom(){
 
 	// Heritage
@@ -758,7 +997,7 @@ ParametreRoom.prototype = new Parametre();
 ParametreRoom.prototype.traiterAudio = traiterAudioRoom;
 
 /* Class ParametreFeedBack */
-/* Description : Class reblockant un parametre FeedBack d'un block */
+/* Description : Class representant un parametre FeedBack d'un block */
 function ParametreFeedBack(){
 
 	// Heritage
@@ -779,7 +1018,7 @@ ParametreFeedBack.prototype = new Parametre();
 ParametreFeedBack.prototype.traiterAudio = traiterAudioFeedBack;
 
 /* Class ParametreTime */
-/* Description : Class reblockant un parametre Time d'un block */
+/* Description : Class representant un parametre Time d'un block */
 function ParametreTime(){
 
 	// Heritage
@@ -800,7 +1039,7 @@ ParametreTime.prototype = new Parametre();
 ParametreTime.prototype.traiterAudio = traiterAudioTime;
 
 /* Class ParametreDrive */
-/* Description : Class reblockant un parametre Drive d'un block */
+/* Description : Class representant un parametre Drive d'un block */
 function ParametreDrive(){
 
 	// Heritage
@@ -821,7 +1060,7 @@ ParametreDrive.prototype = new Parametre();
 ParametreDrive.prototype.traiterAudio = traiterAudioDrive;
 
 /* Class ParametreBass */
-/* Description : Class reblockant un parametre Bass d'un block */
+/* Description : Class representant un parametre Bass d'un block */
 function ParametreBass(){
 
 	// Heritage
@@ -842,7 +1081,7 @@ ParametreBass.prototype = new Parametre();
 ParametreBass.prototype.traiterAudio = traiterAudioBass;
 
 /* Class ParametreMid */
-/* Description : Class reblockant un parametre Mid d'un block */
+/* Description : Class representant un parametre Mid d'un block */
 function ParametreMid(){
 
 	// Heritage
@@ -863,7 +1102,7 @@ ParametreMid.prototype = new Parametre();
 ParametreMid.prototype.traiterAudio = traiterAudioMid;
 
 /* Class ParametreTreb */
-/* Description : Class reblockant un parametre Treb d'un block */
+/* Description : Class representant un parametre Treb d'un block */
 function ParametreTreb(){
 
 	// Heritage
@@ -884,7 +1123,7 @@ ParametreTreb.prototype = new Parametre();
 ParametreTreb.prototype.traiterAudio = traiterAudioTreb;
 
 /* Class ParametrePresence */
-/* Description : Class reblockant un parametre Presence d'un block */
+/* Description : Class representant un parametre Presence d'un block */
 function ParametrePresence(){
 
 	// Heritage
@@ -905,7 +1144,7 @@ ParametrePresence.prototype = new Parametre();
 ParametrePresence.prototype.traiterAudio = traiterAudioPresence;
 
 /* Class ParametreBoost */
-/* Description : Class reblockant un parametre Boost d'un block */
+/* Description : Class representant un parametre Boost d'un block */
 /* Argument : valInit - la valeur initiale */
 function ParametreBoost(valInit){
 
@@ -931,7 +1170,7 @@ ParametreBoost.prototype = new Parametre();
 ParametreBoost.prototype.traiterAudio = traiterAudioBoost;
 
 /* Class ParametreMaster */
-/* Description : Class reblockant un parametre Presence d'un block */
+/* Description : Class representant un parametre Presence d'un block */
 function ParametreMaster(){
 
 	// Heritage
@@ -952,7 +1191,7 @@ ParametreMaster.prototype = new Parametre();
 ParametreMaster.prototype.traiterAudio = traiterAudioMaster;
 
 /* Class ParametreFrequency */
-/* Description : Class reblockant un parametre Frequency d'un block */
+/* Description : Class representant un parametre Frequency d'un block */
 /* Argument : valInit - valeur initiale */
 function ParametreFrequency(valInit){
 
@@ -978,7 +1217,7 @@ ParametreFrequency.prototype = new Parametre();
 ParametreFrequency.prototype.traiterAudio = traiterAudioFrequency;
 
 /* Class ParametreQ */
-/* Description : Class reblockant un parametre Q d'un block */
+/* Description : Class representant un parametre Q d'un block */
 function ParametreQ(){
 
 	// Heritage
@@ -999,7 +1238,7 @@ ParametreQ.prototype = new Parametre();
 ParametreQ.prototype.traiterAudio = traiterAudioQ;
 
 /* Class ParametreRelease */
-/* Description : Class reblockant un parametre Release d'un block */
+/* Description : Class representant un parametre Release d'un block */
 function ParametreRelease(){
 
 	// Heritage
@@ -1020,7 +1259,7 @@ ParametreRelease.prototype = new Parametre();
 ParametreRelease.prototype.traiterAudio = traiterAudioRelease;
 
 /* Class ParametreThreshold */
-/* Description : Class reblockant un parametre Threshold d'un block */
+/* Description : Class representant un parametre Threshold d'un block */
 function ParametreThreshold(){
 
 	// Heritage
@@ -1041,7 +1280,7 @@ ParametreThreshold.prototype = new Parametre();
 ParametreThreshold.prototype.traiterAudio = traiterAudioThreshold;
 
 /* Class ParametreResonance */
-/* Description : Class reblockant un parametre Resonance d'un block */
+/* Description : Class representant un parametre Resonance d'un block */
 function ParametreResonance(){
 
 	// Heritage
@@ -1062,7 +1301,7 @@ ParametreResonance.prototype = new Parametre();
 ParametreResonance.prototype.traiterAudio = traiterAudioResonance;
 
 /* Class ParametreNum */
-/* Description : Class reblockant un parametre dont le nom est un nombre d'un block */
+/* Description : Class representant un parametre dont le nom est un nombre d'un block */
 function ParametreNum(nom){
 
 	// Heritage
@@ -1083,7 +1322,7 @@ ParametreNum.prototype = new Parametre();
 ParametreNum.prototype.traiterAudio = traiterAudioNum;
 
 /* Class ParametrePitch */
-/* Description : Class reblockant un parametre dont le nom est un nombre d'un block */
+/* Description : Class representant un parametre dont le nom est un nombre d'un block */
 function ParametrePitch(){
 
 	// Heritage
@@ -1104,7 +1343,7 @@ ParametrePitch.prototype = new Parametre();
 ParametrePitch.prototype.traiterAudio = traiterAudioPitch;
 
 /* Class ParametreMode */
-/* Description : Class reblockant un parametre Mode d'un block */
+/* Description : Class representant un parametre Mode d'un block */
 /* Argument : tab - tableu contenant les elements de la liste */
 function ParametreMode(tab){
 
@@ -1300,7 +1539,7 @@ function traiterAudioMode(flux) {
 /* ====================================== */
 
 /* Class GParametreKnob */
-/* Description : Class reblockant le graphique issu du plugin Knob */
+/* Description : Class representant le graphique issu du plugin Knob */
 /* Arguments : valMin - valeur minimal de l'intervalle
 			   valMax - valeur maximale de l'intervalle 
 			   valInit - la valeur initiale
@@ -1320,13 +1559,13 @@ function GParametreKnob(valMin, valMax, valInit, step){
 	// Ajouter les parametres a l'instance (par heritage)
 	this.setTypeValeurs(typeValeurs);
 	this.setGraphique(graphique);
-	this.ajouteValeur("data-min", valMin);
-	this.ajouteValeur("data-max", valMax);
-	this.ajouteValeur("data-step", step);
-	this.ajouteValeur("value", valInit);
+	this.ajouterValeur("data-min", valMin);
+	this.ajouterValeur("data-max", valMax);
+	this.ajouterValeur("data-step", step);
+	this.ajouterValeur("value", valInit);
 
-	this.ajouteValeur("data-height", 75);
-	this.ajouteValeur("data-width", 75);
+	this.ajouterValeur("data-height", 75);
+	this.ajouterValeur("data-width", 75);
 
 	// --- Surcharge de la methode getGraphique (pour recuperer l'element graphique)
 	// 
@@ -1356,7 +1595,7 @@ GParametreKnob.prototype.getValeurTraite = getValeurTraiteKnob;
 GParametreKnob.prototype.setValeurTraite = setValeurTraiteKnob;
 
 /* Class GParametreListe */
-/* Description : Class reblockant le graphique d'une liste*/
+/* Description : Class representant le graphique d'une liste*/
 /* Arguments : tab - tableau contenant la liste des valeurs*/
 function GParametreListe(tab){
 
@@ -1373,10 +1612,10 @@ function GParametreListe(tab){
 
 			// Indiquer que le 1er de la liste est selectionnee
 			if(i === 0)
-				this.ajouteValeur("selected", tab[i]);
+				this.ajouterValeur("selected", tab[i]);
 
 			// Ajouter la valeur dans l'objet GParametreListe
-			this.ajouteValeur("option", tab[i]);
+			this.ajouterValeur("option", tab[i]);
 		}
 	}
 
@@ -1432,7 +1671,7 @@ GParametreListe.prototype.getValeurTraite = getValeurTraiteListe;
 GParametreListe.prototype.setValeurTraite = setValeurTraiteListe;
 
 /* Class GParametreSwitch */
-/* Description : Class reblockant le graphique d'un switch */
+/* Description : Class representant le graphique d'un switch */
 /* Argument : valInit - la valeur initiale */
 function GParametreSwitch(valInit){
 
@@ -1453,7 +1692,7 @@ function GParametreSwitch(valInit){
 	// Ajouter les parametres a l'instance (par heritage)
 	this.setTypeValeurs(typeValeurs);
 	this.setGraphique(graphique);
-	this.ajouteValeur("checked", valInit);
+	this.ajouterValeur("checked", valInit);
 
 	// --- Surcharge de la methode getGraphique (pour recuperer l'element graphique)
 	// 
@@ -1504,7 +1743,7 @@ function setValeurTraiteKnob(val){
 
 	// Modifier la valeur 
 	this.retirerValeur('value');
-	this.ajouteValeur('value', val);
+	this.ajouterValeur('value', val);
 }
 
 // --- Methode getValeurTraiteListe
@@ -1524,7 +1763,7 @@ function setValeurTraiteListe(val){
 
 	// Modifier la valeur 
 	this.retirerValeur('selected');
-	this.ajouteValeur('selected', val);
+	this.ajouterValeur('selected', val);
 }
 
 // --- Methode getValeurTraiteSwitch
@@ -1544,7 +1783,7 @@ function setValeurTraiteSwitch(val){
 
 	// Modifier la valeur 
 	this.retirerValeur('checked');
-	this.ajouteValeur('checked', val);
+	this.ajouterValeur('checked', val);
 }
 
 /* ********************************************************* DEBUT TRAITEMENT ********************************************************* */
@@ -1554,17 +1793,47 @@ function setValeurTraiteSwitch(val){
 
 /* Variables globales */
 /* ================== */
-var gBlocks = []; // Liste des blocks existants
+
+/* Variables d'elements courants */
+var categoriesPresets = []; // Liste des categories existantes
+var categorieCourante;	// Categorie courante choisie (pour traitement d'ajout d'un preset)
+var presetCourant;	// Preset courant choisi
 var gBlockCourant; // Graphique block courant (pour traitements des elements independants du gBlock mais qui le concerne (ex : parametres associes))
+
+
+/* Variables concernant le GUI pop-up gestion categories et presets */
+var listeCategories = $("#listeCategories");		// Conteneur de la liste des categories (sert comme GUI pour la gestion)
+var buttonNouvelleCategorie = $("#buttonNouvelleCategorie"); // Button creation de nouvelle categorie
+var cssElementCategorie = "cssElementCategorie";	// Class CSS pour identifier une categorie dans le GUI
+var cssElementNomCategorie = "cssElementNomCategorie";	// Class CSS pour identifier l'element contenant le nom affichable d'une categorie dans le GUI
+var cssElementInputNomCategorie = "cssElementInputNomCategorie";	// Class CSS pour identifier l'element modifiable contenant le nom d'une categorie dans le GUI
+var cssElementButtonModifierCategorie = "cssElementButtonModifierCategorie";	// Class CSS pour identifier l'element de modification du nom d'une categorie dans la GUI
+var cssElementButtonSupprimerCategorie = "cssElementButtonSupprimerCategorie";	// Class CSS pour identifier l'element de suppression d'une categorie dans la GUI
+var iconElementButtonModifier = "<span class='glyphicon glyphicon-pencil'></span>";	// Icon de modification
+var iconElementButtonSupprimer = "<span class='glyphicon glyphicon-remove'></span>";	// Icon de supression
+
+
+/* Variables concernant le GUI de selection des categories et presets */
+var affichageListePresets = "#affichageListePresets";	// Conteneur de la liste des liens des presets
+var categorieChoix = "#categorieChoix"; // Liste de selection des categories 
+var conteneurLienPreset = "conteneurLienPreset";	// Class CSS du conteneur du lien d'un preset
+var numeroLienPreset = "numeroLienPreset";	// Class CSS du numero (s'affichant juste avant) le lien du preset
+var lienPreset = "lienPreset";	// Class CSS du lien dans la liste des presets d'une categorie
+
+
+/* Variables contenant les sections et selecteurs affichables dans la page */
+var nomCategorieInitiale = "Presets globaux";	// Le nom donnee a la categorie initiale
 var conteneurBlocks = $("#affichageBlocks"); // Conteneur des blocks
 var conteneurParametres = $("#affichageParametres"); // Conteneur des parametres
-
 var sectionBlocks = $("#sectionBlocks"); // Section contenant l'affichage des blocks (sert pour le resize)
 var jspInstance = jsPlumb.getInstance(); // Une instance de jsPlumb
 var nomPDeb = "debut", nomPFin = "fin"; // Le nom des blocks speciaux
 var srcImgs = "./imgs/effects/";	// Lien dynamique vers le dossier des images
 
 var listeChoixBlock = "#blockChoix";	// Liste contenant le nom des blocks pouvant etre crees
+var nomPresetAffichable = "#nomPresetAffichable";	// Le text contenant le nom du preset a afficher dans la section des blocks
+var nomPresetModifiable = "#nomPresetModifiable";	// Le text contenant le nom du preset a afficher dans la section des blocks
+var buttonNouveauPreset = '#buttonNouveauPreset';	// Bouton permettant de creer un nouveau preset
 var boutonSauvegarde = '#buttonSauvegarde';	// Bouton permettant de sauvegarder
 var boutonRestaurer = '#buttonRestaurer';	// Bouton permettant de restaurer
 
@@ -1604,6 +1873,117 @@ var boutonRestaurer = '#buttonRestaurer';	// Bouton permettant de restaurer
 /* /Fin definition des elements jsPlumb */
 /* ==================================== */
 
+
+// --- Fonction getCategoriePresetsId()
+// Description : Recupere une categorie de presets par son id
+//
+function getCategoriePresetsId(id){
+
+	// Recuperer la liste des elements
+	var tab = categoriesPresets;
+
+	// Scanner les categories existants
+	var CP, CPId;
+	for(var i=0; i<tab.length; i++){
+		
+		// Recuperer l'element
+		CP = tab[i];
+
+		// Recuperer l'id du GBlock
+		CPId = CP.getId();
+
+		// Verifier si la div correspond
+		if(CPId == id){
+			return CP;
+		}
+	}
+
+	// Renvoyer une erreur
+	return -1;
+
+}
+
+// --- Fonction creerCategoriePresets
+// --- Description : Permet de creer une categorie de presets (Objet le plus haut de la hierarchie)
+// --- Retour : Instance de CategoriePresets
+// 
+function creerCategoriePresets(){
+
+	// --- Chercher un id non expoloite et le plus bas possible --- //
+	// Raison : Permet d'eviter la creation d'id en cas d'un element avec un id inferieur.
+	//
+
+	// Recuperer la liste contenante
+	var tab = categoriesPresets;
+	
+	// Recuperer les id et l'id le plus eleve
+	var idMax=0, tabIds = [], idRecup;
+	for(var i=0; i<tab.length; i++){
+
+		// Recuperer l'id
+		idRecup = tab[i].getId();
+		tabIds.push(idRecup);
+
+		// Verifier si l'id est plus grand
+		if(idMax<idRecup)
+			idMax = idRecup;
+
+	}
+
+	// Chercher un id inferieur non existant
+	var categoriePresets = undefined;
+	for(i=0; i<=idMax; i++){
+
+		// Verifier dans le tableau des id si l'element existe
+		if(tabIds.indexOf(i) <= -1){
+
+			// Creer une nouvelle instance
+			categoriePresets = new CategoriePresets(i);
+
+			// Ajouter a la liste
+			tab.push(categoriePresets);
+
+			// Renvoyer la categoriePreset
+			return categoriePresets;
+
+		}
+
+	}
+
+	// Creer une nouvelle instance a id nouveau si id non trouve
+	categoriePresets = new CategoriePresets(idMax+1);
+
+	// Ajouter a la liste
+	tab.push(categoriePresets);
+
+	// Renvoyer le categoriePreset
+	return categoriePresets;
+
+}
+
+// --- Fonction supprimerCategoriePresets (TODO)
+// --- Description : Permet de supprimer une categorie de presets ainsi que les relations chez les autres categories
+// 
+function supprimerCategoriePresets(id){
+
+	// Recuperer la liste contenante
+	var tab = categoriesPresets;
+
+	// Chercher dans la liste
+	for(var i=0; i<tab.length; i++){
+
+		// Verifier si la categorie correspond
+		if(tab[i].getId() == id)
+			// Supprimer la categorie
+			tab.splice(tab.indexOf(tab[i]), 1);
+		// Sinon, enlever la relation si elle existe
+		else 
+			tab[i].retirerPresetImporte(id);
+
+	}
+
+}
+
 // --- Fonction getGBlockFromDiv
 // --- Description : Recuperer le GBlock correspondant au div donne en parametre
 //
@@ -1611,10 +1991,10 @@ function getGBlockFromDiv(div){
 
 	// Scanner les GBlocks existants
 	var GP, GPdiv;
-	for(var i=0; i<gBlocks.length; i++){
+	for(var i=0; i<presetCourant.getGBlocks().length; i++){
 		
 		// Recuperer le GBlock
-		GP = gBlocks[i];
+		GP = presetCourant.getGBlocks()[i];
 
 		// Recuperer la div du GBlock
 		GPdiv = GP.getDiv();
@@ -1637,10 +2017,10 @@ function getGBlockFromId(id){
 
 	// Scanner les GBlocks existants
 	var GP, GPId;
-	for(var i=0; i<gBlocks.length; i++){
+	for(var i=0; i<presetCourant.getGBlocks().length; i++){
 		
 		// Recuperer le GBlock
-		GP = gBlocks[i];
+		GP = presetCourant.getGBlocks()[i];
 
 		// Recuperer l'id du GBlock
 		GPId = GP.getId();
@@ -1738,6 +2118,36 @@ function ajouterEndPoints(GBBlock){
 
 }
 
+// --- Fonction initialiserStructure
+// --- Description : Initialiser l'application
+//
+function initialiserStructure(){
+
+	// Creer une categorie initiale (non modifiable et non suprimable)
+	var categoriePresets = creerCategoriePresets();
+
+	// Modifier le nom de la categorie
+	categoriesPresets[0].setNom(nomCategorieInitiale);
+
+	// Creer un preset a la categorie
+	var preset = categoriePresets.creerPreset();
+
+	// Indiquer la categorie courante
+	categorieCourante = categoriePresets;
+
+	// Indiquer le preset courant
+	presetCourant = preset;
+
+	// Renseigner le nom du preset dans l'affichage
+	var nomPresetChoisi = preset.getNom();
+	$(nomPresetAffichable).text(nomPresetChoisi);
+	$(nomPresetModifiable).val(nomPresetChoisi);
+
+	// Initialiser les blocks
+	initialiserVueBlocks();
+
+}
+
 // --- Fonction initialiserVueBlocks
 // --- Description : Initialiser la vue des blocks 
 //
@@ -1786,10 +2196,10 @@ function constructImgBlock(nomBlock, div, gBlock, CB){
 
 
 
-// --- Fonction retirerGBP
+// --- Fonction retirerGBB
 // Description : Retire le GBaseBlock
 //
-function retirerGBP(div){
+function retirerGBB(div){
 
 	// Recuperer le GBaseBlock
 	var gbp = getGBlockFromDiv(div);
@@ -1848,22 +2258,22 @@ function retirerGBP(div){
 
 }
 
-// --- Fonction retirerLienGBP
+// --- Fonction retirerLienGBB
 // Description : Retire le lien GBaseBlock (par les tableaux successeur et predeccesseur)
 //
-function retirerLienGBP(src, trg){
+function retirerLienGBB(src, trg){
 
-	// Recuperer GBP de la div src
-	var GBPsrc = getGBlockFromDiv(src);
+	// Recuperer GBB de la div src
+	var GBBsrc = getGBlockFromDiv(src);
 
-	// Recuperer GBP de la div trg
-	var GBPtrg = getGBlockFromDiv(trg);
+	// Recuperer GBB de la div trg
+	var GBBtrg = getGBlockFromDiv(trg);
 
 	// Retirer la source du target
-	GBPtrg.retirerPredecesseur(GBPsrc.getId());
+	GBBtrg.retirerPredecesseur(GBBsrc.getId());
 
 	// Retirer le target de la source
-	GBPsrc.retirerSuccesseur(GBPtrg.getId());
+	GBBsrc.retirerSuccesseur(GBBtrg.getId());
 
 }
 
@@ -1873,11 +2283,11 @@ function retirerLienGBP(src, trg){
 function retirerGBlock(gBlock){
 
 	// Trouver l'indice du gBlock dans le tableau
-	var index = gBlocks.indexOf(gBlock);
+	var index = presetCourant.getGBlocks().indexOf(gBlock);
 
 	// Si trouve, retirer de la liste
 	if (index > -1) {
-		gBlocks.splice(index, 1);
+		presetCourant.getGBlocks().splice(index, 1);
 	}
 
 }
@@ -1894,7 +2304,7 @@ function blockExiste(div){
 	if(gBlock != -1){
 
 		// Trouver l'indice du gBlock dans le tableau
-		var index = gBlocks.indexOf(gBlock);
+		var index = presetCourant.getGBlocks().indexOf(gBlock);
 
 		// Si trouve, indiquer qu'il existe
 		if (index > -1) 
@@ -1905,35 +2315,38 @@ function blockExiste(div){
 	return false;
 }
 
-// --- Fonction saveBlocks
-// Description : Sauvegarder l'etat de stockage des blocks
+// --- Fonction saveStructure
+// Description : Sauvegarder l'etat de la structure
 //
-function saveBlocks() {
+function saveStructure() {
 
 	// Verifier si le localhost est reconnu (pour IE sous local)
 	if(localStorage !== undefined)
-		// Sauvegarder le tableau contenant les gBlocks
-		localStorage.gBlocks = JSON.stringify(gBlocks);
+		// Sauvegarder le tableau contenant les categories
+		localStorage.categoriesPresets = JSON.stringify(categoriesPresets);
 }
 
-// --- Fonction loadBlocks
-// Description : Restaurer l'etat de stockage des blocks (version buggee)
+// --- Fonction loadStructure
+// Description : Restaurer l'etat de la structure
 //
-function loadBlocks() {
+function loadStructure() {
 
 	// Verifier si le localhost est reconnu (pour IE sous local)
 	if(localStorage !== undefined)
-		// Verifier si le localStorage a sauvegarde les gBlocks
-		if(localStorage.gBlocks) {
+		// Verifier si le localStorage a sauvegarde les categories
+		if(localStorage.categoriesPresets) {
 
 			// Effacer l'affichage courant de blocks (et reinitialiser jsPlumb)
 			reinitialiserAffichageBlocks();
 
-			// Recuperer du localStorage le tableau gBlocks
-			gBlocks = JSON.parse(localStorage.gBlocks);
+			// Recuperer du localStorage le tableau des categories
+			categoriesPresets = JSON.parse(localStorage.categoriesPresets);
 
-			// Redonner au blocks leur signfication (grace a la classe Serialize et sa methode)
-			restaurerClasses(gBlocks);
+			// Redonner au classes leur signfication (grace a la classe Serialize et sa methode)
+			restaurerClasses(categoriesPresets);
+
+			// Recuperer les elements courants
+			recupererElementsCourants();
 
 			// Reconstruire le graphique des gBaseBlocks
 			restaurergBaseBlocks();
@@ -1944,7 +2357,157 @@ function loadBlocks() {
 			// Redimensionner les composants de la fenetre
 			redimensionnerConteneursFenetre();
 
+			// Renseigner les valeurs affichables des lists du GUI gestion
+			construireGUIGestion();
+
 		}
+}
+
+// --- Fonction construireGUIGestion
+// Description : Construire l'interface graphique de gestion
+//
+function construireGUIGestion() {
+
+	// Recuperer l'instance de la liste des elements
+	var tabElements = categoriesPresets;
+
+	//--- Gestion du GUI pop-up ---//
+	//-----------------------------//
+
+	// Reinitialiser la liste
+	listeCategories.empty();
+
+	// Ajouter une ligne pour chaque categorie
+	var conteneur, ENom, elementNom, elementNomModifiable, elementModification, elementSuppression;
+	for(var i=1; i< tabElements.length; i++){	// 1 car on ne souhaite pas supprimer la categorie initiale globale
+
+		// Recuperer le nom de l'element
+		ENom = tabElements[i].getNom();
+
+		// Creer un element conteneur
+		conteneur = $("<div></div>");
+
+		// Renseigner les attributs du conteneur
+		conteneur.attr('class', cssElementCategorie);	// La classe identifiante du conteneur et de ses elements
+		conteneur.attr('id', tabElements[i].getId());	// L'id identifiante
+
+		// Creation du champ de nom affichable
+		elementNom = $("<span></span>");
+
+		// Renseigner les attributs du champ nom
+		elementNom.attr('class', cssElementNomCategorie);	// La classe identifiante de l'element contenant le nom
+		elementNom.text(ENom);	// Le nom qu'il presente
+
+		// Creation du champ de nom modifiable
+		elementNomModifiable = $("<input type='text'></input>");
+
+		// Renseigner les attributs du champ du nom modifiable
+		elementNomModifiable.attr('class', cssElementInputNomCategorie); 
+		elementNomModifiable.val(ENom);
+		elementNomModifiable.css('display', 'none'); 	// Cacher l'element en temps normal
+
+		// Creation d'un element button de modification
+		elementModification = $("<button type='button'></button>");
+
+		// Renseigner les attributs du button modification
+		elementModification.attr('class',cssElementButtonModifierCategorie);	// La classe identifiante de l'element contenant le button
+
+		// Ajouter l'icon
+		$(iconElementButtonModifier).appendTo(elementModification);
+
+		// Creation d'un element button de supression
+		elementSuppression = $("<button type='button'></button>");
+
+		// Renseigner les attributs du button supression
+		elementSuppression.attr('class',cssElementButtonSupprimerCategorie);	// La classe identifiante de l'element contenant le button
+
+		// Ajouter l'icon
+		$(iconElementButtonSupprimer).appendTo(elementSuppression);
+
+		// Ajout les elements dans le conteneur
+		elementNom.appendTo(conteneur);
+		elementNomModifiable.appendTo(conteneur);
+		elementSuppression.appendTo(conteneur);
+		elementModification.appendTo(conteneur);
+
+		// Ajout dans la liste des categories
+		conteneur.appendTo(listeCategories);
+
+	}
+
+	//--- Gestion du GUI de selection ---//
+	//-----------------------------------//
+	construireGUISelection();
+	
+
+}
+
+// --- Fonction construireGUISelection
+// Description : Construire l'interface graphique de la selection des categories et presets
+//
+function construireGUISelection() {
+
+	// Recuperer l'instance de la liste des elements
+	var tabElements = categoriesPresets;
+
+	// Recuperer la liste de selection
+	var listeChoixCategorie = $(categorieChoix);
+
+	// Vider la liste (sauf celui de defaut)
+	listeChoixCategorie.find('option').remove(); //'option:not(:first)'
+
+	// Ajouter chaque element dans la liste des categories
+	var option, id, Enom;
+	for(i=0; i< tabElements.length; i++){
+
+		// Recuperer le nom de l'element
+		ENom = tabElements[i].getNom();
+
+		// Recuperer l'id de l'element
+		id = tabElements[i].getId();
+
+		// Creer le representant de la categorie a la liste
+		option = $("<option>" + ENom + "</option>");
+
+		// Renseigner les attributs du representant
+		option.attr('value',id);	// La valeur contenant l'id de la categorie
+
+		// Ajouter le representant a la liste
+		listeChoixCategorie.append(option);
+
+	}
+
+	// Refreshe la liste (car utilisation de Bootstrap-select)
+	listeChoixCategorie.selectpicker('refresh');
+
+}
+
+// --- Fonction recupererElementsCourants
+// Description : Restaure l'etat des elements courants (TODO : Remplacer par des try catch et creer si jamais non existants)
+//
+function recupererElementsCourants() {
+
+	// Recuperer l'instance de la liste des elements
+	var tabElements = categoriesPresets;
+
+	// Verifier si la liste des elements existe bien
+	if(tabElements !== undefined){
+
+		// Verifier si le 1er elements a un preset
+		if(tabElements[0].getPresets()[0] !== undefined){
+
+			// Recuperer et indiquer l'element courant
+			presetCourant = tabElements[0].getPresets()[0];
+
+			// Verifier si l'element a un block
+			if(presetCourant.getGBlocks()[0] !== undefined)
+				// Recuperer et indiquer l'element courant
+				gBlockCourant = presetCourant.getGBlocks()[0];
+
+		}
+
+	}
+
 }
 
 // --- Fonction restaurerJSPlumbBlocks
@@ -1952,8 +2515,12 @@ function loadBlocks() {
 //
 function restaurerJSPlumbBlocks() {
 
-	// Recuperer le tableau des gBlocks contenant la structure de jsPlumb
-	var tabGBlocks = gBlocks;
+	// Recuperer le tableau des GBlocks contenant la structure de jsPlumb
+	var tabGBlocks = presetCourant.getGBlocks();
+
+	// Ajouter les endpoints au gBlocks
+	for( var j=0; j<tabGBlocks.length; j++)
+		ajouterEndPoints(tabGBlocks[j]);
 
 	// Recuperer et recreer les liens jsPlumb de chaque instance de gBaseBlock
 	var gbp, tabSucc, srcId;
@@ -2014,8 +2581,8 @@ function restaurerJSPlumbBlocks() {
 //
 function restaurergBaseBlocks() {
 
-	// Recuperer le tableau des gBlocks a reconstruire
-	var tabGBlocks = gBlocks;
+	// Recuperer le tableau des GBlocks a reconstruire
+	var tabGBlocks = presetCourant.getGBlocks();
 
 	// Traiter chaque gBlock
 	var gbp;
@@ -2084,7 +2651,7 @@ function restaurergBaseBlocks() {
 		);
 
 		// Ajouter les endpoints au gBlock
-		ajouterEndPoints(gbp);
+		//ajouterEndPoints(gbp); // Exporte vers restaurerJSPlumbBlocks
 
 		// Ajouter la div dans l'affichage
 		graphique.appendTo(conteneurBlocks);
@@ -2132,8 +2699,31 @@ $(document).ready(function(){
 	$("#sectionGenerale").css('height', hauteurEcran);
 	$("#sectionGenerale").css('width', largeurEcran);
 
+	// Verifier si l'application a deja ete initialisee
+	//localStorage.clear();categoriesPresets = [];
+	if(localStorage !== undefined && localStorage.categoriesPresets !== undefined && localStorage.categoriesPresets.length >0){
+
+		// Restaurer l'etat de l'application
+		//initialiserStructure();
+		loadStructure();
+
+	}
+	// Sinon
+	else{
+
+		// Initialiser l'application
+		initialiserStructure();
+
+		// Renseigner les valeurs affichables des lists du GUI gestion
+		construireGUIGestion();
+
+		// Regenerer la liste des liens de la categorie choisie
+		relisterLiensPresets($(categorieChoix).get()[0]);
+
+	}
+
 	// Initialiser les blocks de base
-	initialiserVueBlocks();
+	//initialiserVueBlocks();
 
 	// Indiquer la procedure a suivre en cas de changement de taille de la fenetre
 	$(window).resize(function(){
@@ -2205,7 +2795,89 @@ $(document).ready(function(){
 
 	});
 
+	// --- Evenement choix de categorie de la liste
+	// 
+	$(categorieChoix).on('change', function(){
+
+		// Relister l'affichage des liens 
+		relisterLiensPresets(this);
+
+	});
+
 });
+
+// --- Fonction relisterLiensPresets
+// Description : Reliste l'affichage des liens des presets d'une categorie
+//
+function relisterLiensPresets(liste) {
+
+	// Recuperer l'element selectionne
+	var elementSelectionne = $(liste).find('option:selected');
+
+	// Recuperer l'id de la categorie
+	var idCategorie = elementSelectionne.val();
+
+	// Recuperer la categorie
+	var categorie = getCategoriePresetsId(idCategorie);
+
+	// Verifier si la categorie a ete trouvee
+	var listePresets;
+	if(categorie != -1){
+
+		// Indiquer la categorie courante
+		categorieCourante = categorie;
+
+		// Recuperer le conteneur de la liste
+		var conteneurListePresets = $(affichageListePresets);
+
+		// Vider la liste
+		conteneurListePresets.empty();
+
+		// Recuperer la liste des presets
+		listePresets = categorie.getPresets();
+
+		// Ajouter les presets dans le conteneur
+		var conteneurLien, numeroLien, lienSelectionPreset, idPreset, nomPreset;
+		for(var i=0; i< listePresets.length; i++){
+
+			// Recuperer l'id du preset
+			idPreset = listePresets[i].getId();
+
+			// Recuperer le nom du preset
+			nomPreset = listePresets[i].getNom();
+
+			// Creer le conteneur
+			conteneurLien = $("<div></div>");
+
+			// Renseigner les attributs du conteneur
+			conteneurLien.attr('class', conteneurLienPreset);
+
+			// Creer le numero du lien
+			numeroLien = $("<span>" + i + ".</span>");
+
+			// Renseigner les attributs du numero
+			numeroLien.attr('class', numeroLienPreset);
+
+			// Ajouter le lien representant le preset
+			lienSelectionPreset = $("<a>" + nomPreset + "</a>");
+
+			// Renseigner les attributs du lien
+			lienSelectionPreset.attr('id', idCategorie+'-'+idPreset);
+			lienSelectionPreset.attr('class', lienPreset);
+
+			// Ajouter le numero et le lien au conteneur
+			numeroLien.appendTo(conteneurLien);
+			lienSelectionPreset.appendTo(conteneurLien);
+
+			// Ajouter le tout a la liste affichee
+			conteneurListePresets.append(conteneurLien);
+
+		}
+		
+	}
+
+}
+
 
 // --- Fonction redimensionnerConteneursFenetre
 // Description : Redimensionne les conteneurs selon la taille de la fenetre
@@ -2222,11 +2894,11 @@ function redimensionnerConteneursFenetre() {
 
 	// Recuperer la taille maximale des graphiques des blocks (pour tenter de reduire la taille de l'affichage)
 	var hauteurMaxBlocks = 0, largeurMaxBlocks = 0, hauteurBlockCourant = 0, largeurBlockCourant = 0;
-	for(var i=0; i<gBlocks.length; i++){
+	for(var i=0; i<presetCourant.getGBlocks().length; i++){
 
 		// Recuperer la position du block courant
-		hauteurBlockCourant = gBlocks[i].getPosition().getY() + $(gBlocks[i].getDiv()).outerHeight();
-		largeurBlockCourant = gBlocks[i].getPosition().getX() + $(gBlocks[i].getDiv()).outerWidth();
+		hauteurBlockCourant = presetCourant.getGBlocks()[i].getPosition().getY() + $(presetCourant.getGBlocks()[i].getDiv()).outerHeight();
+		largeurBlockCourant = presetCourant.getGBlocks()[i].getPosition().getX() + $(presetCourant.getGBlocks()[i].getDiv()).outerWidth();
 
 		// Recuperer la taille si elle est plus grande
 		if(hauteurMaxBlocks<hauteurBlockCourant)
@@ -2270,7 +2942,7 @@ function redimensionnerComposantsApplication() {
 	/****************************/
 
 	// Recuperer le button menu
-	var menu = $("header > button");
+	var menu = $(".zoneMenu");
 
 	// Recuperer la hauteur du conteneur du menu
 	var hHeader = $("header").css('height');
@@ -2307,7 +2979,7 @@ jspInstance.ready(function() {
 				if(result){
 
 					// Retirer le GBaseBlock
-					retirerGBP(tmpThis);
+					retirerGBB(tmpThis);
 
 					// Effacer la vue du conteneur des parametres
 					resetConteneurParametres();
@@ -2352,7 +3024,7 @@ function jspEventConnecion(connInfo, originalEvent) {
     //console.log(getGBlockFromDiv(connInfo.source).getdiv().id);
     // console.log(getGBlockFromDiv(connInfo.source).getDiv().id);
     //console.log(connInfo.source);
-    //console.log(gBlocks[2].getDiv());
+    //console.log(presetCourant.getGBlocks()[2].getDiv());
 
     // Recuperer le GBlock source
     var GPS = getGBlockFromDiv(connInfo.source);
@@ -2393,7 +3065,7 @@ function jspEventClick(conn) {
 				var trg = conn.target;
 
 				// Retirer le lien respectif
-				retirerLienGBP(src, trg);
+				retirerLienGBB(src, trg);
 
 				// Supprimer la connexion
 				jspInstance.detach(conn);
@@ -2405,6 +3077,94 @@ function jspEventClick(conn) {
 
 // === /Fin Evenements jsPlumb === //
 // =============================== //
+
+
+// --- Gestion evenement click sur un lien d'un preset d'une categorie
+//
+$(affichageListePresets).on('click', '.'+lienPreset, function() {
+
+	// Recuperer l'id du lien
+	var idLien = this.id;
+
+	// Recuperer l'id de la categorie et du preset
+	var idCat = idLien.split('-')[0];
+	var idPres = idLien.split('-')[1];
+
+	// Verifier si les id sont recuperes
+	if(idCat !== undefined && idPres !== undefined){
+
+		// Verifier si l'id de la categorie correspond a celui de la categorie courante
+		var categorieChoisie;
+		if(categorieCourante !== undefined && categorieCourante instanceof CategoriePresets)
+			if(categorieCourante.getId() == idCat)
+				categorieChoisie = categorieCourante;
+			// Sinon, trouver la categorie
+			else
+				categorieChoisie = getCategoriePresetsId(idCat);
+		// Sinon, trouver la categorie
+		else
+			categorieChoisie = getCategoriePresetsId(idCat);
+
+		// Verifier si la categorie a ete trouvee
+		if(categorieChoisie !== undefined || categorieChoisie != -1){
+
+			// Recuperer le preset de la categorie courante
+			var preset = categorieCourante.getPresetById(idPres);
+
+			// Verifier si le preset a ete trouve
+			if(preset != -1){
+
+				// Indiquer le preset courant
+				presetCourant = preset;
+
+				// Reinitialiser l'affichage des blocks
+				reinitialiserAffichageBlocks();
+
+				// Reconstruire le graphique des gBaseBlocks
+				restaurergBaseBlocks();
+
+				// Reconstruire la structure jsPlumb
+				restaurerJSPlumbBlocks();
+
+				// Redimensionner les composants de la fenetre
+				redimensionnerConteneursFenetre();
+
+				// --- Modifier le style du lien --- //
+				// --------------------------------- //
+
+				// Recuperer le contneur
+				var conteneur = $(affichageListePresets);
+
+				// Verifier si le conteneur existe et modifier le style des liens
+				if(conteneur !== undefined){
+
+					// Recuperer les liens
+					var liensFilles = conteneur.find('.' + lienPreset);
+
+
+
+					// Verifier si les liens sont trouvees
+					if(liensFilles !== undefined)
+						for(var i=0; i<liensFilles.length; i++)
+							$(liensFilles[i]).css('font-weight', 'normal');
+
+				}
+
+				// Modifier le style du lien choisi
+				$(this).css('font-weight', 'bold');
+
+				// Renseigner le nom du preset dans l'affichage
+				var nomPresetChoisi = preset.getNom();
+				$(nomPresetAffichable).text(nomPresetChoisi);
+				$(nomPresetModifiable).val(nomPresetChoisi);
+
+			}
+
+		}
+		
+	}
+
+});
 
 // --- Gestion evenement creation d'un nouveau block lors d'un click sur un nom de block de la liste
 // Alert : L'evenement 'click' sur un element 'Option' n'est pas pris en charge sous Chrome, donc obligatoir de passer a 'change'
@@ -2420,12 +3180,47 @@ $(listeChoixBlock).on('change', function() {
 
 });
 
+// --- Gestion evenement click sur bouton creation d'un nouveau preset
+//
+$(buttonNouveauPreset).on('click', function() {
+
+	// Recuperer la liste des categories
+	var tab = categoriesPresets;
+
+	// Recuperer la categorie Courante si elle existe
+	var categorieChoisie = categorieCourante;
+	if(categorieChoisie === undefined)
+		// Verifier si la liste existe
+		if(tab !== undefined && tab[0] !== undefined)
+			// Recuperer la categorie initiale
+			categorieChoisie = tab[0];
+
+	// Verifier si la recuperation a reussi
+	if(categorieChoisie !== undefined && categorieChoisie instanceof CategoriePresets){
+
+		// Creer un nouveau preset
+		var preset = categorieChoisie.creerPreset();
+
+		// Indiquer le nouveau preset en tant que preset courant
+		presetCourant = preset;
+
+		// Regenerer l'affichage du preset
+		reinitialiserAffichageBlocks();
+		initialiserVueBlocks();
+
+		// Regenerer la liste des liens de la categorie choisie
+		relisterLiensPresets($(categorieChoix).get()[0]);
+
+	}
+
+});
+
 // --- Gestion evenement click sur bouton sauvegarde
 //
 $(boutonSauvegarde).on('click', function() {
 
 	// Appeler la fonction de sauvegarde
-	saveBlocks();
+	saveStructure();
 
 });
 
@@ -2435,7 +3230,209 @@ $(boutonSauvegarde).on('click', function() {
 $(boutonRestaurer).on('click', function() {
 
 	// Appeler la fonction de restauration
-	loadBlocks();
+	loadStructure();
+
+});
+
+// --- Gestion evenement click sur bouton Nouvelle categorie
+// --- Description : Gere la creation d'une nouvelle categorie
+//
+$(buttonNouvelleCategorie).on('click', function() {
+
+	// Creer une nouvelle categorie
+	var cp = creerCategoriePresets();
+
+	// Creer un preset a la categorie
+	var preset = cp.creerPreset();
+
+	// Indiquer les elements courants (TOTO : MODIFIER APRES RELOCALISATION DES FONCTIONS CONCERNANT LES PRESETS DANS LA CLASSE PRESET)
+	var pCourant = presetCourant, cCourante = categorieCourante;	// Pour temporiser l'instance, mais faudra changer une fois la relocalisation de la structure est finie!
+	categorieCourante = cp;
+	presetCourant = preset;
+
+	// Initialiser le preset
+	initialiserVueBlocks();
+
+	// Reindiquer les elements courants (A CHANGER)
+	categorieCourante = cCourante;
+	presetCourant = pCourant;
+
+	// Regenerer la GUI de la liste des categories
+	construireGUIGestion();
+
+});
+
+// --- Gestion evenement click sur bouton supprimer categorie
+// --- Description : Gere la suppression d'une categorie
+//
+$("#listeCategories").on('click', '.'+cssElementButtonSupprimerCategorie, function() {
+
+	// Recuperer le conteneur
+	var divCategorie = $(this).parent('.'+cssElementCategorie);
+
+	// Recuperer l'id de la categorie
+	var idCategorie = divCategorie.get()[0].id;
+
+	// Verifier si la categorie est la categorie courante
+	if(categorieCourante !== undefined && categorieCourante instanceof CategoriePresets)
+		if(categorieCourante.getId() == idCategorie){
+
+			// Recuperer l'instance de la categorie initiale
+			var CI = categoriesPresets;
+
+			// Verifier s'il existe
+			if(CI !== undefined && CI[0] !== undefined)
+				categorieCourante = CI[0];
+
+		}
+
+
+	// Supprimer la categorie
+	supprimerCategoriePresets(idCategorie);
+
+	// Regenerer la GUI de la liste des categories
+	construireGUIGestion();
+
+});
+
+
+// --- Gestion evenement click sur bouton modifier categorie
+// --- Description : Gere la modification d'une categorie
+//
+$("#listeCategories").on('click', '.'+cssElementButtonModifierCategorie, function() {
+
+	// Recuperer le conteneur
+	var divCategorie = $(this).parent('.'+cssElementCategorie);
+
+	// Recuperer l'id de la categorie
+	var idCategorie = divCategorie.get()[0].id;
+
+	// Recuperer la balise contenant le nom affichable
+	var baliseNomAffichable = divCategorie.find('.'+cssElementNomCategorie);
+
+	// Recuperer la balise contenant le nom modifiable
+	var baliseNomModifiable = divCategorie.find('.'+cssElementInputNomCategorie);
+
+	// Changer la visibilite des balises
+	baliseNomAffichable.css('display', 'none');
+	baliseNomModifiable.css('display', 'inline');
+	
+
+});
+
+// --- Gestion evenement validation de modifier d'une categorie par le champ input
+// --- Description : Gere la modification reelle d'une categorie en validant l'input text
+//
+$("#listeCategories").on('keypress', '.'+cssElementInputNomCategorie, function(event) {
+
+	// Verifier si la touche est 'Enter'
+	if(event.which == 13 || event.keyCode == 13){
+
+		// Recuperer le conteneur
+		var divCategorie = $(this).parent('.'+cssElementCategorie);
+
+		// Recuperer l'id de la categorie
+		var idCategorie = divCategorie.get()[0].id;
+
+		// Recuperer la balise contenant le nom affichable
+		var baliseNomAffichable = divCategorie.find('.'+cssElementNomCategorie);
+
+		// Recuperer la balise contenant le nom modifiable
+		var baliseNomModifiable = divCategorie.find('.'+cssElementInputNomCategorie);
+
+		// Recuperer la categorie
+		var categorie = getCategoriePresetsId(idCategorie);
+
+		// Verifier si la categorie existe
+		var nouveauNom;
+		if(categorie !== -1){
+
+			// Recuperer le nouveau nom
+			nouveauNom = baliseNomModifiable.val();
+
+			// Changer le nom de la categorie
+			categorie.setNom(nouveauNom);
+
+			// Changer le nom affichable
+			baliseNomAffichable.text(nouveauNom);
+
+			// Reconstruire le GUI
+			construireGUIGestion();
+
+		}
+
+		// Changer la visibilite des balises
+		baliseNomAffichable.css('display', 'inline');
+		baliseNomModifiable.css('display', 'none');
+	}
+
+});
+
+// --- Gestion evenement click sur le nom du preset affichable sur la section blocks
+// --- Description : Gere la modification du nom d'un preset
+//
+$(nomPresetAffichable).on('click', function() {
+
+	// Recuperer la balise contenant le nom modifiable
+	var baliseNomModifiable = $(nomPresetModifiable);
+
+	// Changer la visibilite des balises
+	$(this).css('display', 'none');
+	baliseNomModifiable.css('display', 'inline');
+	
+
+});
+
+// --- Gestion evenement validation de modifier du nom d'un preset par le champ input
+// --- Description : Gere la modification reelle du nom d'un preset en validant l'input text
+//
+$(nomPresetModifiable).on('keypress', function(event) {
+
+	// Verifier si la touche est 'Enter'
+	if(event.which == 13 || event.keyCode == 13){
+
+		// Recuperer le preset
+		var unPreset = presetCourant;
+
+		// Recuperer la balise contenant le nom affichable
+		var baliseNomAffichable = $(nomPresetAffichable);
+
+		// Verifier si la categorie existe
+		var nouveauNom;
+		if(unPreset !== undefined && unPreset instanceof Preset){
+
+			// Recuperer le nouveau nom
+			nouveauNom = $(this).val();
+
+			// Changer le nom de la categorie
+			unPreset.setNom(nouveauNom);
+
+			// Changer le nom affichable
+			baliseNomAffichable.text(nouveauNom);
+
+			// Recuperer le lien pour une mise a jour
+			if(categorieCourante !== undefined && categorieCourante instanceof CategoriePresets)
+				if(presetCourant !== undefined && presetCourant instanceof Preset){
+
+					// Recuperer les ids
+					var idCat = categorieCourante.getId();
+					var idPres = presetCourant.getId();
+
+					// Recuperer le lien
+					var lien = $('#'+idCat+'-'+idPres);
+
+					// Modifier le nom si lien trouve
+					if(lien !== undefined)
+						lien.text(nouveauNom);
+
+				}
+
+		}
+
+		// Changer la visibilite des balises
+		baliseNomAffichable.css('display', 'inline');
+		$(this).css('display', 'none');
+	}
 
 });
 
@@ -2670,10 +3667,18 @@ function creerGBaseBlock(type){
 	var top = divBlock.get()[0].top;
 	var left = divBlock.get()[0].left;
 
+	// var top = divBlock.outerHeight();
+	// var left = divBlock.outerWidth();
+
+	//var sectionBlocksHauteur = sectionBlocks.height();//sectionBlocks.get()[0].scrollHeight;
+	//var sectionBlocksLargeur = sectionBlocks.width();//sectionBlocks.get()[0].scrollWidth;
+	//.outerHeight() .outerWidth();
+
+
 	gBlock.setPosition(left, top);
 
 	// Ajouter le block a la liste
-	gBlocks.push(gBlock);
+	presetCourant.getGBlocks().push(gBlock);
 
 	// Renseigner le block courant
 	if(type != nomPDeb || type != nomPFin)
