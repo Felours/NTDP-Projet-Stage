@@ -2150,18 +2150,23 @@ function initialiserStructure(){
 
 // --- Fonction initialiserVueBlocks
 // --- Description : Initialiser la vue des blocks 
+// --- Argument : afficherNouveauxBlocks - Savoir si afficher les nouveaux blocks
 //
-function initialiserVueBlocks(){
+function initialiserVueBlocks(afficherNouveauxBlocks){
+
+	// Verifier si l'argument existe
+	if(afficherNouveauxBlocks === undefined)
+		afficherNouveauxBlocks = true;
 
 	// Creer un block de debut
 	// 
 	//ajouterBlock(nomPDeb);
-	creerGBaseBlock(nomPDeb);
+	creerGBaseBlock(nomPDeb, afficherNouveauxBlocks);
 
 	// Creer un block de fin
 	// 
 	//ajouterBlock(nomPFin);
-	creerGBaseBlock(nomPFin);
+	creerGBaseBlock(nomPFin, afficherNouveauxBlocks);
 
 }
 
@@ -2364,13 +2369,22 @@ function loadStructure() {
 			relisterLiensPresets($(categorieChoix).get()[0]);
 
 			// Renseigner le nom du preset dans l'affichage
-			if(presetCourant !== undefined && presetCourant instanceof Preset){
-				var nomPresetChoisi = presetCourant.getNom();
-				$(nomPresetAffichable).text(nomPresetChoisi);
-				$(nomPresetModifiable).val(nomPresetChoisi);
-			}
+			renseignerNomPresetAffichage();
 
 		}
+}
+
+// --- Fonction renseignerNomPresetAffichage
+// Description : Renseigne le nom du preset courant dans l'affichage dans la section des blocks
+//
+function renseignerNomPresetAffichage(){
+
+	// Verifier si le preset courant est renseigne
+	if(presetCourant !== undefined && presetCourant instanceof Preset){
+		var nomPresetChoisi = presetCourant.getNom();
+		$(nomPresetAffichable).text(nomPresetChoisi);
+		$(nomPresetModifiable).val(nomPresetChoisi);
+	}
 }
 
 // --- Fonction construireGUIGestion
@@ -2581,6 +2595,16 @@ function restaurerJSPlumbBlocks() {
 	}
 
 	// Restaurer les evenements de jsPlumb
+	restaurerEvenementsJSP();
+
+}
+
+// --- Fonction restaurerEvenementsJSP
+// Description : Restaure les evenements du jsPlumb
+// 
+function restaurerEvenementsJSP(){
+
+	// Rajouter les evenements externes
 	jspInstance.bind("connection", jspEventConnecion);
 	jspInstance.bind("click", jspEventClick);
 
@@ -3256,19 +3280,41 @@ $(buttonNouvelleCategorie).on('click', function() {
 	var preset = cp.creerPreset();
 
 	// Indiquer les elements courants (TOTO : MODIFIER APRES RELOCALISATION DES FONCTIONS CONCERNANT LES PRESETS DANS LA CLASSE PRESET)
-	var pCourant = presetCourant, cCourante = categorieCourante;	// Pour temporiser l'instance, mais faudra changer une fois la relocalisation de la structure est finie!
 	categorieCourante = cp;
 	presetCourant = preset;
 
-	// Initialiser le preset
+	// Reinitialiser l'affichage des blocks
+	reinitialiserAffichageBlocks();
+
+	// Initialiser le preset 
 	initialiserVueBlocks();
 
-	// Reindiquer les elements courants (A CHANGER)
-	categorieCourante = cCourante;
-	presetCourant = pCourant;
+	// Restaurer les evenements de jsPlumb
+	restaurerEvenementsJSP();
 
 	// Regenerer la GUI de la liste des categories
 	construireGUIGestion();
+
+	// Renseigner le nom du preset dans l'affichage
+	renseignerNomPresetAffichage();
+
+	// --- Mettre a jour la liste des categories selectionnables --- //
+	// ------------------------------------------------------------- //
+	
+	// Recuperer la liste affichable des categories
+	var listeCategoriesChoix = $(categorieChoix);
+
+	// Recuperer l'id de la categorie et modifier la categorie selectionnee de la liste
+	var catId = cp.getId();
+	
+	// Recuperer l'option a selectionner
+	listeCategoriesChoix.find("option[value='" + catId + "']").attr('selected','selected');
+
+	//$('select[name=selValue]').val(1);
+	$(listeCategoriesChoix).selectpicker('refresh');
+
+	// Regenerer la liste des liens de la categorie choisie
+	relisterLiensPresets(listeCategoriesChoix.get()[0]);
 
 });
 
@@ -3291,8 +3337,16 @@ $("#listeCategories").on('click', '.'+cssElementButtonSupprimerCategorie, functi
 			var CI = categoriesPresets;
 
 			// Verifier s'il existe
-			if(CI !== undefined && CI[0] !== undefined)
+			if(CI !== undefined && CI[0] !== undefined){
+
+				// Rensigner la categorie courante
 				categorieCourante = CI[0];
+
+				// Recuperer un preset initial
+				if(CI[0].getPresets[0] !== undefined && CI[0].getPresets[0] instanceof Preset)
+					// Rensigner le courant
+					presetCourant = CI[0].getPresets[0];
+			}
 
 		}
 
@@ -3302,6 +3356,10 @@ $("#listeCategories").on('click', '.'+cssElementButtonSupprimerCategorie, functi
 
 	// Regenerer la GUI de la liste des categories
 	construireGUIGestion();
+
+	// Regenerer la liste des liens de la categorie choisie
+	var listeCategoriesChoix = $(categorieChoix);
+	relisterLiensPresets(listeCategoriesChoix.get()[0]);
 
 });
 
@@ -3577,6 +3635,7 @@ function definirBlock(type, gp){
 
 // --- Fonction creerGBaseBlock
 // --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
+// --- Arguments : type - Le nom du type de block a creer
 // 
 function creerGBaseBlock(type){
 
