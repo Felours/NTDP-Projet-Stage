@@ -77,15 +77,17 @@ function restaurerClasses(insta){
 
 /* Class Preset */
 /* Description : Class regroupant un ensemble de GBlocks */
-/* Argument : id- id du preset */
-function Preset(id){
+/* Argument : id - id du preset, 
+			  idCategorie - id de la categorie dont est issu le preset */
+function Preset(id, idCategorie){
 
 	// Implementer Serialize
 	Serialize.call(this,"Preset");
 
 	// --- Attributs
 	// 
-	this.m_id = id;//undefined;	// L'id (unique) d'un preset
+	this.m_id = id;	// L'id (unique) d'un preset
+	this.m_idCategorie = idCategorie;	// L'id de la categorie dont est issu le preset
 	this.m_nom = "Nouveau preset";	// Le nom d'un preset (sera affiche)
 
 	this.m_gBlocks = [];	// Tableau contenant les instances des m_gBlocks a afficher
@@ -97,6 +99,18 @@ function Preset(id){
 	// 
 	this.getId = function(){
 		return(this.m_id);
+	};
+
+	// --- Methode getIdCategorie
+	// 
+	this.getIdCategorie = function(){
+		return(this.m_idCategorie);
+	};
+
+	// --- Methode getNom
+	// 
+	this.getNom = function(){
+		return(this.m_nom);
 	};
 
 	// --- Methode getNom
@@ -122,6 +136,330 @@ function Preset(id){
 	this.setGBlocks = function(gBlocks){
 		this.m_gBlocks = gBlocks;
 	};
+
+	// --- Methode creerGBaseBlock
+	// --- Description : Methode permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
+	// --- Arguments : type - Le nom du type de block a creer
+	// 
+	this.creerGBaseBlock = function(type){
+
+		// Recuperer un id non existant et minimal
+		var id = getIdLibre(this.m_gBlocks, '-', this.getIdCategorie()+'-'+this.getId());
+
+		// Creer le block
+		var block = new Block(type);
+
+		// Creer une div d'affichage
+		var divBlock = $("<div></div>").attr('class','divBlock');
+		divBlock.attr('id', id);
+
+		// Creer le graphique du block selon le type
+		var gBlock;
+
+		switch(type){
+
+			// --- S'il s'agit d'un block de debut
+			case nomPDeb :
+				gBlock = new GBlockDebut(divBlock.get()[0], block);
+				break;
+
+			// --- S'il s'agit d'un block de fin
+			case nomPFin :
+				gBlock = new GBlockFin(divBlock.get()[0], block);
+				break;
+
+			// --- S'il s'agit d'un block quelconque
+			default :
+				gBlock = new GBlock(divBlock.get()[0], block);
+
+		}
+
+		// Faire le lien entre le Block et le GBaseBlock respectif (pour la navigation)
+		gBlock.setAncre();
+
+		// Ajouter le CSS selon le type
+		switch(type){
+
+			// --- S'il s'agit d'un block de debut
+			case nomPDeb : 
+				divBlock.addClass('divBlockDeb');
+				break;
+
+			// --- S'il s'agit d'un block de fin
+			case nomPFin : 
+				divBlock.addClass('divBlockFin');
+				break;
+
+			// --- S'il s'agit d'un block normal
+			default :
+
+				// Ajouter le css normal
+				divBlock.addClass('divBlockNormal');
+
+		}
+
+		// Renseigner l'id au gBaseBlock
+		gBlock.setId(id);
+
+		// Construire l'image de la div
+		var infoImg = constructImgBlock(type, divBlock, gBlock,
+			function() {
+
+				// --- jsPlumb ---
+				// ---------------
+				jspInstance.ready(function() {
+
+					// Rendre le graphique draggable uniquement dans le conteneur
+					jspInstance.draggable($(".divBlock"), {
+						// Le conteneur
+						containment:conteneurBlocks
+					});
+
+					// Renseigner l'id au gBaseBlock
+					//gBlock.setId(divBlock[0].id);
+
+					// Creer le GBaseBlock souhaite (structure des parametres)
+					definirBlock(type, gBlock);
+
+				});
+				// --- /jsPlumb ---
+				// ----------------
+
+				// Ajouter les endpoints au gBlock
+				ajouterEndPoints(gBlock);
+
+			}
+		);
+
+		// Ajouter la div dans l'affichage
+		divBlock.appendTo(conteneurBlocks);
+
+		// Indiquer la position initiale du gBaseBlock
+		// var top = divBlock.get()[0].getBoundingClientRect().top;
+		// var left = divBlock.get()[0].getBoundingClientRect().left;
+		
+		var top = divBlock.get()[0].top;
+		var left = divBlock.get()[0].left;
+
+		// var top = divBlock.outerHeight();
+		// var left = divBlock.outerWidth();
+
+		//var sectionBlocksHauteur = sectionBlocks.height();//sectionBlocks.get()[0].scrollHeight;
+		//var sectionBlocksLargeur = sectionBlocks.width();//sectionBlocks.get()[0].scrollWidth;
+		//.outerHeight() .outerWidth();
+
+		gBlock.setPosition(left, top);
+
+		// Ajouter le block a la liste
+		presetCourant.getGBlocks().push(gBlock);
+
+		// Renseigner le block courant
+		if(type != nomPDeb || type != nomPFin)
+			gBlockCourant = gBlock;
+
+		// Indiquer l'ajout du block
+		console.log("Block " + type + " cree");
+
+		// Retourner le gBlock cree
+		return gBlock;
+
+	};
+
+	// --- Methode blockExiste
+	// Description : Indique si un block existe ou pas (selon la div)
+	//
+	this.blockExiste = function(div){
+
+		// Recuperer le GBaseBlock
+		var gBlock = this.getGBlockFromDiv(div);
+
+		// Verifier si le gBlock existe
+		if(gBlock != -1){
+
+			// Trouver l'indice du gBlock dans le tableau
+			var index = this.getGBlocks().indexOf(gBlock);
+
+			// Si trouve, indiquer qu'il existe
+			if (index > -1) 
+				return true;
+		}
+
+		// Indiquer qu'il n'existe pas
+		return false;
+	};
+
+	// --- Methode getGBlockFromDiv
+	// --- Description : Recuperer le GBlock correspondant au div donne en parametre
+	//
+	this.getGBlockFromDiv = function(div){
+
+		// Scanner les GBlocks existants
+		var GP, GPdiv;
+		for(var i=0; i<this.getGBlocks().length; i++){
+			
+			// Recuperer le GBlock
+			GP = this.getGBlocks()[i];
+
+			// Recuperer la div du GBlock
+			GPdiv = GP.getDiv();
+
+			// Verifier si la div correspond
+			if(GPdiv === div){
+				return GP;
+			}
+		}
+
+		// Renvoyer une erreur
+		return -1;
+
+	};
+
+	// --- Methode getGBlockFromId()
+	// Description : Recupere un GBaseBlock par son id
+	//
+	this.getGBlockFromId = function(id){
+
+		// Scanner les GBlocks existants
+		var GP, GPId;
+		for(var i=0; i<this.getGBlocks().length; i++){
+			
+			// Recuperer le GBlock
+			GP = this.getGBlocks()[i];
+
+			// Recuperer l'id du GBlock
+			GPId = GP.getId();
+
+			// Verifier si la div correspond
+			if(GPId === id){
+				return GP;
+			}
+		}
+
+		// Renvoyer une erreur
+		return -1;
+
+	};
+
+
+	// --- Methode retirerGBB
+	// Description : Retire le GBaseBlock graphiquement (et effectivement du preset)
+	//
+	this.retirerGBB = function(div){
+
+		// Recuperer le GBaseBlock
+		var gbp = this.getGBlockFromDiv(div);
+
+		// Retirer les predecesseurs (mutuellement)
+		var predecs = gbp.getPredecesseurs();	// Liste des ids
+		var gbpPre;
+		for(var i=0; i<predecs.length; i++){
+
+			// Recuperer le gBaseBlock par son id
+			gbpPre = this.getGBlockFromId(predecs[i]);
+
+			// Verifier si le GBaseBlock existe
+			if(gbpPre !== -1){
+
+				// Retirer le gBlock du predecesseur
+				gbpPre.retirerSuccesseur(gbp.getId());
+
+				// Retirer le predecesseur du gBlock (optionnel, permet de laisser propre)
+				gbp.retirerPredecesseur(predecs[i]);
+
+			}
+
+		}
+
+		// Retirer les successeurs (mutuellement)
+		var success = gbp.getSuccesseurs();	// Liste des ids
+		var gbpSucc;
+
+		for(i=0; i<success.length; i++){
+
+			// Recuperer le gBaseBlock par son id
+			gbpSucc = this.getGBlockFromId(success[i]);
+
+			// Verifier si le GBaseBlock existe
+			if(gbpSucc !== -1){
+
+				// Retirer le gBlock du successeur
+				gbpSucc.retirerPredecesseur(gbp.getId());
+
+				// Retirer le successeur du gBlock (optionnel, permet de laisser propre)
+				gbp.retirerSuccesseur(success[i]);
+
+			}
+
+		}
+		
+		// Retirer les connexions visuelles
+		jspInstance.detachAllConnections($(div));
+		// var ep = jspInstance.getEndpoints($(div));
+		// console.log(ep[0]);
+		// for(i=0; i<ep.length; i++){
+		// 	ep[i]._doNotDeleteOnDetach = false;
+		// 	console.log(ep[i]._doNotDeleteOnDetach);
+		// 	jspInstance.detach(ep[i]);
+		// 	jspInstance.deleteEndpoint(ep[i]);
+		// }
+		jspInstance.removeAllEndpoints($(div));	
+		jspInstance.detach($(div));
+		jspInstance.remove(div);	// Important pour retirer completement de l'instance de jsPlumb!!
+		$(div).remove();
+
+		// Retirer le gBlock de la liste des gBlocks globale
+		this.retirerGBlock(gbp);
+
+	};
+
+	// --- Methode retirerGBlock
+	// Description : Retirer le gBlock de la liste des gBlocks globale (retirement effectif de la liste)
+	//
+	this.retirerGBlock = function(gBlock){
+
+		// Trouver l'indice du gBlock dans le tableau
+		var index = this.getGBlocks().indexOf(gBlock);
+
+		// Si trouve, retirer de la liste
+		if (index > -1) {
+			this.getGBlocks().splice(index, 1);
+		}
+
+	};
+
+	// --- Methode retirerLienGBB
+	// Description : Retire le lien GBaseBlock (lien effectif par les tableaux successeur et predeccesseur)
+	//
+	this.retirerLienGBB = function(src, trg){
+
+		// Recuperer GBB de la div src
+		var GBBsrc = this.getGBlockFromDiv(src);
+
+		// Recuperer GBB de la div trg
+		var GBBtrg = this.getGBlockFromDiv(trg);
+
+		// Retirer la source du target
+		GBBtrg.retirerPredecesseur(GBBsrc.getId());
+
+		// Retirer le target de la source
+		GBBsrc.retirerSuccesseur(GBBtrg.getId());
+
+	};
+
+	// --- Methode initialiserVueBlocks
+	// --- Description : Initialiser la vue des blocks (Preset debut et preset fin)
+	//
+	this.initialiserVueBlocks = function(){
+
+		// Creer un block de debut
+		// 
+		this.creerGBaseBlock(nomPDeb);
+
+		// Creer un block de fin
+		// 
+		this.creerGBaseBlock(nomPFin);
+
+	}
 
 }
 Preset.prototype = new Serialize();
@@ -202,49 +540,14 @@ function CategoriePresets(id){
 	// 
 	this.creerPreset = function(){
 
-		// --- Chercher un id non expoloite et le plus bas possible --- //
-		// Raison : Permet d'eviter la creation d'id en cas d'un element avec un id inferieur.
-		//
-
-		// Recuperer la liste contenante
+		// Recuperer le tableau
 		var tab = this.m_presets;
-		
-		// Recuperer les id et l'id le plus eleve
-		var idMax=0, tabIds = [], idRecup;
-		for(var i=0; i<tab.length; i++){
 
-			// Recuperer l'id
-			idRecup = tab[i].getId();
-			tabIds.push(idRecup);
-
-			// Verifier si l'id est plus grand
-			if(idMax<idRecup)
-				idMax = idRecup;
-
-		}
-
-		// Chercher un id inferieur non existant
-		var preset = undefined;
-		for(i=0; i<=idMax; i++){
-
-			// Verifier dans le tableau des id si l'element existe
-			if(tabIds.indexOf(i) <= -1){
-
-				// Creer un preset
-				preset = new Preset(i);
-
-				// Ajouter le preset a la liste
-				tab.push(preset);
-
-				// Renvoyer le preset
-				return preset;
-
-			}
-
-		}
+		// Recuperer un id non existant et minimal
+		var id = getIdLibre(tab);
 
 		// Creer un preset a id nouveau si id non trouve
-		preset = new Preset(idMax+1);
+		preset = new Preset(id, this.getId());
 
 		// Ajouter le preset dans la liste
 		tab.push(preset);
@@ -256,9 +559,19 @@ function CategoriePresets(id){
 
 	// --- Methode supprimerPreset (TODO)
 	// 
-	this.supprimerPreset = function(preset){
+	this.supprimerPresetById = function(idPreset){
 
-		// Trouver l'indice du parametre
+		// Chercher le preset par son id
+		for(var i=0; i<this.m_presets.length; i++){
+
+			// Verifier que le preset est le bon
+			if(this.m_presets[i].getId() == idPreset)
+				// Supprimer le preset
+				this.m_presets.splice(i, 1);
+
+		}
+
+		// // Trouver l'indice du parametre
 		// var index = this.m_presets.indexOf(preset);
 	
 		// // Si trouve, retirer de la liste
@@ -1804,11 +2117,27 @@ var gBlockCourant; // Graphique block courant (pour traitements des elements ind
 /* Variables concernant le GUI pop-up gestion categories et presets */
 var listeCategories = $("#listeCategories");		// Conteneur de la liste des categories (sert comme GUI pour la gestion)
 var buttonNouvelleCategorie = $("#buttonNouvelleCategorie"); // Button creation de nouvelle categorie
+var cssElementInputNomCategorie = "cssElementInputNomCategorie";	// Class CSS pour identifier l'element modifiable contenant le nom d'une categorie dans le GUI
 var cssElementCategorie = "cssElementCategorie";	// Class CSS pour identifier une categorie dans le GUI
 var cssElementNomCategorie = "cssElementNomCategorie";	// Class CSS pour identifier l'element contenant le nom affichable d'une categorie dans le GUI
-var cssElementInputNomCategorie = "cssElementInputNomCategorie";	// Class CSS pour identifier l'element modifiable contenant le nom d'une categorie dans le GUI
 var cssElementButtonModifierCategorie = "cssElementButtonModifierCategorie";	// Class CSS pour identifier l'element de modification du nom d'une categorie dans la GUI
 var cssElementButtonSupprimerCategorie = "cssElementButtonSupprimerCategorie";	// Class CSS pour identifier l'element de suppression d'une categorie dans la GUI
+
+
+var listePresetsGlobaux = $("#listePresetsGlobaux");	// Conteneur de la liste des presets globaux draggables
+var cssElementInputNomPreset = "cssElementInputNomPreset";	// Class CSS pour identifier l'element modifiable contenant le nom d'un preset dans le GUI
+var cssElementPreset = "cssElementPreset";	// Class CSS pour identifier un prest dans le GUI
+var cssElementNomPreset = "cssElementNomPreset";	// Class CSS pour identifier l'element contenant le nom affichable d'un preset dans le GUI
+var cssElementButtonModifierPreset = "cssElementButtonModifierPreset";	// Class CSS pour identifier l'element de modification du nom d'un Preset dans la GUI
+var cssElementButtonSupprimerPreset = "cssElementButtonSupprimerPreset";	// Class CSS pour identifier l'element de suppression d'un Preset dans la GUI
+
+
+var listePresetsCategorieChoisie = $("#listePresetsCategorieChoisie");	// Conteneur de la liste des presets droppables par categorie choisie
+var listePresetsCategorieChoisieTextDefaut = "#listePresetsCategorieChoisieTextDefaut";	// Texte affichable par defaut (a afficher/desafficher selon besoin)
+var titrePresetsDeCategorie = "#titrePresetsDeCategorie";	// Titre de la liste d'affichage des presets de la categorie choisie
+
+
+
 var iconElementButtonModifier = "<span class='glyphicon glyphicon-pencil'></span>";	// Icon de modification
 var iconElementButtonSupprimer = "<span class='glyphicon glyphicon-remove'></span>";	// Icon de supression
 
@@ -1909,49 +2238,14 @@ function getCategoriePresetsId(id){
 // 
 function creerCategoriePresets(){
 
-	// --- Chercher un id non expoloite et le plus bas possible --- //
-	// Raison : Permet d'eviter la creation d'id en cas d'un element avec un id inferieur.
-	//
-
-	// Recuperer la liste contenante
+	// Recuperer le tableau
 	var tab = categoriesPresets;
-	
-	// Recuperer les id et l'id le plus eleve
-	var idMax=0, tabIds = [], idRecup;
-	for(var i=0; i<tab.length; i++){
 
-		// Recuperer l'id
-		idRecup = tab[i].getId();
-		tabIds.push(idRecup);
+	// Recuperer un id non existant et minimal
+	var id = getIdLibre(tab);
 
-		// Verifier si l'id est plus grand
-		if(idMax<idRecup)
-			idMax = idRecup;
-
-	}
-
-	// Chercher un id inferieur non existant
-	var categoriePresets = undefined;
-	for(i=0; i<=idMax; i++){
-
-		// Verifier dans le tableau des id si l'element existe
-		if(tabIds.indexOf(i) <= -1){
-
-			// Creer une nouvelle instance
-			categoriePresets = new CategoriePresets(i);
-
-			// Ajouter a la liste
-			tab.push(categoriePresets);
-
-			// Renvoyer la categoriePreset
-			return categoriePresets;
-
-		}
-
-	}
-
-	// Creer une nouvelle instance a id nouveau si id non trouve
-	categoriePresets = new CategoriePresets(idMax+1);
+	// Creer une nouvelle instance
+	categoriePresets = new CategoriePresets(id);
 
 	// Ajouter a la liste
 	tab.push(categoriePresets);
@@ -1984,69 +2278,17 @@ function supprimerCategoriePresets(id){
 
 }
 
-// --- Fonction getGBlockFromDiv
-// --- Description : Recuperer le GBlock correspondant au div donne en parametre
-//
-function getGBlockFromDiv(div){
-
-	// Scanner les GBlocks existants
-	var GP, GPdiv;
-	for(var i=0; i<presetCourant.getGBlocks().length; i++){
-		
-		// Recuperer le GBlock
-		GP = presetCourant.getGBlocks()[i];
-
-		// Recuperer la div du GBlock
-		GPdiv = GP.getDiv();
-
-		// Verifier si la div correspond
-		if(GPdiv === div){
-			return GP;
-		}
-	}
-
-	// Renvoyer une erreur
-	return -1;
-
-}
-
-// --- Fonction getGBlockFromId()
-// Description : Recupere un GBaseBlock par son id
-//
-function getGBlockFromId(id){
-
-	// Scanner les GBlocks existants
-	var GP, GPId;
-	for(var i=0; i<presetCourant.getGBlocks().length; i++){
-		
-		// Recuperer le GBlock
-		GP = presetCourant.getGBlocks()[i];
-
-		// Recuperer l'id du GBlock
-		GPId = GP.getId();
-
-		// Verifier si la div correspond
-		if(GPId === id){
-			return GP;
-		}
-	}
-
-	// Renvoyer une erreur
-	return -1;
-
-}
-
 // --- Fonction getGParametreFromId
 // Description : Recupere un GParametre par son id issu d'un GBaseBlock
-// Arguments : gbp - instance d'un GBaseBlock contenant le parametre
+// Arguments : gbb - instance d'un GBaseBlock contenant le parametre
 //			   id - id du GParametre
 //
-function getGParametreFromId(gbp, id){
+function getGParametreFromId(gbb, id){
 
 	// Recuperer les parametres 
 	var GPs;
-	if(gbp !== undefined && id !== undefined){
-		GPs = gbp.getBlock().getParametres();
+	if(gbb !== undefined && id !== undefined){
+		GPs = gbb.getBlock().getParametres();
 
 		// Scanner les GParametres existants
 		var GP, GPId;
@@ -2144,29 +2386,7 @@ function initialiserStructure(){
 	$(nomPresetModifiable).val(nomPresetChoisi);
 
 	// Initialiser les blocks
-	initialiserVueBlocks();
-
-}
-
-// --- Fonction initialiserVueBlocks
-// --- Description : Initialiser la vue des blocks 
-// --- Argument : afficherNouveauxBlocks - Savoir si afficher les nouveaux blocks
-//
-function initialiserVueBlocks(afficherNouveauxBlocks){
-
-	// Verifier si l'argument existe
-	if(afficherNouveauxBlocks === undefined)
-		afficherNouveauxBlocks = true;
-
-	// Creer un block de debut
-	// 
-	//ajouterBlock(nomPDeb);
-	creerGBaseBlock(nomPDeb, afficherNouveauxBlocks);
-
-	// Creer un block de fin
-	// 
-	//ajouterBlock(nomPFin);
-	creerGBaseBlock(nomPFin, afficherNouveauxBlocks);
+	presetCourant.initialiserVueBlocks();
 
 }
 
@@ -2197,127 +2417,6 @@ function constructImgBlock(nomBlock, div, gBlock, CB){
 
 	};
 
-}
-
-
-
-// --- Fonction retirerGBB
-// Description : Retire le GBaseBlock
-//
-function retirerGBB(div){
-
-	// Recuperer le GBaseBlock
-	var gbp = getGBlockFromDiv(div);
-
-	// Retirer les predecesseurs (mutuellement)
-	var predecs = gbp.getPredecesseurs();	// Liste des ids
-	var gbpPre;
-	for(var i=0; i<predecs.length; i++){
-
-		// Recuperer le gBaseBlock par son id
-		gbpPre = getGBlockFromId(predecs[i]);
-
-		// Verifier si le GBaseBlock existe
-		if(gbpPre !== -1){
-
-			// Retirer le gBlock du predecesseur
-			gbpPre.retirerSuccesseur(gbp.getId());
-
-			// Retirer le predecesseur du gBlock (optionnel, permet de laisser propre)
-			gbp.retirerPredecesseur(predecs[i]);
-
-		}
-
-	}
-
-	// Retirer les successeurs (mutuellement)
-	var success = gbp.getSuccesseurs();	// Liste des ids
-	var gbpSucc;
-
-	for(i=0; i<success.length; i++){
-
-		// Recuperer le gBaseBlock par son id
-		gbpSucc = getGBlockFromId(success[i]);
-
-		// Verifier si le GBaseBlock existe
-		if(gbpSucc !== -1){
-
-			// Retirer le gBlock du successeur
-			gbpSucc.retirerPredecesseur(gbp.getId());
-
-			// Retirer le successeur du gBlock (optionnel, permet de laisser propre)
-			gbp.retirerSuccesseur(success[i]);
-
-		}
-
-	}
-
-	// Retirer le gBlock de la liste des gBlocks globale
-	retirerGBlock(gbp);
-
-	// Retirer les connexions visuelles
-	jspInstance.detachAllConnections($(div));
-	jspInstance.removeAllEndpoints($(div));
-	jspInstance.detach($(div));
-	$(div).remove();
-
-}
-
-// --- Fonction retirerLienGBB
-// Description : Retire le lien GBaseBlock (par les tableaux successeur et predeccesseur)
-//
-function retirerLienGBB(src, trg){
-
-	// Recuperer GBB de la div src
-	var GBBsrc = getGBlockFromDiv(src);
-
-	// Recuperer GBB de la div trg
-	var GBBtrg = getGBlockFromDiv(trg);
-
-	// Retirer la source du target
-	GBBtrg.retirerPredecesseur(GBBsrc.getId());
-
-	// Retirer le target de la source
-	GBBsrc.retirerSuccesseur(GBBtrg.getId());
-
-}
-
-// --- Fonction retirerGBlock
-// Description : Retirer le gBlock de la liste des gBlocks globale
-//
-function retirerGBlock(gBlock){
-
-	// Trouver l'indice du gBlock dans le tableau
-	var index = presetCourant.getGBlocks().indexOf(gBlock);
-
-	// Si trouve, retirer de la liste
-	if (index > -1) {
-		presetCourant.getGBlocks().splice(index, 1);
-	}
-
-}
-
-// --- Fonction blockExiste
-// Description : Indique si un block existe ou pas (selon la div)
-//
-function blockExiste(div){
-
-	// Recuperer le GBaseBlock
-	var gBlock = getGBlockFromDiv(div);
-
-	// Verifier si le gBlock existe
-	if(gBlock != -1){
-
-		// Trouver l'indice du gBlock dans le tableau
-		var index = presetCourant.getGBlocks().indexOf(gBlock);
-
-		// Si trouve, indiquer qu'il existe
-		if (index > -1) 
-			return true;
-	}
-
-	// Indiquer qu'il n'existe pas
-	return false;
 }
 
 // --- Fonction saveStructure
@@ -2385,6 +2484,29 @@ function renseignerNomPresetAffichage(){
 		$(nomPresetAffichable).text(nomPresetChoisi);
 		$(nomPresetModifiable).val(nomPresetChoisi);
 	}
+
+}
+
+// --- Fonction restaurerVuePreset
+// Description : Restaure la vue du preset courant (Vue avec les blocks et le JS Plumb)
+//
+function restaurerVuePreset() {
+
+	// Reinitialiser l'affichage des blocks
+	reinitialiserAffichageBlocks();
+
+	// Reconstruire le graphique des gBaseBlocks
+	restaurergBaseBlocks();
+
+	// Reconstruire la structure jsPlumb
+	restaurerJSPlumbBlocks();
+
+	// Redimensionner les composants de la fenetre
+	redimensionnerConteneursFenetre();
+
+	// Renseigner le nom du preset
+	renseignerNomPresetAffichage();
+
 }
 
 // --- Fonction construireGUIGestion
@@ -2392,11 +2514,116 @@ function renseignerNomPresetAffichage(){
 //
 function construireGUIGestion() {
 
+	//--- Gestion du GUI pop-up ---//
+	//-----------------------------//
+
+	// Construire la partie contenant la gestion des categories
+	construireGUICategoriesPopUp();
+
+	// Construire la partie contenant la gestion des presets
+	construireGUIPresetsPopUp();
+
+
+	//--- Gestion du GUI de selection ---//
+	//-----------------------------------//
+	construireGUISelection();
+	
+
+}
+
+// --- Fonction construireGUIPresetsPopUp
+// Description : Construire l'interface graphique de la gestion des presets dans la fenetre pop-up
+//
+function construireGUIPresetsPopUp() {
+
 	// Recuperer l'instance de la liste des elements
 	var tabElements = categoriesPresets;
 
-	//--- Gestion du GUI pop-up ---//
-	//-----------------------------//
+	// Reinitialiser la liste
+	listePresetsGlobaux.empty();
+
+	// Afficher les presets de toutes les categories
+	var tabPresets;
+	var conteneur, identifiant, ENom, elementNom, elementNomModifiable, elementModification, elementSuppression;
+	for(var j=0; j<tabElements.length; j++){
+
+		// Recuperer les presets de la categorie
+		tabPresets = tabElements[j].getPresets();
+
+		// Verifier si les elements ont ete recuperes correctement
+		if(tabPresets !== undefined){
+
+			// Ajouter une ligne pour chaque preset
+			for(var i=0; i< tabPresets.length; i++){
+
+				// Recuperer le nom de l'element
+				ENom = tabPresets[i].getNom();
+
+				// Creer un element conteneur
+				conteneur = $("<div></div>");
+
+				// Renseigner les attributs du conteneur
+				conteneur.attr('class', cssElementPreset);	// La classe identifiante du conteneur et de ses elements
+				identifiant = tabElements[j].getId() + '-' + tabPresets[i].getId();
+				conteneur.attr('id', identifiant);	// L'id identifiante
+
+				// Creation du champ de nom affichable
+				elementNom = $("<span></span>");
+
+				// Renseigner les attributs du champ nom
+				elementNom.attr('class', cssElementNomPreset);	// La classe identifiante de l'element contenant le nom
+				elementNom.text(ENom);	// Le nom qu'il presente
+
+				// Creation du champ de nom modifiable
+				elementNomModifiable = $("<input type='text'></input>");
+
+				// Renseigner les attributs du champ du nom modifiable
+				elementNomModifiable.attr('class', cssElementInputNomPreset); 
+				elementNomModifiable.val(ENom);
+				elementNomModifiable.css('display', 'none'); 	// Cacher l'element en temps normal
+
+				// Creation d'un element button de modification
+				elementModification = $("<button type='button'></button>");
+
+				// Renseigner les attributs du button modification
+				elementModification.attr('class',cssElementButtonModifierPreset);	// La classe identifiante de l'element contenant le button
+
+				// Ajouter l'icon
+				$(iconElementButtonModifier).appendTo(elementModification);
+
+				// Creation d'un element button de supression
+				elementSuppression = $("<button type='button'></button>");
+
+				// Renseigner les attributs du button supression
+				elementSuppression.attr('class',cssElementButtonSupprimerPreset);	// La classe identifiante de l'element contenant le button
+
+				// Ajouter l'icon
+				$(iconElementButtonSupprimer).appendTo(elementSuppression);
+
+				// Ajout les elements dans le conteneur
+				elementNom.appendTo(conteneur);
+				elementNomModifiable.appendTo(conteneur);
+				elementSuppression.appendTo(conteneur);
+				elementModification.appendTo(conteneur);
+
+				// Ajout dans la liste des categories
+				conteneur.appendTo(listePresetsGlobaux);
+
+			}
+
+		}
+
+	}
+
+}
+
+// --- Fonction construireGUICategoriesPopUp
+// Description : Construire l'interface graphique de la gestion des categories dans la fenetre pop-up
+//
+function construireGUICategoriesPopUp() {
+
+	// Recuperer l'instance de la liste des elements
+	var tabElements = categoriesPresets;
 
 	// Reinitialiser la liste
 	listeCategories.empty();
@@ -2459,11 +2686,6 @@ function construireGUIGestion() {
 
 	}
 
-	//--- Gestion du GUI de selection ---//
-	//-----------------------------------//
-	construireGUISelection();
-	
-
 }
 
 // --- Fonction construireGUISelection
@@ -2503,6 +2725,100 @@ function construireGUISelection() {
 
 	// Refreshe la liste (car utilisation de Bootstrap-select)
 	listeChoixCategorie.selectpicker('refresh');
+
+}
+
+// --- Fonction construireGUIPresetsDeCategoriePopUp
+// Description : Construire l'interface graphique affichant les presets d'une categorie choisie dans la fenetre pop-up
+// Argument : idCategorie - L'id d'une categorie dont on souhaite afficher les presets
+//
+function construireGUIPresetsDeCategoriePopUp(idCategorie) {
+
+	// Verifier si l'argument est valide
+	if(idCategorie === undefined)
+		return;
+
+	// Recuperer l'instance de la categorie
+	var laCategorie = getCategoriePresetsId(idCategorie);
+
+	// Verifier si la categorie a ete trouvee
+	if(laCategorie === undefined || laCategorie == -1)
+		return;
+
+	// var listePresetsCategorieChoisie = $("#listePresetsCategorieChoisie");	// Conteneur de la liste des presets droppables par categorie choisie
+	// var listePresetsCategorieChoisieTextDefaut = "#listePresetsCategorieChoisieTextDefaut";	// Texte affichable par defaut (a afficher/desafficher selon besoin)
+	// var titrePresetsDeCategorie = "#titrePresetsDeCategorie";	// Titre de la liste d'affichage des presets de la categorie choisie
+
+	// Reinitialiser la liste
+	listePresetsCategorieChoisie.empty();
+
+	// Recuperer les presets de la categorie
+	var tabPresets;
+	tabPresets = laCategorie.getPresets();
+
+	// Verifier si les elements ont ete recuperes correctement
+	var conteneur, identifiant, ENom, elementNom, elementNomModifiable, elementModification, elementSuppression;
+	if(tabPresets !== undefined){
+
+		// Ajouter une ligne pour chaque preset
+		for(var i=0; i< tabPresets.length; i++){
+
+			// Recuperer le nom de l'element
+			ENom = tabPresets[i].getNom();
+
+			// Creer un element conteneur
+			conteneur = $("<div></div>");
+
+			// Renseigner les attributs du conteneur
+			conteneur.attr('class', cssElementPreset);	// La classe identifiante du conteneur et de ses elements
+			identifiant = tabElements[j].getId() + '-' + tabPresets[i].getId();
+			conteneur.attr('id', identifiant);	// L'id identifiante
+
+			// Creation du champ de nom affichable
+			elementNom = $("<span></span>");
+
+			// Renseigner les attributs du champ nom
+			elementNom.attr('class', cssElementNomPreset);	// La classe identifiante de l'element contenant le nom
+			elementNom.text(ENom);	// Le nom qu'il presente
+
+			// Creation du champ de nom modifiable
+			elementNomModifiable = $("<input type='text'></input>");
+
+			// Renseigner les attributs du champ du nom modifiable
+			elementNomModifiable.attr('class', cssElementInputNomPreset); 
+			elementNomModifiable.val(ENom);
+			elementNomModifiable.css('display', 'none'); 	// Cacher l'element en temps normal
+
+			// Creation d'un element button de modification
+			elementModification = $("<button type='button'></button>");
+
+			// Renseigner les attributs du button modification
+			elementModification.attr('class',cssElementButtonModifierPreset);	// La classe identifiante de l'element contenant le button
+
+			// Ajouter l'icon
+			$(iconElementButtonModifier).appendTo(elementModification);
+
+			// Creation d'un element button de supression
+			elementSuppression = $("<button type='button'></button>");
+
+			// Renseigner les attributs du button supression
+			elementSuppression.attr('class',cssElementButtonSupprimerPreset);	// La classe identifiante de l'element contenant le button
+
+			// Ajouter l'icon
+			$(iconElementButtonSupprimer).appendTo(elementSuppression);
+
+			// Ajout les elements dans le conteneur
+			elementNom.appendTo(conteneur);
+			elementNomModifiable.appendTo(conteneur);
+			elementSuppression.appendTo(conteneur);
+			elementModification.appendTo(conteneur);
+
+			// Ajout dans la liste des categories
+			conteneur.appendTo(listePresetsCategorieChoisie);
+
+		}
+
+	}
 
 }
 
@@ -2547,7 +2863,7 @@ function restaurerJSPlumbBlocks() {
 		ajouterEndPoints(tabGBlocks[j]);
 
 	// Recuperer et recreer les liens jsPlumb de chaque instance de gBaseBlock
-	var gbp, tabSucc, srcId;
+	var gbp, tabSucc, srcId, elem, elemSucc;
 	var endpointsSrc, endpointSrc, endpointsTarget, endpointTarget;
 	for(var i=0; i<tabGBlocks.length; i++){
 
@@ -2557,8 +2873,11 @@ function restaurerJSPlumbBlocks() {
 		// Recuperer l'id du graphique
 		srcId = gbp.getId();
 
+		// Recuperer l'element
+		//elem = $("#"+srcId).get()[0];
+
 		// Recuperer les endpoints du source
-		endpointsSrc = jspInstance.getEndpoints(srcId);
+		endpointsSrc = jspInstance.getEndpoints(srcId);	//.getEndpoints(elem);
 
 		// Verifier quel endpoint est le point de sortie
 		if(endpointsSrc[0].isSource)
@@ -2574,8 +2893,11 @@ function restaurerJSPlumbBlocks() {
 			tabSucc = gbp.getSuccesseurs();
 			for(var j=0; j<tabSucc.length; j++){
 
+				// Recuperer l'element successif
+				//elemSucc = $("#"+tabSucc[j]).get()[0];
+
 				// Recuperer les endpoints du target
-				endpointsTarget = jspInstance.getEndpoints(tabSucc[j]);
+				endpointsTarget = jspInstance.getEndpoints(tabSucc[j]);	//.getEndpoints(elemSucc);
 
 				// Verifier quel endpoint est le point de rentree
 				if(endpointsTarget[0].isTarget)
@@ -2657,7 +2979,7 @@ function restaurergBaseBlocks() {
 		gbp.setDiv(graphique.get()[0]);
 
 		// Reconstruire l'image du graphique
-		constructImgBlock(type, graphique, gbp, 
+		constructImgBlock(type, graphique, gbp,
 			function() {
 
 				// --- jsPlumb ---
@@ -2756,9 +3078,6 @@ $(document).ready(function(){
 
 	}
 
-	// Initialiser les blocks de base
-	//initialiserVueBlocks();
-
 	// Indiquer la procedure a suivre en cas de changement de taille de la fenetre
 	$(window).resize(function(){
 
@@ -2794,7 +3113,7 @@ $(document).ready(function(){
 		var div = this;
 
 		// Recuperer le GBaseBlock
-		var gbp = getGBlockFromDiv(div);
+		var gbp = presetCourant.getGBlockFromDiv(div);
 
 		// Recuperer la nouvelle position (relative au conteneur)
 		var top = div.offsetTop; // var top = div.getBoundingClientRect().top;
@@ -3000,7 +3319,7 @@ jspInstance.ready(function() {
 	conteneurBlocks.delegate(".divBlockNormal", "dblclick", function() {//affichageBlocks
 
 		// Verifier si la div existe (corriger bug double demande, fonctionne sans car passe de on a delegate en d'hors du ready se trouvant dans ajouterBlock)
-		var pExiste = blockExiste(this);
+		var pExiste = presetCourant.blockExiste(this);
 
 		// Recuperer l'instance de la div
 		var tmpThis = this;
@@ -3013,7 +3332,7 @@ jspInstance.ready(function() {
 				if(result){
 
 					// Retirer le GBaseBlock
-					retirerGBB(tmpThis);
+					presetCourant.retirerGBB(tmpThis);
 
 					// Effacer la vue du conteneur des parametres
 					resetConteneurParametres();
@@ -3023,30 +3342,6 @@ jspInstance.ready(function() {
 			});
 
 	});
-
-	// Prendre en charge le zoom de la fenetre : https://jsplumbtoolkit.com/doc/zooming
-	// window.setZoom = function(zoom, instance, transformOrigin, el) {
-	//   transformOrigin = transformOrigin || [ 0.5, 0.5 ];
-	//   instance = instance || jspInstance;
-	//   el = el || instance.getContainer();
-	//   var p = [ "webkit", "moz", "ms", "o" ],
-	//       s = "scale(" + zoom + ")",
-	//       oString = (transformOrigin[0] * 100) + "% " + (transformOrigin[1] * 100) + "%";
-
-	//   for (var i = 0; i < p.length; i++) {
-	//     el.style[p[i] + "Transform"] = s;
-	//     el.style[p[i] + "TransformOrigin"] = oString;
-	//   }
-
-	//   el.style["transform"] = s;
-	//   el.style["transformOrigin"] = oString;
-
-	//   instance.setZoom(zoom);   
-	//   instance.repaintEverything(); 
-	// };
-
-
-
 
 });
 
@@ -3061,10 +3356,10 @@ function jspEventConnecion(connInfo, originalEvent) {
     //console.log(presetCourant.getGBlocks()[2].getDiv());
 
     // Recuperer le GBlock source
-    var GPS = getGBlockFromDiv(connInfo.source);
+    var GPS = presetCourant.getGBlockFromDiv(connInfo.source);
 
     // Recuperer le GBlock target
-    var GPT = getGBlockFromDiv(connInfo.target);
+    var GPT = presetCourant.getGBlockFromDiv(connInfo.target);
 
     // Ajouter le style fleche pour la connexion
     if(typeof(overlayStyle) !== 'undefined')
@@ -3099,7 +3394,7 @@ function jspEventClick(conn) {
 				var trg = conn.target;
 
 				// Retirer le lien respectif
-				retirerLienGBB(src, trg);
+				presetCourant.retirerLienGBB(src, trg);
 
 				// Supprimer la connexion
 				jspInstance.detach(conn);
@@ -3151,17 +3446,8 @@ $(affichageListePresets).on('click', '.'+lienPreset, function() {
 				// Indiquer le preset courant
 				presetCourant = preset;
 
-				// Reinitialiser l'affichage des blocks
-				reinitialiserAffichageBlocks();
-
-				// Reconstruire le graphique des gBaseBlocks
-				restaurergBaseBlocks();
-
-				// Reconstruire la structure jsPlumb
-				restaurerJSPlumbBlocks();
-
-				// Redimensionner les composants de la fenetre
-				redimensionnerConteneursFenetre();
+				// Restaurer la vue du preset
+				restaurerVuePreset();
 
 				// --- Modifier le style du lien --- //
 				// --------------------------------- //
@@ -3210,7 +3496,7 @@ $(listeChoixBlock).on('change', function() {
 
 	// Ajouter le block
 	//ajouterBlock(type);
-	creerGBaseBlock(type);
+	presetCourant.creerGBaseBlock(type);
 
 });
 
@@ -3240,10 +3526,13 @@ $(buttonNouveauPreset).on('click', function() {
 
 		// Regenerer l'affichage du preset
 		reinitialiserAffichageBlocks();
-		initialiserVueBlocks();
+		presetCourant.initialiserVueBlocks();
 
 		// Regenerer la liste des liens de la categorie choisie
 		relisterLiensPresets($(categorieChoix).get()[0]);
+
+		// Regenerer la liste des presets dans la fenetre pop-up
+		construireGUIPresetsPopUp();
 
 	}
 
@@ -3287,7 +3576,7 @@ $(buttonNouvelleCategorie).on('click', function() {
 	reinitialiserAffichageBlocks();
 
 	// Initialiser le preset 
-	initialiserVueBlocks();
+	presetCourant.initialiserVueBlocks();
 
 	// Restaurer les evenements de jsPlumb
 	restaurerEvenementsJSP();
@@ -3318,10 +3607,22 @@ $(buttonNouvelleCategorie).on('click', function() {
 
 });
 
+// --- Gestion evenement click sur un nom categorie (fenetre Pop-up)
+// --- Description : Gere l'affichage des presets d'une categorie (dans fenetre pop-up)
+//
+listeCategories.on('click', '.'+ cssElementNomCategorie, function() {
+
+
+	// var listePresetsCategorieChoisie = $("#listePresetsCategorieChoisie");	// Conteneur de la liste des presets droppables par categorie choisie
+	// var listePresetsCategorieChoisieTextDefaut = "#listePresetsCategorieChoisieTextDefaut";	// Texte affichable par defaut (a afficher/desafficher selon besoin)
+	// var titrePresetsDeCategorie = "#titrePresetsDeCategorie";	// Titre de la liste d'affichage des presets de la categorie choisie
+
+});
+
 // --- Gestion evenement click sur bouton supprimer categorie
 // --- Description : Gere la suppression d'une categorie
 //
-$("#listeCategories").on('click', '.'+cssElementButtonSupprimerCategorie, function() {
+listeCategories.on('click', '.'+cssElementButtonSupprimerCategorie, function() {
 
 	// Recuperer le conteneur
 	var divCategorie = $(this).parent('.'+cssElementCategorie);
@@ -3343,13 +3644,13 @@ $("#listeCategories").on('click', '.'+cssElementButtonSupprimerCategorie, functi
 				categorieCourante = CI[0];
 
 				// Recuperer un preset initial
-				if(CI[0].getPresets[0] !== undefined && CI[0].getPresets[0] instanceof Preset)
+				if(CI[0].getPresets()[0] !== undefined && CI[0].getPresets()[0] instanceof Preset)
 					// Rensigner le courant
-					presetCourant = CI[0].getPresets[0];
+					presetCourant = CI[0].getPresets()[0];
+
 			}
 
 		}
-
 
 	// Supprimer la categorie
 	supprimerCategoriePresets(idCategorie);
@@ -3361,19 +3662,19 @@ $("#listeCategories").on('click', '.'+cssElementButtonSupprimerCategorie, functi
 	var listeCategoriesChoix = $(categorieChoix);
 	relisterLiensPresets(listeCategoriesChoix.get()[0]);
 
+	// Restaurer la vue du preset
+	restaurerVuePreset();
+
 });
 
 
 // --- Gestion evenement click sur bouton modifier categorie
 // --- Description : Gere la modification d'une categorie
 //
-$("#listeCategories").on('click', '.'+cssElementButtonModifierCategorie, function() {
+listeCategories.on('click', '.'+cssElementButtonModifierCategorie, function() {
 
 	// Recuperer le conteneur
 	var divCategorie = $(this).parent('.'+cssElementCategorie);
-
-	// Recuperer l'id de la categorie
-	var idCategorie = divCategorie.get()[0].id;
 
 	// Recuperer la balise contenant le nom affichable
 	var baliseNomAffichable = divCategorie.find('.'+cssElementNomCategorie);
@@ -3391,7 +3692,7 @@ $("#listeCategories").on('click', '.'+cssElementButtonModifierCategorie, functio
 // --- Gestion evenement validation de modifier d'une categorie par le champ input
 // --- Description : Gere la modification reelle d'une categorie en validant l'input text
 //
-$("#listeCategories").on('keypress', '.'+cssElementInputNomCategorie, function(event) {
+listeCategories.on('keypress', '.'+cssElementInputNomCategorie, function(event) {
 
 	// Verifier si la touche est 'Enter'
 	if(event.which == 13 || event.keyCode == 13){
@@ -3508,9 +3809,191 @@ $(nomPresetModifiable).on('keypress', function(event) {
 
 		}
 
+		// Regenerer la liste des presets dans la fenetre pop-up
+		construireGUIPresetsPopUp();
+
 		// Changer la visibilite des balises
 		baliseNomAffichable.css('display', 'inline');
 		$(this).css('display', 'none');
+
+	}
+
+});
+
+// --- Gestion evenement click sur bouton supprimer preset
+// --- Description : Gere la suppression d'un preset
+//
+listePresetsGlobaux.on('click', '.'+cssElementButtonSupprimerPreset, function() {
+
+	// Recuperer le conteneur
+	var divPreset = $(this).parent('.'+cssElementPreset);
+
+	// Recuperer l'id (contient l'id de la categories et du preset)
+	var idRecup = divPreset.get()[0].id;
+
+	// Recuperer l'id de la categorie et du preset
+	var idCategorie = idRecup.split('-')[0];
+	var idPreset = idRecup.split('-')[1];
+
+	// Verifier si la categorie est la categorie courante
+	var categorieEstCourante = false, presetEstCourant = false;	// Pour pouvoir arranger la verification.
+	if(categorieCourante !== undefined && categorieCourante instanceof CategoriePresets)
+		if(categorieCourante.getId() == idCategorie){
+
+			// Indiquer que la categorie est courante
+			categorieEstCourante = true;
+
+			// Verifier si le preset est le preset courant
+			if(presetCourant !== undefined && presetCourant instanceof Preset)
+				if(presetCourant.getId() == idPreset)
+					// Indiquer que le preset est courant
+					presetEstCourant = true;
+
+		}
+
+
+	// Decider de l'action selon la recherche precedante
+	if(categorieEstCourante){
+
+		// Supprimer le preset
+		categorieCourante.supprimerPresetById(idPreset);
+
+		// Verifier si le preset est le courant
+		if(presetEstCourant){
+
+			// Recuperer l'instance de la categorie initiale
+			var CI = categoriesPresets;
+
+			// Verifier s'il existe
+			if(CI !== undefined && CI[0] !== undefined){
+
+				// Rensigner la categorie courante
+				categorieCourante = CI[0];
+
+				// Recuperer un preset initial
+				if(CI[0].getPresets()[0] !== undefined && CI[0].getPresets()[0] instanceof Preset)
+					// Rensigner le courant
+					presetCourant = CI[0].getPresets()[0];
+
+			}
+
+		}
+
+	}
+	else{
+
+		// Recuperer la categorie du preset
+		var categorieChoisie = getCategoriePresetsId(idCategorie);
+
+		// Verifier que la categorie a ete trouvee
+		if(categorieChoisie !== undefined && categorieChoisie != -1){
+
+			// Supprimer le preset
+			categorieChoisie.supprimerPresetById(idPreset);
+
+		}
+
+	}
+
+	// Regenerer la liste des presets dans la fenetre pop-up
+	construireGUIPresetsPopUp();
+
+	// Selectionner la 1ere categorie avant regeneration de la liste
+	var listeCategoriesChoix = $(categorieChoix);
+	$(categorieChoix + " option:first").prop('selected', 'selected');
+	listeCategoriesChoix.selectpicker('refresh');
+
+	// Regenerer la liste des liens de la categorie choisie
+	relisterLiensPresets(listeCategoriesChoix.get()[0]);
+
+	// Restaurer la vue du preset
+	restaurerVuePreset();
+
+});
+
+// --- Gestion evenement click sur bouton modifier nom preset
+// --- Description : Gere la modification d'un preset par le pop-up
+//
+listePresetsGlobaux.on('click', '.'+cssElementButtonModifierPreset, function() {
+
+	// Recuperer le conteneur
+	var divPreset = $(this).parent('.'+cssElementPreset);
+
+	// Recuperer la balise contenant le nom affichable
+	var baliseNomAffichable = divPreset.find('.'+cssElementNomPreset);
+
+	// Recuperer la balise contenant le nom modifiable
+	var baliseNomModifiable = divPreset.find('.'+cssElementInputNomPreset);
+
+	// Changer la visibilite des balises
+	baliseNomAffichable.css('display', 'none');
+	baliseNomModifiable.css('display', 'inline');
+	
+
+});
+
+// --- Gestion evenement validation de modifier d'un preset par le champ input (fenetre pop-up)
+// --- Description : Gere la modification reelle du nom d'un preset en validant l'input text dans la fenetre du pop-up
+//
+listePresetsGlobaux.on('keypress', '.'+cssElementInputNomPreset, function(event) {
+
+	// Verifier si la touche est 'Enter'
+	if(event.which == 13 || event.keyCode == 13){
+
+		// Recuperer le conteneur
+		var divPreset = $(this).parent('.'+cssElementPreset);
+
+		// Recuperer l'id de la categorie et du preset
+		var idRecup = divPreset.get()[0].id;
+		var idCategorie = idRecup.split('-')[0];
+		var idPreset = idRecup.split('-')[1];
+
+		// Recuperer la balise contenant le nom affichable
+		var baliseNomAffichable = divPreset.find('.'+cssElementNomPreset);
+
+		// Recuperer la balise contenant le nom modifiable
+		var baliseNomModifiable = divPreset.find('.'+cssElementInputNomPreset);
+
+		// Recuperer la categorie
+		var categorie = getCategoriePresetsId(idCategorie);
+
+		// Verifier si la categorie existe
+		if(categorie !== -1){
+
+			// Recuperer le preset
+			var preset = categorie.getPresetById(idPreset)
+
+			// Verifier si le preset existe
+			var nouveauNom;
+			if(preset !== -1){
+
+				// Recuperer le nouveau nom
+				nouveauNom = baliseNomModifiable.val();
+
+				// Verifier si le nom est valide
+				if(nouveauNom.length <=0)
+					nouveauNom = preset.getNom();
+
+				// Changer le nom de la categorie
+				preset.setNom(nouveauNom);
+
+				// Changer le nom affichable
+				baliseNomAffichable.text(nouveauNom);
+
+				// Regenerer la liste des presets dans la fenetre pop-up
+				construireGUIPresetsPopUp();
+
+				// Regenerer la liste des liens de la categorie choisie
+				var listeCategoriesChoix = $(categorieChoix);
+				relisterLiensPresets(listeCategoriesChoix.get()[0]);
+
+			}
+
+		}
+
+		// Changer la visibilite des balises
+		baliseNomAffichable.css('display', 'inline');
+		baliseNomModifiable.css('display', 'none');
 	}
 
 });
@@ -3533,7 +4016,7 @@ conteneurBlocks.delegate(".divBlockNormal", 'click', function() {
 	resetConteneurParametres();
 
 	// Recuperer le GBaseBlock associe
-	var gbp = getGBlockFromDiv(this);
+	var gbp = presetCourant.getGBlockFromDiv(this);
 
 	// Indiquer que le GBaseBlock block est celui dont on a clique (sert aux evenements sur les parametres)
 	gBlockCourant = gbp;
@@ -3621,7 +4104,7 @@ function definirBlock(type, gp){
 	// Verifier si la fonction associe a la creation existe
 	if (typeof window[nomFonctionCreationBlock + type] == 'function'){
 
-		//
+		// Construire le nom de la fonction a appeler selon le type souhaite
 		nomFonctionCreationBlock = nomFonctionCreationBlock + type;
 
 		// Indiquer console
@@ -3633,144 +4116,7 @@ function definirBlock(type, gp){
 
 }
 
-// --- Fonction creerGBaseBlock
-// --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
-// --- Arguments : type - Le nom du type de block a creer
-// 
-function creerGBaseBlock(type){
 
-	// Creer le block
-	var block = new Block(type);
-
-	// Creer une div d'affichage
-	var divBlock = $("<div></div>").attr('class','divBlock');
-
-	// Creer le graphique du block selon le type
-	var gBlock;
-
-	switch(type){
-
-		// --- S'il s'agit d'un block de debut
-		case nomPDeb :
-			gBlock = new GBlockDebut(divBlock.get()[0], block);
-			break;
-
-		// --- S'il s'agit d'un block de fin
-		case nomPFin :
-			gBlock = new GBlockFin(divBlock.get()[0], block);
-			break;
-
-		// --- S'il s'agit d'un block quelconque
-		default :
-			gBlock = new GBlock(divBlock.get()[0], block);
-
-	}
-
-	// Faire le lien entre le Block et le GBaseBlock respectif (pour la navigation)
-	gBlock.setAncre();
-
-	// Ajouter le CSS selon le type
-	switch(type){
-
-		// --- S'il s'agit d'un block de debut
-		case nomPDeb : 
-			divBlock.addClass('divBlockDeb');
-			break;
-
-		// --- S'il s'agit d'un block de fin
-		case nomPFin : 
-			divBlock.addClass('divBlockFin');
-			break;
-
-		// --- S'il s'agit d'un block normal
-		default :
-
-			// Ajouter le css normal
-			divBlock.addClass('divBlockNormal');
-
-	}
-
-	// Construire l'image de la div
-	var infoImg = constructImgBlock(type, divBlock, gBlock, 
-		function() {
-
-			// --- jsPlumb ---
-			// ---------------
-			jspInstance.ready(function() {
-
-				// Rendre le graphique draggable uniquement dans le conteneur
-				jspInstance.draggable($(".divBlock"), {
-					// Le conteneur
-					containment:conteneurBlocks
-				});
-
-				// Renseigner l'id au gBaseBlock
-				gBlock.setId(divBlock[0].id);
-
-				// Creer le GBaseBlock souhaite (structure des parametres)
-				definirBlock(type, gBlock);
-
-			});
-			// --- /jsPlumb ---
-			// ----------------
-
-			// Ajouter les endpoints au gBlock
-			ajouterEndPoints(gBlock);
-		}
-	);
-
-	// Ajouter la div dans l'affichage
-	divBlock.appendTo(conteneurBlocks);
-	
-	// --- jsPlumb ---
-	// ---------------
-	
-	// jspInstance.ready(function() {
-
-	// 	// Rendre le graphique draggable uniquement dans le conteneur
-	// 	jspInstance.draggable($(".divBlock"), {
-	// 	  containment:conteneurBlocks
-	// 	});
-
-	// 	// Ajouter les endpoints
-	// 	//ajouterEndPoints(gBlock);
-
-	// });
-
-	// --- /jsPlumb ---
-	// ----------------
-
-	// Indiquer la position initiale du gBaseBlock
-	// var top = divBlock.get()[0].getBoundingClientRect().top;
-	// var left = divBlock.get()[0].getBoundingClientRect().left;
-	
-	var top = divBlock.get()[0].top;
-	var left = divBlock.get()[0].left;
-
-	// var top = divBlock.outerHeight();
-	// var left = divBlock.outerWidth();
-
-	//var sectionBlocksHauteur = sectionBlocks.height();//sectionBlocks.get()[0].scrollHeight;
-	//var sectionBlocksLargeur = sectionBlocks.width();//sectionBlocks.get()[0].scrollWidth;
-	//.outerHeight() .outerWidth();
-
-
-	gBlock.setPosition(left, top);
-
-	// Ajouter le block a la liste
-	presetCourant.getGBlocks().push(gBlock);
-
-	// Renseigner le block courant
-	if(type != nomPDeb || type != nomPFin)
-		gBlockCourant = gBlock;
-
-	// Indiquer l'ajout du block
-	console.log("Block " + type + " cree");
-
-	// Retourner le gBlock cree
-	return gBlock;
-
-}
 
 // --- Fonction creerGBaseBlockGain
 // --- Description : Fonction permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
@@ -4268,4 +4614,77 @@ function isIE(){
 
 	// Renvoyer la valeur
 	return isIE;
+}
+
+// --- Fonction getIdLibre
+// --- Description : Fonction permettant de trouver un id non utilise, unique et le plus bas possible (Utilisation seulement pour des tableaux contenant un ensemble d'objets possedant la methode getId)
+// --- Argument : tab - tableau contenant les elements
+// 				  separateur - signe permettant de separer un id compose (OPTIONNEL MAIS PAS SANS ARGUMENT 3)
+// 				  idPrefix - le prefix de l'id de l'element dont on souhaite creer un id (OPTIONNEL MAIS PAS SANS ARGUMENT 2)
+//
+function getIdLibre(tab, separateur, idPrefix){
+
+	// Verifier si l'argument est valide
+	if(tab !== undefined){
+
+		// Verifier si les arguments optionnels sont corrects, sinon, envoyer un code d'erreur
+		if(separateur === undefined && idPrefix !== undefined || separateur !== undefined && idPrefix === undefined)
+			return -2;
+
+		// Recuperer les id et l'id le plus eleve
+		var idMax=0, tabIds = [], idRecup, idsSepares;
+		for(var i=0; i<tab.length; i++){
+
+			// Verifier si on utilise les arguments optionnels 
+			if(separateur === undefined)
+				// Recuperer l'id
+				idRecup = tab[i].getId();
+			else {
+
+				// Separer l'id
+				idsSepares = tab[i].getId().split(separateur);
+
+				//Verifier si le separateur est valide, sinon, envoyer un code d'erreur
+				if(idsSepares.length>1 && !isNaN(idsSepares[idsSepares.length-1]))
+					// Recuperer l'id 
+					idRecup = parseInt(idsSepares[idsSepares.length-1]);
+				else
+					return -3;
+
+			}
+
+			// Ajouter l'id dans le tableau des ids recuperes
+			tabIds.push(idRecup);
+
+			// Verifier si l'id est plus grand
+			if(idMax<idRecup)
+				idMax = idRecup;
+
+		}
+
+		// Chercher un id inferieur non existant
+		for(i=0; i<=idMax; i++){
+
+			// Verifier dans le tableau des id si l'element existe, sinon alors il est libre et on le renvoie
+			if(tabIds.indexOf(i) <= -1){
+				// Verifier si on utilise les arguments optionnels 
+				if(idPrefix === undefined)
+					return i;
+				else
+					return idPrefix+separateur+i;
+			}
+
+		}
+		
+		// Si aucun id libre et minimal a ete trouve, on renvoie un id incremente
+		if(idPrefix === undefined)
+			return i;
+		else
+			return idPrefix+separateur+i;
+
+	}
+	//Sinon, envoyer un code d'erreur
+	else
+		return -1;
+
 }

@@ -153,10 +153,9 @@
         <!-- Corps du pop-up -->
         <div class="modal-body">
           
-          <!-- Bootstrap grille conteneur-->
-          <div class="container-fluid">
-
-            <!-- Partie contenant la logique de creation des categories -->
+          <!-- Partie contenant la logique de creation des categories -->
+          <div class="container-fluid sousBarre">
+            
             <div class="row col-xs-6">
               <!-- Barre titre -->
               <div class="row">
@@ -169,6 +168,42 @@
               <!-- Liste des categories  -->
               <div id="listeCategories" class="row">
                 
+              </div>
+
+            </div>
+
+          </div>
+
+          <!--  Partie contenant la logique des presets intercategories -->
+          <div class="container-fluid espacementPartieHautBas">
+            
+            <!-- Partie comportant les presets globaux (output) -->
+            <div class="row col-xs-6">
+
+              <!-- Barre titre -->
+              <div class="row">
+                <span class="titrePopUp col-xs-12">Tous les presets</span> 
+              </div>
+
+              <!-- Liste globale des presets  -->
+              <div id="listePresetsGlobaux" class="row">
+                
+              </div>
+
+            </div>
+
+            <!-- Partie comportant les presets par categorie choisie (input) -->
+            <div class="row col-xs-offset-1 col-xs-5">
+
+              <!-- Barre titre -->
+              <div class="row">
+                <span class="titrePopUp col-xs-12">Preset de la catégorie</span> 
+              </div>
+
+              <!-- Liste globale des presets  -->
+              <div id="listePresetsCategorieChoisie" class="row">
+                <!-- Affichage par defaut -->
+                 <span id="listePresetsCategorieChoisieTextDefaut">Veuillez selectionner une catégorie</span>
               </div>
 
             </div>

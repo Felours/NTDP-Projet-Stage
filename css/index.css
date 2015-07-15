@@ -394,7 +394,7 @@ ul.dropdown-menu, ul.dropdown-menu li{
 	display: inline-block;
 	padding: 10px;
 	width: 100%;
-	max-height: 40%; /* Car on ne connait pas la hauteur totale, selon la liste des sets */
+	/*max-height: 40%;*/ /* Car on ne connait pas la hauteur totale, selon la liste des sets */
 }
 
 /* Partie contenant le titre et le button de la partie gestion */
@@ -421,7 +421,8 @@ select#categorieChoix {
 
 /* Liste d'affichage des sets d'une categorie choisie */
 #affichageListePresets {
-	overflow: auto;
+	max-height: 10vmax;
+	overflow-y: auto;
 }
 
 /* ---------------------- CSS du pop-up de management des categories ---------------------- */
@@ -430,6 +431,7 @@ select#categorieChoix {
 /* Sous-titre du pop-up*/
 .titrePopUp {
 	color: #757575;
+	font-weight: bolder;
 	transform: translateY(20%);
 }
 
@@ -495,30 +497,32 @@ button > span {
 	overflow-y: auto;
 }
 
-/* Conteneur des informations d'une categorie */
-.cssElementCategorie {
+/* Conteneur des informations d'une categorie. D'un preset */
+.cssElementCategorie, .cssElementPreset {
 
 	border-bottom: 1px solid black;
+	padding-top : 5px;
+	padding-bottom: 5px;
 	margin-bottom: 5px; 
 
 }
 
-
-/* Champ contenant le nom d'une categorie */
-.cssElementNomCategorie {
+/* Champ contenant le nom d'une categorie. D'un preset */
+.cssElementNomCategorie, .cssElementNomPreset {
 
 	color:grey;
+	cursor: pointer;
 
 }
 
-/* Button de modification du nom de la categorie*/
-.cssElementButtonModifierCategorie{
+/* Button de modification du nom de la categorie. D'un preset */
+.cssElementButtonModifierCategorie, .cssElementButtonModifierPreset{
 	float: right;
 	margin-left: 5px;
 }
 
-/* Button de supression du nom de la categorie*/
-.cssElementButtonSupprimerCategorie{
+/* Button de supression du nom de la categorie. D'un preset */
+.cssElementButtonSupprimerCategorie, .cssElementButtonSupprimerPreset{
 	float: right;
 	margin-left: 5px;
 }
@@ -535,5 +539,47 @@ button > span {
 
 /* Lien dans la liste des presets d'une categorie */
 #lienPreset {
+
+}
+
+/* CSS Ajoutant une sous barre et un espacement a une partie */
+.sousBarre {
+
+	padding-bottom: 2px;
+	margin-bottom: 3px;
+	border-bottom: 3px solid grey;
+
+}
+
+/* CSS permettant de faire un espacement horizontale d'une partie*/
+.espacementPartieHautBas {
+
+	padding: 3px;
+	padding-top: 5px;
+	padding-bottom: 7px;
+
+}
+
+/* Partie contenant les presets de tous les categories */
+#listePresetsGlobaux {
+
+	max-height: 10vmax;
+	overflow-y: auto;
+
+}
+
+/* Partie contenant les presets d'une categorie choisie */
+#listePresetsCategorieChoisie {
+
+	max-height: 10vmax;
+	overflow-y: auto;
+
+}
+
+/* Text affiche par defaut pour la partie contenant les presets d'une categorie choisie */
+#listePresetsCategorieChoisieTextDefaut {
+
+	display: block;	/* Lors qu'on selectionne, faire passer en display none */
+	margin-left: 5.4%;
 
 }
