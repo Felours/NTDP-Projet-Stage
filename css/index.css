@@ -497,18 +497,36 @@ button > span {
 	overflow-y: auto;
 }
 
-/* Conteneur des informations d'une categorie. D'un preset */
-.cssElementCategorie, .cssElementPreset {
+/* Conteneur des informations d'une categorie. D'un preset ou d'un preset issu d'une categorie */
+.cssElementCategorie, .cssElementPreset, .cssElementPresetCategorie, .cssElementPresetCategorieImporte {
 
 	border-bottom: 1px solid black;
 	padding-top : 5px;
 	padding-bottom: 5px;
-	margin-bottom: 5px; 
 
 }
 
-/* Champ contenant le nom d'une categorie. D'un preset */
-.cssElementNomCategorie, .cssElementNomPreset {
+/* Conteneur des informations d'un preset */
+.cssElementPreset {
+	cursor: move;
+}
+
+/* Conteneur des informations d'un preset issu d'une categorie */
+.cssElementPresetCategorie {
+
+	background-color: #BFE8E8;
+
+}
+
+/* Conteneur des informations d'un preset importe d'une categorie externe */
+.cssElementPresetCategorieImporte {
+
+	background-color: #99FF99;
+
+}
+
+/* Champ contenant le nom d'une categorie. D'un preset ou d'un preset issu d'une categorie */
+.cssElementNomCategorie, .cssElementNomPreset, .cssElementNomPresetCategorie {
 
 	color:grey;
 	cursor: pointer;
@@ -521,8 +539,8 @@ button > span {
 	margin-left: 5px;
 }
 
-/* Button de supression du nom de la categorie. D'un preset */
-.cssElementButtonSupprimerCategorie, .cssElementButtonSupprimerPreset{
+/* Button de supression du nom de la categorie. D'un preset ou d'un preset issu d'une categorie */
+.cssElementButtonSupprimerCategorie, .cssElementButtonSupprimerPreset, .cssElementButtonSupprimerPresetCategorie, .cssElementButtonSupprimerPresetCategorieImporte{
 	float: right;
 	margin-left: 5px;
 }
@@ -565,6 +583,7 @@ button > span {
 
 	max-height: 10vmax;
 	overflow-y: auto;
+	/*overflow-x: hidden;*/
 
 }
 
@@ -574,6 +593,11 @@ button > span {
 	max-height: 10vmax;
 	overflow-y: auto;
 
+}
+
+/* Espacer le dernier element */
+#listeCategories:last-child, #listePresetsGlobaux:last-child, #listePresetsCategorieChoisie:last-child {
+	margin-bottom: 5px; 
 }
 
 /* Text affiche par defaut pour la partie contenant les presets d'une categorie choisie */
