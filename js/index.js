@@ -112,12 +112,6 @@ function Preset(id, idCategorie){
 	this.getNom = function(){
 		return(this.m_nom);
 	};
-
-	// --- Methode getNom
-	// 
-	this.getNom = function(){
-		return(this.m_nom);
-	};
 	
 	// --- Methode setNom
 	// 
@@ -140,6 +134,7 @@ function Preset(id, idCategorie){
 	// --- Methode creerGBaseBlock
 	// --- Description : Methode permettant de creer une structure contenant un GBaseBlock et le block associe (avec tous les traitements)
 	// --- Arguments : type - Le nom du type de block a creer
+	// --- Return : gBaseBlock - une instance de la gBaseBlock creee
 	// 
 	this.creerGBaseBlock = function(type){
 
@@ -218,7 +213,7 @@ function Preset(id, idCategorie){
 					// Renseigner l'id au gBaseBlock
 					//gBlock.setId(divBlock[0].id);
 
-					// Creer le GBaseBlock souhaite (structure des parametres)
+					// Definir la structure interne du GBaseBlock souhaite (structure des parametres)
 					definirBlock(type, gBlock);
 
 				});
@@ -266,7 +261,8 @@ function Preset(id, idCategorie){
 	};
 
 	// --- Methode blockExiste
-	// Description : Indique si un block existe ou pas (selon la div)
+	// --- Description : Indique si un block existe ou pas (selon la div)
+	// -- Return : boolean
 	//
 	this.blockExiste = function(div){
 
@@ -290,22 +286,23 @@ function Preset(id, idCategorie){
 
 	// --- Methode getGBlockFromDiv
 	// --- Description : Recuperer le GBlock correspondant au div donne en parametre
+	// --- Return : Instance GBBlock
 	//
 	this.getGBlockFromDiv = function(div){
 
 		// Scanner les GBlocks existants
-		var GP, GPdiv;
+		var GPB, GBdiv;
 		for(var i=0; i<this.getGBlocks().length; i++){
 			
 			// Recuperer le GBlock
-			GP = this.getGBlocks()[i];
+			GPB = this.getGBlocks()[i];
 
 			// Recuperer la div du GBlock
-			GPdiv = GP.getDiv();
+			GBdiv = GPB.getDiv();
 
 			// Verifier si la div correspond
-			if(GPdiv === div){
-				return GP;
+			if(GBdiv === div){
+				return GPB;
 			}
 		}
 
@@ -315,7 +312,8 @@ function Preset(id, idCategorie){
 	};
 
 	// --- Methode getGBlockFromId()
-	// Description : Recupere un GBaseBlock par son id
+	// --- Description : Recupere un GBaseBlock par son id
+	// --- Return : Instance GBBlock
 	//
 	this.getGBlockFromId = function(id){
 
@@ -394,14 +392,6 @@ function Preset(id, idCategorie){
 		
 		// Retirer les connexions visuelles
 		jspInstance.detachAllConnections($(div));
-		// var ep = jspInstance.getEndpoints($(div));
-		// console.log(ep[0]);
-		// for(i=0; i<ep.length; i++){
-		// 	ep[i]._doNotDeleteOnDetach = false;
-		// 	console.log(ep[i]._doNotDeleteOnDetach);
-		// 	jspInstance.detach(ep[i]);
-		// 	jspInstance.deleteEndpoint(ep[i]);
-		// }
 		jspInstance.removeAllEndpoints($(div));	
 		jspInstance.detach($(div));
 		jspInstance.remove(div);	// Important pour retirer completement de l'instance de jsPlumb!!
@@ -563,7 +553,7 @@ function CategoriePresets(id){
 
 	};
 
-	// --- Methode supprimerPreset (TODO)
+	// --- Methode supprimerPreset
 	// 
 	this.supprimerPresetById = function(idPreset){
 
@@ -576,14 +566,7 @@ function CategoriePresets(id){
 				this.m_presets.splice(i, 1);
 
 		}
-
-		// // Trouver l'indice du parametre
-		// var index = this.m_presets.indexOf(preset);
-	
-		// // Si trouve, retirer de la liste
-		// if (index > -1) {
-  //   		this.m_presets.splice(index, 1);
-		// }
+		
 	};
 
 	// --- Methode ajouterPresetImporte
@@ -645,7 +628,7 @@ function Block(type){
 	// --- Attributs
 	// 
 	this.m_type = type;	// Type de block (nom)
-	this.m_actif = true;	// Block actif ou non
+	this.m_actif = true;	// Block actif ou non (TODO : activer ou desactiver le block par l'interface)
 	this.m_parametres = []; // Liste des parametres du block
 	var m_ancre;		// Lien vers le GBaseBlock
 
@@ -2379,14 +2362,12 @@ function ajouterEndPoints(GBBlock){
 
 // --- Fonction initialiserStructure
 // --- Description : Initialiser l'application
+// --- Retour : categorie - l'instance de la categorie creee
 //
 function initialiserStructure(){
 
-	// Creer une categorie initiale (non modifiable et non suprimable)
+	// Creer une categorie initiale (non modifiable et non supprimable)
 	var categoriePresets = creerCategoriePresets();
-
-	// Modifier le nom de la categorie
-	categoriesPresets[0].setNom(nomCategorieInitiale);
 
 	// Creer un preset a la categorie
 	var preset = categoriePresets.creerPreset();
@@ -2404,6 +2385,9 @@ function initialiserStructure(){
 
 	// Initialiser les blocks
 	presetCourant.initialiserVueBlocks();
+
+	// Renvoyer l'instance de la catagorie creee
+	return categoriePresets;
 
 }
 
@@ -3168,7 +3152,7 @@ $(document).ready(function(){
 	$("#sectionGenerale").css('width', largeurEcran);
 
 	// Verifier si l'application a deja ete initialisee
-	//localStorage.clear();categoriesPresets = [];
+	localStorage.clear();categoriesPresets = [];		// Commenter/decommenter en cas de tests, pour nettoyer la sauvegarde
 	if(localStorage !== undefined && localStorage.categoriesPresets !== undefined && localStorage.categoriesPresets.length >0){
 
 		// Restaurer l'etat de l'application
@@ -3181,6 +3165,9 @@ $(document).ready(function(){
 
 		// Initialiser l'application
 		initialiserStructure();
+
+		// Modifier le nom de la categorie
+		categoriesPresets[0].setNom(nomCategorieInitiale);
 
 		// Renseigner les valeurs affichables des lists du GUI gestion
 		construireGUIGestion();
@@ -3203,19 +3190,6 @@ $(document).ready(function(){
 		redimensionnerComposantsApplication();
 	});
 
-	// Mettre a jour la position du GBlock
-	// $(".divBlock").droppable({
-
-	// 	drop: function (event, ui) {
- //            console.log("La position : " + ui.position);  //ui.position.left and ui.position.top
- //        }
-
-	// });
-
-	
-	// $(".divBlock").on( "mouseup", function(){
-	// 	console.log("YEAH");
-	// });
 
 	// --- Evenement drop d'un gBlock
 	// 
@@ -3308,8 +3282,11 @@ $(document).ready(function(){
 				// Ajouter le preset 
 				categorieChoisie.ajouterPresetImporte(idCategorie, idPreset);
 
-				// Regenerer la vue
+				// Regenerer la vue de la fenetre pop-up
 				construireGUIPresetsDeCategoriePopUp(idCategorieChoisie);
+
+				// Regenerer la liste des liens de la categorie choisie
+				relisterLiensPresets($(categorieChoix).get()[0]);
 
 			}
 
@@ -3384,6 +3361,69 @@ function relisterLiensPresets(liste) {
 
 			// Ajouter le tout a la liste affichee
 			conteneurListePresets.append(conteneurLien);
+
+		}
+
+		// Recuperer la liste des presets importes
+		listePresets = categorie.getPresetsImportes();
+
+		// Ajouter les presets importes dans le conteneur
+		var idCategorieImportee, idPresetImporte, categorieImportee, presetImporte, numLien;
+		for(var j=0; j< listePresets.length; j++){
+
+			// Recuperer l'id de la categorie importee
+			idCategorieImportee = listePresets[j][0];
+
+			// Recuperer l'id du preset importe
+			idPresetImporte = listePresets[j][1];
+
+			// Tenter de recuperer la categorie
+			categorieImportee = getCategoriePresetsId(idCategorieImportee);
+
+			// Verifier si la categorie a ete recuperee
+			if(categorieImportee !== undefined || categorieImportee != -1){
+
+				// Tenter de recuperer le preset importe
+				presetImporte = categorieImportee.getPresetById(idPresetImporte);
+
+				// Verifier si le preset a ete recupere
+				if(presetImporte !== undefined || presetImporte != -1){
+
+					// Recuperer le nom du preset
+					nomPreset = presetImporte.getNom();
+
+					// Creer le conteneur
+					conteneurLien = $("<div></div>");
+
+					// Renseigner les attributs du conteneur
+					conteneurLien.attr('class', conteneurLienPreset);
+
+					// Calculer le numero du lien dans la liste
+					numLien = i + parseInt(j);
+
+					// Creer le numero du lien
+					numeroLien = $("<span>" + numLien + ".</span>");
+
+					// Renseigner les attributs du numero
+					numeroLien.attr('class', numeroLienPreset);
+
+					// Ajouter le lien representant le preset
+					lienSelectionPreset = $("<a>" + nomPreset + "</a>");
+
+					// Renseigner les attributs du lien
+					lienSelectionPreset.attr('id', idCategorieImportee+'-'+idPresetImporte+'-num'+numLien);
+					lienSelectionPreset.attr('class', lienPreset);
+
+					// Ajouter le numero et le lien au conteneur
+					numeroLien.appendTo(conteneurLien);
+					lienSelectionPreset.appendTo(conteneurLien);
+
+					// Ajouter le tout a la liste affichee
+					conteneurListePresets.append(conteneurLien);
+
+				}
+
+			}
 
 		}
 		
@@ -3595,7 +3635,12 @@ $(affichageListePresets).on('click', '.'+lienPreset, function() {
 			categorieChoisie = getCategoriePresetsId(idCat);
 
 		// Verifier si la categorie a ete trouvee
+		var categorieCouranteTmp;
 		if(categorieChoisie !== undefined || categorieChoisie != -1){
+
+			// Indiquer que la categorie courante est la categorie choisie et temporiser la courante en cas de preset non existant
+			categorieCouranteTmp = categorieCourante;
+			categorieCourante = categorieChoisie;
 
 			// Recuperer le preset de la categorie courante
 			var preset = categorieCourante.getPresetById(idPres);
@@ -3639,6 +3684,9 @@ $(affichageListePresets).on('click', '.'+lienPreset, function() {
 				$(nomPresetModifiable).val(nomPresetChoisi);
 
 			}
+			// En cas d'un preset non existant, recuperer l'ancienne categorie courante 
+			else
+				categorieCourante = categorieCouranteTmp;
 
 		}
 		
@@ -3724,21 +3772,24 @@ $(boutonRestaurer).on('click', function() {
 //
 $(buttonNouvelleCategorie).on('click', function() {
 
-	// Creer une nouvelle categorie
-	var cp = creerCategoriePresets();
-
-	// Creer un preset a la categorie
-	var preset = cp.creerPreset();
-
-	// Indiquer les elements courants (TOTO : MODIFIER APRES RELOCALISATION DES FONCTIONS CONCERNANT LES PRESETS DANS LA CLASSE PRESET)
-	categorieCourante = cp;
-	presetCourant = preset;
-
 	// Reinitialiser l'affichage des blocks
 	reinitialiserAffichageBlocks();
 
-	// Initialiser le preset 
-	presetCourant.initialiserVueBlocks();
+	// Initialiser la categorie a creer
+	var cp = initialiserStructure();
+
+	// // Creer une nouvelle categorie
+	// var cp = creerCategoriePresets();
+
+	// // Creer un preset a la categorie
+	// var preset = cp.creerPreset();
+
+	// // Indiquer les elements courants (TOTO : MODIFIER APRES RELOCALISATION DES FONCTIONS CONCERNANT LES PRESETS DANS LA CLASSE PRESET)
+	// categorieCourante = cp;
+	// presetCourant = preset;
+
+	// // Initialiser le preset 
+	// presetCourant.initialiserVueBlocks();
 
 	// Restaurer les evenements de jsPlumb
 	restaurerEvenementsJSP();
@@ -3773,20 +3824,6 @@ $(buttonNouvelleCategorie).on('click', function() {
 // --- Description : Gere l'affichage des presets d'une categorie (dans fenetre pop-up)
 //
 listeCategories.on('click', '.'+ cssElementNomCategorie, function() {
-
-
-	// var listePresetsCategorieChoisie = $("#listePresetsCategorieChoisie");	// Conteneur de la liste des presets droppables par categorie choisie
-	// var cssElementButtonSupprimerPresetCategorie = "cssElementButtonSupprimerPresetCategorie";	// Class CSS pour identifier l'element de suppression d'un Preset issu d'une categorie dans la GUI
-	// var cssElementPresetCategorie = "cssElementPresetCategorie";	// Class CSS pour identifier un prest d'une categorie dans le GUI
-	// var cssElementPresetCategorieImporte = "cssElementPresetCategorieImporte";	// Class CSS pour identifier un prest importe d'une categorie externe dans le GUI
-	// var cssElementNomPresetCategorie = "cssElementNomPresetCategorie";	// Class CSS pour identifier l'element contenant le nom affichable d'un preset issu d'une categorie dans le GUI
-	// var listePresetsCategorieChoisieTextDefaut = "#listePresetsCategorieChoisieTextDefaut";	// Texte affichable par defaut (a afficher/desafficher selon besoin)
-	// var titrePresetsDeCategorie = "#titrePresetsDeCategorie";	// Titre de la liste d'affichage des presets de la categorie choisie
-	// var contenuTitrePresetsDeCategorie = "Presets de la catégorie";	// Titre affiche dans la page (associe a titrePresetsDeCategorie)
-
-
-	// var iconElementButtonModifier = "<span class='glyphicon glyphicon-pencil'></span>";	// Icon de modification
-	// var iconElementButtonSupprimer = "<span class='glyphicon glyphicon-remove'></span>";	// Icon de supression
 	
 	// Recuperer le conteneur
 	var divCategorie = $(this).parent('.'+cssElementCategorie);
@@ -3909,8 +3946,11 @@ listeCategories.on('keypress', '.'+cssElementInputNomCategorie, function(event) 
 			// Changer le nom affichable
 			baliseNomAffichable.text(nouveauNom);
 
-			// Reconstruire le GUI
-			construireGUIGestion();
+			// Regenerer la liste des choix de la categorie et les liens des presets si la categorie selectionnee correspond
+			regenererCategorieChoixSelonCategorieCorrespondants(idCategorie);
+
+			// Reinitialiser l'affichage des presets d'une categorie dans le pop-up (au cas ou elle n'est pas vide)
+			reinitialiserGUIAffichagePresetsCategorie();
 
 		}
 
@@ -3994,6 +4034,10 @@ $(nomPresetModifiable).on('keypress', function(event) {
 
 		// Reinitialiser l'affichage des presets d'une categorie dans le pop-up (au cas ou elle n'est pas vide)
 		reinitialiserGUIAffichagePresetsCategorie();
+
+		// Regenerer l'affichage de la liste des categories a selectionner et les liens
+		regenererCategorieChoixSelonCategorieCorrespondants();
+		relisterLiensPresets($(categorieChoix).get()[0]);
 
 		// Changer la visibilite des balises
 		baliseNomAffichable.css('display', 'inline');
@@ -4162,9 +4206,6 @@ listePresetsCategorieChoisie.on('click', '.'+cssElementButtonSupprimerPresetCate
 	// Retirer le lien du preset importe et arrnger les vues
 	categorieChoisie.retirerPresetImporte(idCategorie, idPreset);
 
-	// Reinitialiser l'affichage des presets d'une categorie dans le pop-up (au cas ou elle n'est pas vide)
-	reinitialiserGUIAffichagePresetsCategorie();
-
 
 	/** RECONSTRUCTION VISUELLE DU PRESET DANS LE CAS OU LE PRESET ENLEVE EST COURRAMENT AFFICHE **/
 	/**********************************************************************************************/
@@ -4208,14 +4249,6 @@ listePresetsCategorieChoisie.on('click', '.'+cssElementButtonSupprimerPresetCate
 
 			}
 
-			// Selectionner la 1ere categorie avant regeneration de la liste
-			var listeCategoriesChoix = $(categorieChoix);
-			$(categorieChoix + " option:first").prop('selected', 'selected');
-			listeCategoriesChoix.selectpicker('refresh');
-
-			// Regenerer la liste des liens de la categorie choisie
-			relisterLiensPresets(listeCategoriesChoix.get()[0]);
-
 			// Restaurer la vue du preset
 			restaurerVuePreset();
 
@@ -4223,7 +4256,47 @@ listePresetsCategorieChoisie.on('click', '.'+cssElementButtonSupprimerPresetCate
 
 	}
 
+	// Regenerer la liste des choix de la categorie et les liens des presets si la categorie selectionnee correspond
+	regenererCategorieChoixSelonCategorieCorrespondants(idCategorieChoisie);
+
+	// Reinitialiser l'affichage des presets d'une categorie dans le pop-up (au cas ou elle n'est pas vide)
+	reinitialiserGUIAffichagePresetsCategorie();
+
 });
+
+// --- Fonction regenererCategorieChoixSelonCategorieCorrespondants
+// --- Description : Permet de regenerer la liste des choix des categories selon si l'id de la categorie correspond a celui selectionne dans la liste
+// --- Argument : idCategorieAComparer - L'id de la categorie a comparer pour le listage
+//
+function regenererCategorieChoixSelonCategorieCorrespondants(idCategorieAComparer){
+
+	// Recuperer l'id de la categorie selectionnee dans la liste (pour la verification de generation de la liste)
+	var idCategorieSelectionnee = $(categorieChoix + " option:selected").attr('value'); 
+
+	// Verifier si la categorie a modifier est celle qui est selectionnee dans la liste
+	if(idCategorieAComparer == idCategorieSelectionnee){
+
+		// Reconstruire le GUI
+		construireGUIGestion();
+
+		// Regenerer la liste des liens de la categorie choisie
+		relisterLiensPresets($(categorieChoix).get()[0]);
+
+	}
+	// Generer juste la liste et l'affichage des presets dans le cas contraire
+	else {
+
+		// Regenerer la liste de la selection des presets
+		construireGUISelection();
+
+		// Repointer vers la categorie
+		var listeCategoriesChoix = $(categorieChoix);
+		$(categorieChoix + " option[value='" + idCategorieSelectionnee + "']").prop('selected', 'selected');
+		listeCategoriesChoix.selectpicker('refresh');
+
+	}
+
+}
 
 // --- Gestion evenement click sur bouton modifier nom preset
 // --- Description : Gere la modification d'un preset par le pop-up
