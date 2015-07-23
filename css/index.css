@@ -1,4 +1,4 @@
-/* ---------------------- CSS global ---------------------- */
+﻿/* ---------------------- CSS global ---------------------- */
 /* -------------------------------------------------------- */
 
 /* Enlever les espaces autour de la fenetre*/
@@ -590,6 +590,7 @@ button > span {
 /* Partie contenant les presets d'une categorie choisie */
 #listePresetsCategorieChoisie {
 
+	min-height: 2vmax;
 	max-height: 10vmax;
 	overflow-y: auto;
 
